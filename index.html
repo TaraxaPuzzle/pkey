@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Taraxa Puzzle</title>
-	<link rel="icon" type="image/png" href="favicon.png.png" />
+  <link rel="icon" type="image/png" href="favicon.png.png" />
   <style>
     :root {
       --primary-color: #0e101a;
@@ -46,13 +46,20 @@
       position: relative;
     }
 	
-    .logo {
-      position: absolute;
-      top: 0px;
-      right: 0px;
-      height: 160px;
-      width: auto;
-    }
+   .logo {
+  width: 120px; /* or any size you prefer */
+  height: auto;
+  display: inline-block;
+  margin: 0; /* center it horizontally */
+  padding: 0;
+   cursor: pointer;
+}
+
+a {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
 
     header h2 {
       font-size: 1.7rem;
@@ -253,6 +260,9 @@
 </head>
 <body>
   <header>
+  <a href="https://fomo.biz/token/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A" target="_blank">
+  <img src="logo.png" alt="PuzzleKey Logo" class="logo">
+  </a>
     <h2>🔐 TARAXA PUZZLES (132)</h2>
     <div class="tagline">Welcome to the Taraxa Puzzle Challenge!<br />
       Each puzzle hides a fragment of a private key.<br />

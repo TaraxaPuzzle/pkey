@@ -6,256 +6,248 @@
   <title>Taraxa Puzzle</title>
   <link rel="icon" type="image/png" href="favicon.png.png" />
   <style>
-    :root {
-      --primary-color: #0e101a;
-      --accent-color: #00d1ff;
-      --gradient: linear-gradient(135deg, #0e101a 0%, #141727 50%, #00d1ff 100%);
-      --text-color: #e8f0f8;
-      --font-family: 'Inter', sans-serif;
-      --arrow-bg: rgba(0, 209, 255, 0.1);
-      --arrow-hover: rgba(0, 209, 255, 0.3);
-    }
+:root {
+  --primary-color: #0e101a;
+  --accent-color: #00d1ff;
+  --gradient: linear-gradient(135deg, #0e101a 0%, #141727 50%, #00d1ff 100%);
+  --text-color: #e8f0f8;
+  --font-family: 'Inter', sans-serif;
+  --arrow-bg: rgba(0, 209, 255, 0.1);
+  --arrow-hover: rgba(0, 209, 255, 0.3);
+}
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    html, body {
-      height: 100%;
-      font-family: var(--font-family);
-      background: var(--gradient);
-      color: var(--text-color);
-      line-height: 1.6;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+html, body {
+  height: 100%;
+  font-family: var(--font-family);
+  background: var(--gradient);
+  color: var(--text-color);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 
-    header {
-      position: sticky;
-      top: 0;
-      background: #0b0d16;
-      color: white;
-      padding: 20px 10px;
-      text-align: center;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-      z-index: 1000;
-      position: relative;
-    }
-	
-   .logo {
-  width: 120px; /* or any size you prefer */
+body > .carousel-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  background: #0b0d16;
+  color: white;
+  padding: 20px 10px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
+
+.logo {
+  width: 120px;
   height: auto;
   display: inline-block;
-  margin: 0; /* center it horizontally */
+  margin: 0;
   padding: 0;
-   cursor: pointer;
+  cursor: pointer;
 }
 
 a {
   display: inline-block;
   margin: 0;
   padding: 0;
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-    header h2 {
-      font-size: 1.7rem;
-      font-weight: 700;
-      color: var(--accent-color);
-      margin-bottom: 5px;
-    }
+a:hover {
+  color: #ffffff;
+}
 
-    .tagline {
-      font-size: 0.95rem;
-      color: #ccc;
-    }
+header h2 {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 5px;
+}
 
-    .carousel-container {
-      max-width: 700px;
-      margin: 40px auto 20px;
-      padding: 0 20px;
-      position: relative;
-      flex: 1 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
+.tagline {
+  font-size: 0.95rem;
+  color: #ccc;
+}
 
-    .carousel-content {
-      width: 100%;
-      max-width: 640px;
-    }
+.carousel-container {
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 0 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
 
-    #puzzle-counter {
-      text-align: center;
-      margin-bottom: 12px;
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: var(--accent-color);
-      user-select: none;
-    }
+#puzzle-counter {
+  text-align: center;
+  margin: 10px 0 20px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--accent-color);
+  user-select: none;
+}
 
-    .puzzle-box {
-      height: 400px;
-      max-width: 80vw;
-      margin: 0 auto 30px;
-      overflow-y: auto;
-      background-color: #ffffff10;
-      backdrop-filter: blur(12px);
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      padding: 30px;
-      font-size: 1rem;
-      color: #fff;
-      overflow-wrap: break-word;
-      word-break: break-word;
-      display: none;
-      box-sizing: border-box;
-      width: 100%;
-    }
+.carousel-content {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  gap: 20px;
+  padding: 10px;
+}
 
-    .puzzle-box.active {
-      display: block;
-      margin: 30px auto;
-    }
+.puzzle-box {
+  min-height: 400px;
+  max-height: 600px;
+  max-width: 80vw;
+  margin: 0 auto 30px;
+  overflow-y: auto;
+  background-color: #ffffff10;
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+  font-size: 1rem;
+  color: #fff;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  display: none;
+  box-sizing: border-box;
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+}
 
-    .puzzle-box h1 {
-      font-size: 1.4rem;
-      margin-bottom: 10px;
-    }
+.puzzle-box.active {
+  display: block;
+}
 
-    .puzzle-box p {
-      margin: 10px 0;
-    }
+.puzzle-box h1 {
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
 
-    a {
-      color: var(--accent-color);
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
+.puzzle-box p {
+  margin: 10px 0;
+}
 
-    a:hover {
-      color: #ffffff;
-    }
+.arrow {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  background: transparent;
+  border: none;
+  padding: 0 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.3s ease;
+}
 
-    .arrow {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--accent-color);
-      background: transparent;
-      border: none;
-      padding: 0 8px;
-      cursor: pointer;
-      user-select: none;
-      transition: color 0.3s ease;
-    }
+.arrow:hover {
+  color: #ffffff;
+}
 
-    .arrow:hover {
-      color: #ffffff;
-    }
+.left-arrow {
+  order: 0;
+}
 
-    .left-arrow {
-      order: 0;
-    }
+.right-arrow {
+  order: 2;
+}
 
-    .right-arrow {
-      order: 2;
-    }
+.footer-container {
+  flex-shrink: 0;
+  background: #0b0d16;
+  color: #aaa;
+  padding: 15px 10px;
+  text-align: center;
+  font-size: 0.85rem;
+  user-select: none;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+}
 
-    .footer-container {
-      flex-shrink: 0;
-      background: #0b0d16;
-      color: #aaa;
-      padding: 15px 10px;
-      text-align: center;
-      font-size: 0.85rem;
-      user-select: none;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.4);
-    }
+.footer-container a {
+  color: var(--accent-color);
+  text-decoration: none;
+  margin: 0 5px;
+}
 
-    .footer-container a {
-      color: var(--accent-color);
-      text-decoration: none;
-      margin: 0 5px;
-    }
+.footer-container a:hover {
+  text-decoration: underline;
+}
 
-    .footer-container a:hover {
-      text-decoration: underline;
-    }
+.x-link svg {
+  width: 22px;
+  height: 22px;
+  fill: var(--accent-color);
+  transition: fill 0.3s;
+  vertical-align: middle;
+}
 
-    .x-link svg {
-      width: 22px;
-      height: 22px;
-      fill: var(--accent-color);
-      transition: fill 0.3s;
-      vertical-align: middle;
-    }
+.x-link:hover svg {
+  fill: white;
+}
 
-    .x-link:hover svg {
-      fill: white;
-    }
+@media (max-width: 768px) {
+  .arrow {
+    display: none !important;
+  }
 
-    @media (max-width: 600px) {
-      .puzzle-box {
-        font-size: 0.95rem;
-        padding: 24px;
-        height: 320px;
-        max-width: 100vw;
-        margin: 0;
-        border-radius: 0;
-        box-shadow: none;
-      }
+  .carousel-content {
+    padding: 10px;
+  }
 
-      .arrow {
-        font-size: 1.8rem;
-        width: 40px;
-        height: 40px;
-      }
+  .puzzle-box {
+    font-size: 0.95rem;
+    padding: 20px;
+    min-height: 320px;
+    max-height: 500px;
+    height: auto;
+    max-width: 90vw;
+    scroll-snap-align: start;
+    flex: 0 0 90vw;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    display: block;
+  }
 
-      .carousel-container {
-        max-width: 100%;
-        margin: 20px 0;
-        padding: 0 0;
-      }
-      
-      @media (max-width: 768px) {
-        .arrow {
-          display: none !important;
-        }
+  #puzzle-counter {
+    margin: 10px 0 20px;
+    font-size: 1rem;
+  }
 
-        .carousel-content {
-          display: flex;
-          overflow-x: auto;
-          scroll-snap-type: x mandatory;
-          -webkit-overflow-scrolling: touch;
-          gap: 20px;
-          padding: 10px;
-        }
+  .carousel-container {
+    max-width: 100%;
+    margin: 20px 0;
+    padding: 0;
+  }
+}
 
-        .puzzle-box {
-          scroll-snap-align: start;
-          flex: 0 0 90vw;
-          max-width: 90vw;
-          margin: 0;
-          height: auto;
-          padding: 20px;
-          display: block;
-        }
 
-        #puzzle-counter {
-          text-align: center;
-          font-weight: 600;
-          font-size: 1rem;
-          color: var(--accent-color);
-          user-select: none;
-          margin-bottom: 10px;
-        }
-      }
-    }
   </style>
 </head>
 <body>
@@ -274,7 +266,7 @@ a {
       <div class="puzzle-box">
         <h1>🧩 Taraxa Puzzle #1</h1>
         <p>Solve this to find the private key:</p>
-		<p>41100+1029905+5984910+10361939+7758299+9670018+4780081+14749272+9704383+14173074+13629956</p>
+		<p>41100+1029905+5984910+10361939+7758299+9670018<br>+4780081+14749272+9704383+14173074+13629956</p>
         <p>💰 10 $TARA in Wallet1</p>
         <p>
           <a href="https://mainnet.explorer.taraxa.io/address/0xf708499a2e3214f1c7bb5f5546b4d2cc3c5d2ed5" target="_blank" rel="noopener noreferrer">

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Taraxa Puzzle Quest</title>
+  <link rel="icon" href="favicon.png.png" type="image/png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary-color: #0e101a;
+      --accent-color: #00d1ff;
+      --gradient: linear-gradient(135deg, #0e101a 0%, #141727 50%, #00d1ff 100%);
+      --text-color: #e8f0f8;
+      --font-family: 'Inter', sans-serif;
+      --arrow-bg: rgba(0, 209, 255, 0.1);
+      --arrow-hover: rgba(0, 209, 255, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font-family);
+      background: var(--gradient);
+      color: var(--text-color);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background: #0b0d16;
+      color: white;
+      padding: 20px 10px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+    }
+
+    header h2 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      margin-bottom: 5px;
+    }
+
+    .tagline {
+      font-size: 0.95rem;
+      color: #ccc;
+    }
+
+    .carousel-container {
+      max-width: 700px;
+      margin: 40px auto 20px;
+      padding: 0 20px;
+      position: relative;
+      flex: 1 0 auto; /* allow to grow, avoid pushing footer */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .carousel-content {
+      width: 100%;
+      max-width: 640px;
+    }
+
+    #puzzle-counter {
+      text-align: center;
+      margin-bottom: 12px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--accent-color);
+      user-select: none;
+    }
+
+    .puzzle-box {
+      height: 400px; /* increased height to avoid scrollbar */
+      overflow-y: visible;
+      background-color: #ffffff10;
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      padding: 30px;
+      font-size: 1rem;
+      color: #fff;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      display: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .puzzle-box.active {
+      display: block;
+      margin: auto 0;
+    }
+
+    .puzzle-box h1 {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
+
+    .puzzle-box p {
+      margin: 10px 0;
+    }
+
+    a {
+      color: var(--accent-color);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    a:hover {
+      color: #ffffff;
+    }
+
+    .arrow {
+      position: relative;
+      top: auto;
+      transform: none;
+      font-size: 2.2rem;
+      background: var(--arrow-bg);
+      border: 1px solid var(--accent-color);
+      border-radius: 50%;
+      color: var(--accent-color);
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.2s ease;
+      user-select: none;
+      pointer-events: auto;
+      flex-shrink: 0;
+    }
+
+    .arrow:hover {
+      background: var(--arrow-hover);
+      transform: scale(1.1);
+    }
+
+    .left-arrow {
+      order: 0;
+    }
+
+    .right-arrow {
+      order: 2;
+    }
+
+    .footer-container {
+      flex-shrink: 0;
+      background: #0b0d16;
+      color: #aaa;
+      padding: 15px 10px;
+      text-align: center;
+      font-size: 0.85rem;
+      user-select: none;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.4);
+    }
+
+    .footer-container a {
+      color: var(--accent-color);
+      text-decoration: none;
+      margin: 0 5px;
+    }
+
+    .footer-container a:hover {
+      text-decoration: underline;
+    }
+
+    .x-link svg {
+      width: 22px;
+      height: 22px;
+      fill: var(--accent-color);
+      transition: fill 0.3s;
+      vertical-align: middle;
+    }
+
+    .x-link:hover svg {
+      fill: white;
+    }
+
+    @media (max-width: 600px) {
+      .puzzle-box {
+        font-size: 0.95rem;
+        padding: 24px;
+        height: 320px; /* slightly smaller for mobile */
+      }
+
+      .arrow {
+        font-size: 1.8rem;
+        width: 40px;
+        height: 40px;
+      }
+
+      .carousel-container {
+        max-width: 100%;
+        margin: 20px 10px 20px;
+        padding: 0 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h2>🔐 TARAXA PUZZLES (132)</h2>
+      <p class="tagline">
+        Welcome to the Taraxa Puzzle Challenge!<br />
+        Each puzzle hides a fragment of a private key.<br />
+        Solve the puzzle. Claim the treasure. Good luck! 🕵️‍♂️
+      </p>
+    </div>
+  </header>
+
+  <main class="carousel-container" role="region" aria-label="Puzzle carousel">
+    <button class="arrow left-arrow" aria-label="Previous puzzle">&#x25C0;</button>
+    <div class="carousel-content">
+      <div id="puzzle-counter" aria-live="polite" aria-atomic="true"></div>
+
+      <section class="puzzle-box active" id="puzzle1" tabindex="0" aria-labelledby="puzzle1-title" role="group" aria-describedby="puzzle1-desc">
+        <h1 id="puzzle1-title">🧩 Taraxa Puzzle #1</h1>
+        <p id="puzzle1-desc">Solve this to find the private key:</p>
+        <p>41100+1029905+5984910+10361939+7758299+9670018+4780081+14749272+9704383+14173074+13629956</p>
+        <p>💰 10 $TARA in Wallet1</p>
+        <p>
+          <a href="https://mainnet.explorer.taraxa.io/address/0xf708499a2e3214f1c7bb5f5546b4d2cc3c5d2ed5" target="_blank" rel="noopener noreferrer">
+            📍0xf708499a2e3214f1c7Bb5f5546B4D2Cc3C5D2ed5
+          </a>
+        </p>
+        <p>Good luck!</p>
+      </section>
+
+      <section class="puzzle-box" id="puzzle2" tabindex="0" aria-labelledby="puzzle2-title" role="group" aria-describedby="puzzle2-desc">
+        <h1 id="puzzle2-title">🧩 Taraxa Puzzle #2</h1>
+        <p id="puzzle2-desc">...coming soon...</p>
+        <p>1 June 2025</p>
+      </section>
+    </div>
+    <button class="arrow right-arrow" aria-label="Next puzzle">&#x25B6;</button>
+  </main>
+
+  <footer class="footer-container">
+    <a href="https://taraxa.io/" target="_blank" rel="noopener noreferrer">#TARA</a> | pkey.quest | 2025 |
+    <a href="https://x.com/TaraxaPuzzle" target="_blank" rel="noopener noreferrer" class="x-link" aria-label="X account">
+      <svg viewBox="0 0 1200 1227" xmlns="http://www.w3.org/2000/svg"><path d="M998.82 0H1179L763.47 521.89L1248 1227H864.59L561.74 792.18L212.75 1227H32L472.87 663.07L0 0H393.48L667.2 396.69L998.82 0ZM931.69 1105.39H1044.33L576.64 594.62L929.37 1105.39H931.69Z"/></svg>
+    </a>
+  </footer>
+
+  <script>
+    const puzzles = document.querySelectorAll('.puzzle-box');
+    const counter = document.getElementById('puzzle-counter');
+    let currentIndex = 0;
+
+    function updateCarousel() {
+      puzzles.forEach((puzzle, index) => {
+        puzzle.classList.toggle('active', index === currentIndex);
+      });
+      counter.textContent = `Puzzle ${currentIndex + 1} of ${puzzles.length}`;
+      puzzles[currentIndex].focus();
+    }
+
+    document.querySelector('.left-arrow').addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + puzzles.length) % puzzles.length;
+      updateCarousel();
+    });
+
+    document.querySelector('.right-arrow').addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % puzzles.length;
+      updateCarousel();
+    });
+
+    // Initialize on load
+    updateCarousel();
+  </script>
+</body>
+</html>

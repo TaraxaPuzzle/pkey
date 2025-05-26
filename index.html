@@ -312,32 +312,55 @@ a {
   </footer>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const puzzles = document.querySelectorAll('.puzzle-box');
-      const counter = document.getElementById('puzzle-counter');
-      const leftArrow = document.querySelector('.left-arrow');
-      const rightArrow = document.querySelector('.right-arrow');
-      let currentIndex = 0;
+  document.addEventListener('DOMContentLoaded', () => {
+    const puzzles = document.querySelectorAll('.puzzle-box');
+    const counter = document.getElementById('puzzle-counter');
+    const leftArrow = document.querySelector('.left-arrow');
+    const rightArrow = document.querySelector('.right-arrow');
+    const carouselContent = document.querySelector('.carousel-content');
+    let currentIndex = 0;
 
-      function updateCarousel() {
-        puzzles.forEach((puzzle, i) => {
-          puzzle.classList.toggle('active', i === currentIndex);
-        });
-        counter.textContent = `Puzzle ${currentIndex + 1} of ${puzzles.length}`;
-      }
-
-      leftArrow.addEventListener('click', () => {
-        currentIndex = (currentIndex - 1 + puzzles.length) % puzzles.length;
-        updateCarousel();
+    function updateCarousel() {
+      puzzles.forEach((puzzle, i) => {
+        puzzle.classList.toggle('active', i === currentIndex);
       });
+      counter.textContent = `Puzzle ${currentIndex + 1} of ${puzzles.length}`;
+    }
 
-      rightArrow.addEventListener('click', () => {
-        currentIndex = (currentIndex + 1) % puzzles.length;
-        updateCarousel();
-      });
-
-      updateCarousel(); // show first puzzle on load
+    leftArrow.addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + puzzles.length) % puzzles.length;
+      updateCarousel();
     });
-  </script>
+
+    rightArrow.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % puzzles.length;
+      updateCarousel();
+    });
+
+    // ✅ Scroll tracking for mobile
+    carouselContent.addEventListener('scroll', () => {
+      const containerRect = carouselContent.getBoundingClientRect();
+      let closestIndex = 0;
+      let smallestOffset = Infinity;
+
+      puzzles.forEach((puzzle, i) => {
+        const puzzleRect = puzzle.getBoundingClientRect();
+        const offset = Math.abs(puzzleRect.left - containerRect.left);
+        if (offset < smallestOffset) {
+          smallestOffset = offset;
+          closestIndex = i;
+        }
+      });
+
+      if (closestIndex !== currentIndex) {
+        currentIndex = closestIndex;
+        updateCarousel();
+      }
+    });
+
+    updateCarousel();
+  });
+</script>
+
 </body>
 </html>

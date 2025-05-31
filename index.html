@@ -5,15 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Taraxa Puzzle</title>
   <link rel="icon" type="image/png" href="favicon.png.png" />
+  
+ <button id="theme-toggle" style="margin-top:10px;font-size:0.9rem;padding:5px 10px;border-radius:8px;border:none;cursor:pointer;background-color:var(--accent-color);color:#fff;">
+  🌙 Dark Mode
+</button>
+
   <style>
+
 :root {
-  --primary-color: #0e101a;
-  --accent-color: #00d1ff;
-  --gradient: linear-gradient(135deg, #0e101a 0%, #141727 50%, #00d1ff 100%);
-  --text-color: #e8f0f8;
   --font-family: 'Inter', sans-serif;
-  --arrow-bg: rgba(0, 209, 255, 0.1);
-  --arrow-hover: rgba(0, 209, 255, 0.3);
+
+  /* Light theme (default) */
+  --primary-color: #f9fafb;
+  --accent-color: #8b5cf6;
+  --gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+  --text-color: #1f2937;
+  --box-color: #ffffff;
+  --header-footer-bg: #ffffffee;
+  --shadow: rgba(0, 0, 0, 0.08);
+  --arrow-bg: rgba(139, 92, 246, 0.1);
+  --arrow-hover: rgba(139, 92, 246, 0.3);
+}
+
+body.dark-theme {
+  --primary-color: #141628;
+  --accent-color: #6EE7B7;
+  --gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  --text-color: #f5faff;
+  --box-color: rgba(255, 255, 255, 0.05);
+  --header-footer-bg: rgba(20, 22, 40, 0.9);
+  --shadow: rgba(0, 0, 0, 0.3);
+  --arrow-bg: rgba(110, 231, 183, 0.1);
+  --arrow-hover: rgba(110, 231, 183, 0.3);
 }
 
 * {
@@ -44,36 +67,31 @@ body > .carousel-container {
 }
 
 header {
-  position: sticky;
-  top: 0;
-  background: #0b0d16;
-  color: white;
+  position: relative;
+  background: var(--header-footer-bg);
+  color: var(--text-color);
   padding: 20px 10px;
   text-align: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   z-index: 1000;
+  backdrop-filter: blur(10px);
 }
 
 .logo {
   width: 120px;
   height: auto;
   display: inline-block;
-  margin: 0;
-  padding: 0;
   cursor: pointer;
 }
 
 a {
-  display: inline-block;
-  margin: 0;
-  padding: 0;
   color: var(--accent-color);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 a:hover {
-  color: #ffffff;
+  color: var(--accent-color);
 }
 
 header h2 {
@@ -85,7 +103,7 @@ header h2 {
 
 .tagline {
   font-size: 0.95rem;
-  color: #ccc;
+  color: var(--text-color);
 }
 
 .carousel-container {
@@ -126,17 +144,16 @@ header h2 {
   max-width: 80vw;
   margin: 0 auto 30px;
   overflow-y: auto;
-  background-color: #ffffff10;
-  backdrop-filter: blur(12px);
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  background: var(--box-color);
+  backdrop-filter: blur(16px);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px var(--shadow);
   padding: 30px;
   font-size: 1rem;
-  color: #fff;
+  color: var(--text-color);
   overflow-wrap: break-word;
   word-break: break-word;
   display: none;
-  box-sizing: border-box;
   scroll-snap-align: start;
   flex: 0 0 auto;
 }
@@ -148,6 +165,7 @@ header h2 {
 .puzzle-box h1 {
   font-size: 1.4rem;
   margin-bottom: 10px;
+  color: var(--accent-color);
 }
 
 .puzzle-box p {
@@ -167,7 +185,7 @@ header h2 {
 }
 
 .arrow:hover {
-  color: #ffffff;
+  color: var(--accent-color);
 }
 
 .left-arrow {
@@ -180,13 +198,14 @@ header h2 {
 
 .footer-container {
   flex-shrink: 0;
-  background: #0b0d16;
-  color: #aaa;
+  background: var(--header-footer-bg);
+  color: var(--text-color);
   padding: 15px 10px;
   text-align: center;
   font-size: 0.85rem;
   user-select: none;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
 }
 
 .footer-container a {
@@ -199,16 +218,42 @@ header h2 {
   text-decoration: underline;
 }
 
-.x-link svg {
-  width: 22px;
-  height: 22px;
-  fill: var(--accent-color);
+.x-link{
+  width: 24px;
+  height: 24px;
+  color: var(--accent-color);
   transition: fill 0.3s;
   vertical-align: middle;
+  overflow: hidden;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.x-link:hover{
+  color: var(--text-color); 
+  text-decoration: none;  
+}
+
+.x-link svg {
+  width: 24px;
+  height: 24px;
+  color: var(--accent-color);
+  transition: fill 0.3s;
+  vertical-align: middle;
+  overflow: hidden;
+  border-radius: 4px;
 }
 
 .x-link:hover svg {
-  fill: white;
+  color: var(--text-color);  
+}
+
+.t-link svg path {
+  fill: #fff;
+}
+
+.t-link:hover svg path {
+  fill: var(--accent-color);
 }
 
 @media (max-width: 768px) {
@@ -295,12 +340,62 @@ header h2 {
   <a href="https://fomo.biz/token/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A" target="_blank">
   <img src="logo.png" alt="PuzzleKey Logo" class="logo">
   </a>
-  <div>
-  <a href="https://taraxa.io/" target="_blank" rel="noopener noreferrer">#TARA</a> | © 2025 pkey.quest |
-	 <a href="https://x.com/TaraxaPuzzle" target="_blank" rel="noopener noreferrer" class="x-link" aria-label="X account">
-      <svg viewBox="0 0 1200 1227" xmlns="http://www.w3.org/2000/svg"><path d="M998.82 0H1179L763.47 521.89L1248 1227H864.59L561.74 792.18L212.75 1227H32L472.87 663.07L0 0H393.48L667.2 396.69L998.82 0ZM931.69 1105.39H1044.33L576.64 594.62L929.37 1105.39H931.69Z"/></svg>
-    </a>
-	</div>
+<div>
+
+  <!-- X (Twitter) link -->
+  <a
+    href="https://x.com/TaraxaPuzzle"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="x-link"
+    aria-label="X account"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="X (Twitter) logo"
+    >
+      <path
+        d="M19.18 0.21H22.66L14.69 10.28L24 23.78H16.62L10.77 15.10L4.10 23.78H0.62L9.08 12.80L0 0H7.59L12.82 7.63L19.18 0.21Z M18 20.57H20.10L11.07 11.37L17.21 20.57H18Z"
+        fill="currentColor"
+      />
+    </svg>
+  </a>
+  &nbsp;&nbsp;
+
+  <!-- Telegram link -->
+  <a
+    href="https://t.me/pkeyquest"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="x-link t-link"
+    aria-label="Telegram account"
+  >
+    <svg
+      viewBox="0 0 240 240"
+      width="24"
+      height="24"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Telegram logo"
+	  fill="currentColor"
+    >
+      <circle cx="120" cy="120" r="120"/>
+      <path
+        d="M180.7 70.6 61.1 115.8c-4.6 1.7-4.6 6.5.6 8.1l29.2 9.1 11.2 34c1.4 4.2 2.4 5.8 5 5.8 2.6 0 3.7-1.1 5.1-4.1l14.1-28.1 29.4 21.8c5.4 3 9.3 1.4 10.6-5.1l17.2-80.5c2-8.4-3.2-12.3-8.8-10z"
+        fill="var(--accent-color)"
+      />
+    </svg>
+  </a>
+  <br/><br/>
+  © 2025 pkey.quest&nbsp;&nbsp;
+   <a href="https://taraxa.io/" target="_blank" rel="noopener noreferrer" class="x-link"><b>#TARA</b></a>
+  
+</div>
+
   </footer>
 
   <script>
@@ -352,6 +447,26 @@ header h2 {
 
     updateCarousel();
   });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("theme-toggle");
+  const body = document.body;
+
+  // Load saved preference
+  if (localStorage.getItem("theme") === "dark") {
+    body.classList.add("dark-theme");
+    toggle.textContent = "🌞 Light Mode";
+  }
+
+  toggle.addEventListener("click", () => {
+    body.classList.toggle("dark-theme");
+    const isDark = body.classList.contains("dark-theme");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    toggle.textContent = isDark ? "🌞 Light Mode" : "🌙 Dark Mode";
+  });
+});
 </script>
 
 </body>

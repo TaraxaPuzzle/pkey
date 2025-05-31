@@ -311,6 +311,35 @@ header h2 {
   }
 }
 
+@media (max-width: 600px) {
+  /* 1) Shrink the footer’s logo */
+  .footer-container .logo {
+    width: 80px;     /* was 120px */
+    margin-bottom: 8px;
+  }
+
+  /* 2) Make the social-media icons a bit smaller */
+  .footer-container .x-link svg {
+    width: 20px;     /* was 24px */
+    height: 20px;    /* was 24px */
+  }
+
+  /* 3) Reduce vertical gaps (you already use <br><br>, so tweak line-height) */
+  .footer-container div br {
+    line-height: 1.2; /* default is about 1.5; makes <br><br> less tall */
+  }
+
+  /* 4) Shrink the copyright and #TARA text */
+  .footer-container div {
+    font-size: 0.85rem; /* was ~0.9rem or 1rem */
+  }
+
+  /* 5) If you want to tighten up the overall footer padding */
+  .footer-container {
+    padding: 12px 0;   /* was 20px 0 */
+  }
+}
+
   </style>
 </head>
 <body>

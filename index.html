@@ -5,363 +5,349 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Taraxa Puzzle</title>
   <link rel="icon" type="image/png" href="favicon.png.png" />
-  
- <button id="theme-toggle" style="margin-top:10px;font-size:0.9rem;padding:5px 10px;border-radius:8px;border:none;cursor:pointer;background-color:var(--accent-color);color:#fff;">
-  🌙 Dark Mode
-</button>
+
+  <button
+    id="theme-toggle"
+    style="
+      margin-top: 10px;
+      font-size: 0.9rem;
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background-color: var(--accent-color);
+      color: #fff;
+    "
+  >
+    🌙 Dark Mode
+  </button>
 
   <style>
+    :root {
+      --font-family: 'Inter', sans-serif;
 
-:root {
-  --font-family: 'Inter', sans-serif;
+      /* Light theme (default) */
+      --primary-color: #f9fafb;
+      --accent-color: #8b5cf6;
+      --gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      --text-color: #1f2937;
+      --box-color: #ffffff;
+      --header-footer-bg: #ffffffee;
+      --shadow: rgba(0, 0, 0, 0.08);
+      --arrow-bg: rgba(139, 92, 246, 0.1);
+      --arrow-hover: rgba(139, 92, 246, 0.3);
+    }
 
-  /* Light theme (default) */
-  --primary-color: #f9fafb;
-  --accent-color: #8b5cf6;
-  --gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-  --text-color: #1f2937;
-  --box-color: #ffffff;
-  --header-footer-bg: #ffffffee;
-  --shadow: rgba(0, 0, 0, 0.08);
-  --arrow-bg: rgba(139, 92, 246, 0.1);
-  --arrow-hover: rgba(139, 92, 246, 0.3);
-}
+    body.dark-theme {
+      --primary-color: #141628;
+      --accent-color: #6EE7B7;
+      --gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      --text-color: #f5faff;
+      --box-color: rgba(255, 255, 255, 0.05);
+      --header-footer-bg: rgba(20, 22, 40, 0.9);
+      --shadow: rgba(0, 0, 0, 0.3);
+      --arrow-bg: rgba(110, 231, 183, 0.1);
+      --arrow-hover: rgba(110, 231, 183, 0.3);
+    }
 
-body.dark-theme {
-  --primary-color: #141628;
-  --accent-color: #6EE7B7;
-  --gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  --text-color: #f5faff;
-  --box-color: rgba(255, 255, 255, 0.05);
-  --header-footer-bg: rgba(20, 22, 40, 0.9);
-  --shadow: rgba(0, 0, 0, 0.3);
-  --arrow-bg: rgba(110, 231, 183, 0.1);
-  --arrow-hover: rgba(110, 231, 183, 0.3);
-}
+    /* ----------------------------------
+       GLOBAL RESET
+    ---------------------------------- */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+    html,
+    body {
+      height: 100%;
+      font-family: var(--font-family);
+      background: var(--gradient);
+      color: var(--text-color);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
 
-html, body {
-  height: 100%;
-  font-family: var(--font-family);
-  background: var(--gradient);
-  color: var(--text-color);
-  line-height: 1.6;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
+    a {
+      color: var(--accent-color);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    a:hover {
+      color: var(--text-color);
+    }
 
-body > .carousel-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-}
+    /* ----------------------------------
+       HEADER
+    ---------------------------------- */
+    header {
+      position: relative;
+      background: var(--header-footer-bg);
+      color: var(--text-color);
+      /* Fluid padding: min 0.75rem (12px), ideal 5vw, max 2rem (32px) */
+      padding: clamp(0.75rem, 5vw, 2rem) clamp(0.5rem, 3vw, 1rem);
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
 
-header {
-  position: relative;
-  background: var(--header-footer-bg);
-  color: var(--text-color);
-  padding: 20px 10px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  backdrop-filter: blur(10px);
-}
+    header h2 {
+      /* Fluid font-size: min 1.2rem, ideal 5vw, max 1.7rem */
+      font-size: clamp(1.2rem, 5vw, 1.7rem);
+      font-weight: 700;
+      color: var(--accent-color);
+      margin-bottom: 0.5em;
+      line-height: 1.2;
+    }
 
-.logo {
-  width: 120px;
-  height: auto;
-  display: inline-block;
-  cursor: pointer;
-}
+    .tagline {
+      /* Fluid font-size: min 0.8rem, ideal 3.5vw, max 0.95rem */
+      font-size: clamp(0.8rem, 3.5vw, 0.95rem);
+      color: var(--text-color);
+      line-height: 1.3;
+    }
 
-a {
-  color: var(--accent-color);
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
+    /* If you ever add a logo into the header, use something like this:
+    header .logo {
+      width: clamp(60px, 15vw, 100px);
+      height: auto;
+      margin-bottom: 0.75rem;
+    }
+    */
 
-a:hover {
-  color: var(--accent-color);
-}
+    /* ----------------------------------
+       CAROUSEL CONTAINER
+    ---------------------------------- */
+    body > .carousel-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
 
-header h2 {
-  font-size: 1.7rem;
-  font-weight: 700;
-  color: var(--accent-color);
-  margin-bottom: 5px;
-}
+    .carousel-container {
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 0 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-.tagline {
-  font-size: 0.95rem;
-  color: var(--text-color);
-}
+    #puzzle-counter {
+      text-align: center;
+      margin: 10px 0 20px;
+      font-weight: 600;
+      /* Fluid font-size: min 0.95rem, ideal 2.5vw, max 1.1rem */
+      font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+      color: var(--accent-color);
+      user-select: none;
+    }
 
-.carousel-container {
-  max-width: 700px;
-  margin: 20px auto;
-  padding: 0 20px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 10px;
-}
+    .carousel-content {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      gap: 20px;
+      padding: 10px;
+    }
 
-#puzzle-counter {
-  text-align: center;
-  margin: 10px 0 20px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--accent-color);
-  user-select: none;
-}
+    .puzzle-box {
+      min-height: 400px;
+      max-height: 600px;
+      max-width: 80vw;
+      margin: 0 auto 30px;
+      overflow-y: auto;
+      background: var(--box-color);
+      backdrop-filter: blur(16px);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px var(--shadow);
+      padding: 30px;
+      font-size: 1rem;
+      color: var(--text-color);
+      overflow-wrap: break-word;
+      word-break: break-word;
+      display: none;
+      scroll-snap-align: start;
+      flex: 0 0 auto;
+    }
 
-.carousel-content {
-  width: 100%;
-  max-width: 640px;
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  gap: 20px;
-  padding: 10px;
-}
+    .puzzle-box.active {
+      display: block;
+    }
 
-.puzzle-box {
-  min-height: 400px;
-  max-height: 600px;
-  max-width: 80vw;
-  margin: 0 auto 30px;
-  overflow-y: auto;
-  background: var(--box-color);
-  backdrop-filter: blur(16px);
-  border-radius: 18px;
-  box-shadow: 0 10px 30px var(--shadow);
-  padding: 30px;
-  font-size: 1rem;
-  color: var(--text-color);
-  overflow-wrap: break-word;
-  word-break: break-word;
-  display: none;
-  scroll-snap-align: start;
-  flex: 0 0 auto;
-}
+    .puzzle-box h1 {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      color: var(--accent-color);
+    }
 
-.puzzle-box.active {
-  display: block;
-}
+    .puzzle-box p {
+      margin: 10px 0;
+    }
 
-.puzzle-box h1 {
-  font-size: 1.4rem;
-  margin-bottom: 10px;
-  color: var(--accent-color);
-}
+    /* ----------------------------------
+       ARROWS (hide on narrow screens)
+    ---------------------------------- */
+    .arrow {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      background: transparent;
+      border: none;
+      padding: 0 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    .arrow:hover {
+      color: var(--accent-color);
+    }
+    .left-arrow {
+      order: 0;
+    }
+    .right-arrow {
+      order: 2;
+    }
 
-.puzzle-box p {
-  margin: 10px 0;
-}
+    @media (max-width: 768px) {
+      .arrow {
+        display: none !important;
+      }
+      .carousel-content {
+        padding: 10px;
+      }
+      .puzzle-box {
+        font-size: 0.95rem;
+        padding: 20px;
+        min-height: 320px;
+        max-height: 500px;
+        height: auto;
+        max-width: 90vw;
+        scroll-snap-align: start;
+        flex: 0 0 90vw;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+        display: block;
+      }
+      #puzzle-counter {
+        margin: 10px 0 20px;
+        font-size: 1rem;
+      }
+      .carousel-container {
+        max-width: 100%;
+        margin: 20px 0;
+        padding: 0;
+      }
+    }
 
-.arrow {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--accent-color);
-  background: transparent;
-  border: none;
-  padding: 0 8px;
-  cursor: pointer;
-  user-select: none;
-  transition: color 0.3s ease;
-}
+    /* ----------------------------------
+       FOOTER
+    ---------------------------------- */
+    .footer-container {
+      flex-shrink: 0;
+      background: var(--header-footer-bg);
+      color: var(--text-color);
+      /* Fluid padding: min 0.75rem (12px), ideal 5vw, max 2rem (32px) */
+      padding: clamp(0.75rem, 5vw, 2rem) 0;
+      text-align: center;
+      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+      user-select: none;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
 
-.arrow:hover {
-  color: var(--accent-color);
-}
+    /* Fluid logo sizing in footer: min 80px, ideal 20vw, max 120px */
+    .footer-container .logo {
+      width: clamp(80px, 20vw, 120px);
+      height: auto;
+      margin-bottom: 1rem;
+    }
 
-.left-arrow {
-  order: 0;
-}
+    /* Display icons in one row with fluid gap */
+    .footer-container .social-row {
+      display: inline-flex;
+      gap: clamp(0.5rem, 2vw, 1rem);
+      margin: 1rem 0;
+      align-items: center;
+    }
 
-.right-arrow {
-  order: 2;
-}
+    /* Shared x-link rules (text + icons) */
+    .x-link {
+      color: var(--accent-color);
+      transition: color 0.3s ease;
+      text-decoration: none;
+      display: inline-flex; /* helps center vertically if text + icon */
+      align-items: center;
+    }
+    .x-link:hover {
+      color: var(--text-color);
+    }
 
-.footer-container {
-  flex-shrink: 0;
-  background: var(--header-footer-bg);
-  color: var(--text-color);
-  padding: 15px 10px;
-  text-align: center;
-  font-size: 0.85rem;
-  user-select: none;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(10px);
-}
+    /* Fluid icon sizing: min 16px, ideal 4vw, max 28px */
+    .x-link svg {
+      width: clamp(16px, 4vw, 28px);
+      height: auto;
+      fill: currentColor;
+      vertical-align: middle;
+      transition: color 0.3s ease;
+    }
 
-.footer-container a {
-  color: var(--accent-color);
-  text-decoration: none;
-  margin: 0 5px;
-}
-
-.footer-container a:hover {
-  text-decoration: underline;
-}
-
-.x-link{
-  width: 24px;
-  height: 24px;
-  color: var(--accent-color);
-  transition: fill 0.3s;
-  vertical-align: middle;
-  overflow: hidden;
-  border-radius: 4px;
-  text-decoration: none;
-}
-
-.x-link:hover{
-  color: var(--text-color); 
-  text-decoration: none;  
-}
-
-.x-link svg {
-  width: 24px;
-  height: 24px;
-  color: var(--accent-color);
-  transition: fill 0.3s;
-  vertical-align: middle;
-  overflow: hidden;
-  border-radius: 4px;
-}
-
-.x-link:hover svg {
-  color: var(--text-color);  
-}
-
-.t-link svg path {
-  fill: #fff;
-}
-
-.t-link:hover svg path {
-  fill: var(--accent-color);
-}
-
-@media (max-width: 768px) {
-  .arrow {
-    display: none !important;
-  }
-
-  .carousel-content {
-    padding: 10px;
-  }
-
-  .puzzle-box {
-    font-size: 0.95rem;
-    padding: 20px;
-    min-height: 320px;
-    max-height: 500px;
-    height: auto;
-    max-width: 90vw;
-    scroll-snap-align: start;
-    flex: 0 0 90vw;
-    margin: 0;
-    border-radius: 0;
-    box-shadow: none;
-    display: block;
-  }
-
-  #puzzle-counter {
-    margin: 10px 0 20px;
-    font-size: 1rem;
-  }
-
-  .carousel-container {
-    max-width: 100%;
-    margin: 20px 0;
-    padding: 0;
-  }
-}
-
-@media (max-width: 600px) {
-  /* 1) Reduce header padding */
-  header {
-    padding: 12px 8px; /* was 20px 10px */
-  }
-
-  /* 2) Shrink the <h2> on phones */
-  header h2 {
-    font-size: 1.4rem; /* was 1.7rem */
-    line-height: 1.2;  /* you can tweak if needed */
-  }
-
-  /* 3) Shrink the tagline text slightly */
-  .tagline {
-    font-size: 0.8rem; /* was 0.95rem */
-    line-height: 1.3;  /* optional adjustment */
-  }
-}
-
-@media (max-width: 600px) {
-  /* 1) Shrink the footer’s logo */
-  .footer-container .logo {
-    width: 80px;     /* was 120px */
-    margin-bottom: 8px;
-  }
-
-  /* 2) Make the social-media icons a bit smaller */
-  .footer-container .x-link svg {
-    width: 20px;     /* was 24px */
-    height: 20px;    /* was 24px */
-  }
-
-  /* 3) Reduce vertical gaps (you already use <br><br>, so tweak line-height) */
-  .footer-container div br {
-    line-height: 1.2; /* default is about 1.5; makes <br><br> less tall */
-  }
-
-  /* 4) Shrink the copyright and #TARA text */
-  .footer-container div {
-    font-size: 0.85rem; /* was ~0.9rem or 1rem */
-  }
-
-  /* 5) If you want to tighten up the overall footer padding */
-  .footer-container {
-    padding: 12px 0;   /* was 20px 0 */
-  }
-}
-
+    /* Telegram-specific overrides */
+    .t-link svg path {
+      fill: #fff;
+    }
+    .t-link:hover svg path {
+      fill: var(--accent-color);
+    }
   </style>
 </head>
 <body>
+  <!-- ===== HEADER ===== -->
   <header>
     <h2>🔐 TARAXA PUZZLES (132)</h2>
-    <div class="tagline">Welcome to the Taraxa Puzzle Challenge!<br />
+    <div class="tagline">
+      Welcome to the Taraxa Puzzle Challenge!<br />
       Each puzzle hides a fragment of a private key.<br />
-      Solve the puzzle. Claim the treasure. Good luck! 🕵️‍♂
-	  ️</div>
+      Solve the puzzle. Claim the treasure. Good luck! 🕵️‍♂️
+    </div>
   </header>
 
+  <!-- ===== CAROUSEL ===== -->
   <div class="carousel-container">
     <button class="arrow left-arrow" aria-label="Previous Puzzle">&#8592;</button>
-
     <div class="carousel-content">
       <div class="puzzle-box">
         <h1>🧩 Taraxa Puzzle #1</h1>
         <p>Solve this to find the private key:</p>
-		<p>41100+1029905+5984910+10361939+7758299+9670018<br>+4780081+14749272+9704383+14173074+13629956</p>
+        <p>
+          41100 + 1029905 + 5984910 + 10361939 +
+          7758299 + 9670018 + 4780081 + 14749272 +
+          9704383 + 14173074 + 13629956
+        </p>
         <p>💰 10 $TARA in Wallet 1</p>
         <p>
-          <a href="https://mainnet.explorer.taraxa.io/address/0xf708499a2e3214f1c7bb5f5546b4d2cc3c5d2ed5" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://mainnet.explorer.taraxa.io/address/0xf708499a2e3214f1c7bb5f5546b4d2cc3c5d2ed5"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             📍0xf708499a2e3214f1c7Bb5f5546B4D2Cc3C5D2ed5
           </a>
         </p>
@@ -370,151 +356,152 @@ header h2 {
       <div class="puzzle-box">
         <h1>🧩 Taraxa Puzzle #2</h1>
         <p>...Coming Soon...</p>
-		<p>1 June 2025 Sunday</p>
+        <p>1 June 2025 Sunday</p>
       </div>
       <div class="puzzle-box">
         <h1>Puzzle 3</h1>
         <p>This is the content for Puzzle 3.</p>
       </div>
     </div>
-
     <button class="arrow right-arrow" aria-label="Next Puzzle">&#8594;</button>
   </div>
 
   <div id="puzzle-counter"></div>
 
+  <!-- ===== FOOTER ===== -->
   <footer class="footer-container">
-  <a href="https://fomo.biz/token/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A" target="_blank">
-  <img src="logo.png" alt="PuzzleKey Logo" class="logo">
-  </a>
-<div>
-
-  <!-- X (Twitter) link -->
-  <a
-    href="https://x.com/TaraxaPuzzle"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="x-link"
-    aria-label="X account"
-  >
-    <svg
-      viewBox="0 0 24 24"
-      width="24"
-      height="24"
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-label="X (Twitter) logo"
+    <a
+      href="https://fomo.biz/token/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A"
+      target="_blank"
     >
-      <path
-        d="M19.18 0.21H22.66L14.69 10.28L24 23.78H16.62L10.77 15.10L4.10 23.78H0.62L9.08 12.80L0 0H7.59L12.82 7.63L19.18 0.21Z M18 20.57H20.10L11.07 11.37L17.21 20.57H18Z"
-        fill="currentColor"
-      />
-    </svg>
-  </a>
-  &nbsp;&nbsp;
+      <img src="logo.png" alt="PuzzleKey Logo" class="logo" />
+    </a>
 
-  <!-- Telegram link -->
-  <a
-    href="https://t.me/pkeyquest"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="x-link t-link"
-    aria-label="Telegram account"
-  >
-    <svg
-      viewBox="0 0 240 240"
-      width="24"
-      height="24"
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-label="Telegram logo"
-	  fill="currentColor"
-    >
-      <circle cx="120" cy="120" r="120"/>
-      <path
-        d="M180.7 70.6 61.1 115.8c-4.6 1.7-4.6 6.5.6 8.1l29.2 9.1 11.2 34c1.4 4.2 2.4 5.8 5 5.8 2.6 0 3.7-1.1 5.1-4.1l14.1-28.1 29.4 21.8c5.4 3 9.3 1.4 10.6-5.1l17.2-80.5c2-8.4-3.2-12.3-8.8-10z"
-        fill="var(--accent-color)"
-      />
-    </svg>
-  </a>
-  <br/><br/>
-  © 2025 pkey.quest&nbsp;&nbsp;
-   <a href="https://taraxa.io/" target="_blank" rel="noopener noreferrer" class="x-link"><b>#TARA</b></a>
-  
-</div>
+    <div class="social-row">
+      <!-- X (Twitter) link -->
+      <a
+        href="https://x.com/TaraxaPuzzle"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="x-link"
+        aria-label="X account"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-label="X (Twitter) logo"
+        >
+          <path
+            d="M19.18 0.21H22.66L14.69 10.28L24 23.78H16.62L10.77 15.10L4.10 23.78H0.62L9.08 12.80L0 0H7.59L12.82 7.63L19.18 0.21Z M18 20.57H20.10L11.07 11.37L17.21 20.57H18Z"
+            fill="currentColor"
+          />
+        </svg>
+      </a>
 
+      <!-- Telegram link -->
+      <a
+        href="https://t.me/pkeyquest"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="x-link t-link"
+        aria-label="Telegram account"
+      >
+        <svg
+          viewBox="0 0 240 240"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-label="Telegram logo"
+        >
+          <circle cx="120" cy="120" r="120" fill="currentColor" />
+          <path
+            d="M180.7 70.6 61.1 115.8c-4.6 1.7-4.6 6.5.6 8.1l29.2 9.1 11.2 34c1.4 4.2 2.4 5.8 5 5.8 2.6 0 3.7-1.1 5.1-4.1l14.1-28.1 29.4 21.8c5.4 3 9.3 1.4 10.6-5.1l17.2-80.5c2-8.4-3.2-12.3-8.8-10z"
+            fill="var(--accent-color)"
+          />
+        </svg>
+      </a>
+    </div>
+
+    <div class="footer-text">
+      © 2025 pkey.quest  <a
+        href="https://taraxa.io/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="x-link"
+        ><b>#TARA</b></a
+      >
+    </div>
   </footer>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const puzzles = document.querySelectorAll('.puzzle-box');
-    const counter = document.getElementById('puzzle-counter');
-    const leftArrow = document.querySelector('.left-arrow');
-    const rightArrow = document.querySelector('.right-arrow');
-    const carouselContent = document.querySelector('.carousel-content');
-    let currentIndex = 0;
+    document.addEventListener('DOMContentLoaded', () => {
+      const puzzles = document.querySelectorAll('.puzzle-box');
+      const counter = document.getElementById('puzzle-counter');
+      const leftArrow = document.querySelector('.left-arrow');
+      const rightArrow = document.querySelector('.right-arrow');
+      const carouselContent = document.querySelector('.carousel-content');
+      let currentIndex = 0;
 
-    function updateCarousel() {
-      puzzles.forEach((puzzle, i) => {
-        puzzle.classList.toggle('active', i === currentIndex);
+      function updateCarousel() {
+        puzzles.forEach((puzzle, i) => {
+          puzzle.classList.toggle('active', i === currentIndex);
+        });
+        counter.textContent = `Puzzle ${currentIndex + 1} of ${
+          puzzles.length
+        }`;
+      }
+
+      leftArrow.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + puzzles.length) % puzzles.length;
+        updateCarousel();
       });
-      counter.textContent = `Puzzle ${currentIndex + 1} of ${puzzles.length}`;
-    }
 
-    leftArrow.addEventListener('click', () => {
-      currentIndex = (currentIndex - 1 + puzzles.length) % puzzles.length;
-      updateCarousel();
-    });
+      rightArrow.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % puzzles.length;
+        updateCarousel();
+      });
 
-    rightArrow.addEventListener('click', () => {
-      currentIndex = (currentIndex + 1) % puzzles.length;
-      updateCarousel();
-    });
+      carouselContent.addEventListener('scroll', () => {
+        const containerRect = carouselContent.getBoundingClientRect();
+        let closestIndex = 0;
+        let smallestOffset = Infinity;
 
-    // ✅ Scroll tracking for mobile
-    carouselContent.addEventListener('scroll', () => {
-      const containerRect = carouselContent.getBoundingClientRect();
-      let closestIndex = 0;
-      let smallestOffset = Infinity;
+        puzzles.forEach((puzzle, i) => {
+          const puzzleRect = puzzle.getBoundingClientRect();
+          const offset = Math.abs(puzzleRect.left - containerRect.left);
+          if (offset < smallestOffset) {
+            smallestOffset = offset;
+            closestIndex = i;
+          }
+        });
 
-      puzzles.forEach((puzzle, i) => {
-        const puzzleRect = puzzle.getBoundingClientRect();
-        const offset = Math.abs(puzzleRect.left - containerRect.left);
-        if (offset < smallestOffset) {
-          smallestOffset = offset;
-          closestIndex = i;
+        if (closestIndex !== currentIndex) {
+          currentIndex = closestIndex;
+          updateCarousel();
         }
       });
 
-      if (closestIndex !== currentIndex) {
-        currentIndex = closestIndex;
-        updateCarousel();
-      }
+      updateCarousel();
     });
+  </script>
 
-    updateCarousel();
-  });
-</script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.getElementById('theme-toggle');
+      const body = document.body;
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.getElementById("theme-toggle");
-  const body = document.body;
+      if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-theme');
+        toggle.textContent = '🌞 Light Mode';
+      }
 
-  // Load saved preference
-  if (localStorage.getItem("theme") === "dark") {
-    body.classList.add("dark-theme");
-    toggle.textContent = "🌞 Light Mode";
-  }
-
-  toggle.addEventListener("click", () => {
-    body.classList.toggle("dark-theme");
-    const isDark = body.classList.contains("dark-theme");
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-    toggle.textContent = isDark ? "🌞 Light Mode" : "🌙 Dark Mode";
-  });
-});
-</script>
-
+      toggle.addEventListener('click', () => {
+        body.classList.toggle('dark-theme');
+        const isDark = body.classList.contains('dark-theme');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        toggle.textContent = isDark ? '🌞 Light Mode' : '🌙 Dark Mode';
+      });
+    });
+  </script>
 </body>
 </html>

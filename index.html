@@ -260,62 +260,85 @@
     /* ----------------------------------
        FOOTER
     ---------------------------------- */
-    .footer-container {
-      flex-shrink: 0;
-      background: var(--header-footer-bg);
-      color: var(--text-color);
-      /* Fluid padding: min 0.75rem (12px), ideal 5vw, max 2rem (32px) */
-      padding: clamp(0.75rem, 5vw, 2rem) 0;
-      text-align: center;
-      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
-      user-select: none;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(10px);
-    }
+.footer-container {
+  flex-shrink: 0;
+  background: var(--header-footer-bg);
+  color: var(--text-color);
 
-    /* Fluid logo sizing in footer: min 80px, ideal 20vw, max 120px */
-    .footer-container .logo {
-      width: clamp(80px, 20vw, 120px);
-      height: auto;
-      margin-bottom: 1rem;
-    }
+  /* Fluid vertical padding:
+     min 0.75rem (12px) → ideal 5vw → max 2rem (32px) */
+  padding: clamp(0.75rem, 5vw, 2rem) 0;
 
-    /* Display icons in one row with fluid gap */
-    .footer-container .social-row {
-      display: inline-flex;
-      gap: clamp(0.5rem, 2vw, 1rem);
-      margin: 1rem 0;
-      align-items: center;
-    }
+  text-align: center; /* center child inline/inline-flex elements */
+  font-size: clamp(0.7rem, 2.5vw, 0.9rem); /* fluid base font-size */
+  user-select: none;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+}
+    
+    /* ----------------------------
+  FOOTER LOGO (aligns top center)
+   ---------------------------- */
+ .footer-container .logo {
+  /* Fluid width: min 80px → ideal 20vw → max 120px */
+  width: clamp(80px, 20vw, 120px);
+  height: auto;
+  margin-bottom: 1rem; /* space below the logo */
+}
 
-    /* Shared x-link rules (text + icons) */
-    .x-link {
-      color: var(--accent-color);
-      transition: color 0.3s ease;
-      text-decoration: none;
-      display: inline-flex; /* helps center vertically if text + icon */
-      align-items: center;
-    }
-    .x-link:hover {
-      color: var(--text-color);
-    }
+    /* ----------------------------
+   TEXT ROW (bottom row)
+   ---------------------------- */
+.footer-container .footer-text {
+  /* This uses the .footer-container’s font-size (clamped above) */
+  line-height: 1.3;
+  color: var(--text-color); /* ensure plain text is correct color */
+  margin-top: 0.5rem;       /* a touch of space above the text row */
+}
+.footer-container .footer-text a {
+  /* x-link rules already make the “#TARA” get accent+hover logic */
+  margin-left: 0.5rem; /* small space between “© 2025 …” and “#TARA” */
+}
 
-    /* Fluid icon sizing: min 16px, ideal 4vw, max 28px */
-    .x-link svg {
-      width: clamp(16px, 4vw, 28px);
-      height: auto;
-      fill: currentColor;
-      vertical-align: middle;
-      transition: color 0.3s ease;
-    }
+/* ----------------------------
+   SOCIAL ICONS ROW (middle row)
+   ---------------------------- */
+.footer-container .social-row {
+  display: inline-flex;
+  gap: clamp(0.5rem, 2vw, 1rem); /* fluid gap between icons */
+  margin: 1rem 0; /* space above/below the icons */
+  align-items: center;
+}
 
-    /* Telegram-specific overrides */
-    .t-link svg path {
-      fill: #fff;
-    }
-    .t-link:hover svg path {
-      fill: var(--accent-color);
-    }
+ /* Shared x-link rules (text + icons) */
+.x-link {
+  color: var(--accent-color);
+  transition: color 0.3s ease;
+  text-decoration: none;
+  /* inline-flex so that icons + any text align nicely */
+  display: inline-flex;
+  align-items: center;
+}
+.x-link:hover {
+  color: var(--text-color);
+}
+
+/* Fluid icon sizing: min 16px → ideal 4vw → max 28px */
+.x-link svg {
+  width: clamp(16px, 4vw, 28px);
+  height: auto;
+  fill: currentColor;
+  vertical-align: middle;
+  transition: color 0.3s ease;
+}
+
+ /* Telegram plane override (white by default, accent on hover) */
+.t-link svg path {
+  fill: #fff;
+}
+.t-link:hover svg path {
+  fill: var(--accent-color);
+}
   </style>
 </head>
 <body>
@@ -369,8 +392,7 @@
   <div id="puzzle-counter"></div>
 
   <!-- ===== FOOTER ===== -->
-  <footer class="footer-container">
-  <!-- 1) Logo (stays the same) -->
+<footer class="footer-container">
   <a
     href="https://fomo.biz/token/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A"
     target="_blank"
@@ -378,9 +400,7 @@
     <img src="logo.png" alt="PuzzleKey Logo" class="logo" />
   </a>
 
-  <!-- 2) Wrap the two social icons in their own <div class="social-row"> -->
   <div class="social-row">
-    <!-- X (Twitter) link -->
     <a
       href="https://x.com/TaraxaPuzzle"
       target="_blank"
@@ -396,7 +416,6 @@
       </svg>
     </a>
 
-    <!-- Telegram link -->
     <a
       href="https://t.me/pkeyquest"
       target="_blank"
@@ -414,14 +433,14 @@
     </a>
   </div>
 
-  <!-- 3) Wrap the “© 2025… #TARA” in its own <div class="footer-text"> -->
   <div class="footer-text">
-    © 2025 pkey.quest &nbsp;&nbsp;
+    © 2025 pkey.quest  
     <a href="https://taraxa.io/" target="_blank" rel="noopener noreferrer" class="x-link">
       <b>#TARA</b>
     </a>
   </div>
 </footer>
+
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {

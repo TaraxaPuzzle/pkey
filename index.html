@@ -22,324 +22,318 @@
     🌙 Dark Mode
   </button>
 
-  <style>
-    :root {
-      --font-family: 'Inter', sans-serif;
+ <style>
+  :root {
+    --font-family: 'Inter', sans-serif;
 
-      /* Light theme (default) */
-      --primary-color: #f9fafb;
-      --accent-color: #8b5cf6;
-      --gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-      --text-color: #1f2937;
-      --box-color: #ffffff;
-      --header-footer-bg: #ffffffee;
-      --shadow: rgba(0, 0, 0, 0.08);
-      --arrow-bg: rgba(139, 92, 246, 0.1);
-      --arrow-hover: rgba(139, 92, 246, 0.3);
-    }
+    /* Light theme (default) */
+    --primary-color: #f9fafb;
+    --accent-color: #8b5cf6;
+    --gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    --text-color: #1f2937;
+    --box-color: #ffffff;
+    --header-footer-bg: #ffffffee;
+    --shadow: rgba(0, 0, 0, 0.08);
+    --arrow-bg: rgba(139, 92, 246, 0.1);
+    --arrow-hover: rgba(139, 92, 246, 0.3);
+  }
 
-    body.dark-theme {
-      --primary-color: #141628;
-      --accent-color: #6EE7B7;
-      --gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      --text-color: #f5faff;
-      --box-color: rgba(255, 255, 255, 0.05);
-      --header-footer-bg: rgba(20, 22, 40, 0.9);
-      --shadow: rgba(0, 0, 0, 0.3);
-      --arrow-bg: rgba(110, 231, 183, 0.1);
-      --arrow-hover: rgba(110, 231, 183, 0.3);
-    }
+  body.dark-theme {
+    --primary-color: #141628;
+    --accent-color: #6EE7B7;
+    --gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    --text-color: #f5faff;
+    --box-color: rgba(255, 255, 255, 0.05);
+    --header-footer-bg: rgba(20, 22, 40, 0.9);
+    --shadow: rgba(0, 0, 0, 0.3);
+    --arrow-bg: rgba(110, 231, 183, 0.1);
+    --arrow-hover: rgba(110, 231, 183, 0.3);
+  }
 
-    /* ----------------------------------
-       GLOBAL RESET
-    ---------------------------------- */
-    *,
-    *::before,
-    *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  /* ----------------------------------
+     GLOBAL RESET
+  ---------------------------------- */
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-    html,
-    body {
-      height: 100%;
-      font-family: var(--font-family);
-      background: var(--gradient);
-      color: var(--text-color);
-      line-height: 1.6;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      overflow-x: hidden;
-      overflow-y: auto;
-    }
+  html,
+  body {
+    height: 100%;
+    font-family: var(--font-family);
+    background: var(--gradient);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
 
-    a {
-      color: var(--accent-color);
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-    a:hover {
-      color: var(--text-color);
-    }
+  a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  a:hover {
+    color: var(--text-color);
+  }
 
-    /* ----------------------------------
-       HEADER
-    ---------------------------------- */
-    header {
-      position: relative;
-      background: var(--header-footer-bg);
-      color: var(--text-color);
-      /* Fluid padding: min 0.75rem (12px), ideal 5vw, max 2rem (32px) */
-      padding: clamp(0.75rem, 5vw, 2rem) clamp(0.5rem, 3vw, 1rem);
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      backdrop-filter: blur(10px);
-    }
+  /* ----------------------------------
+     HEADER
+  ---------------------------------- */
+  header {
+    position: relative;
+    background: var(--header-footer-bg);
+    color: var(--text-color);
+    /* Fluid padding: min 0.75rem (12px), ideal 5vw, max 2rem (32px) */
+    padding: clamp(0.75rem, 5vw, 2rem) clamp(0.5rem, 3vw, 1rem);
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+  }
 
-    header h2 {
-      /* Fluid font-size: min 1.2rem, ideal 5vw, max 1.7rem */
-      font-size: clamp(1.2rem, 5vw, 1.7rem);
-      font-weight: 700;
-      color: var(--accent-color);
-      margin-bottom: 0.5em;
-      line-height: 1.2;
-    }
+  header h2 {
+    /* Fluid font-size: min 1.2rem, ideal 5vw, max 1.7rem */
+    font-size: clamp(1.2rem, 5vw, 1.7rem);
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 0.5em;
+    line-height: 1.2;
+  }
 
-    .tagline {
-      /* Fluid font-size: min 0.8rem, ideal 3.5vw, max 0.95rem */
-      font-size: clamp(0.8rem, 3.5vw, 0.95rem);
-      color: var(--text-color);
-      line-height: 1.3;
-    }
+  .tagline {
+    /* Fluid font-size: min 0.8rem, ideal 3.5vw, max 0.95rem */
+    font-size: clamp(0.8rem, 3.5vw, 0.95rem);
+    color: var(--text-color);
+    line-height: 1.3;
+  }
 
-    /* If you ever add a logo into the header, use something like this:
-    header .logo {
-      width: clamp(60px, 15vw, 100px);
-      height: auto;
-      margin-bottom: 0.75rem;
-    }
-    */
+  /* ----------------------------------
+     CAROUSEL CONTAINER
+  ---------------------------------- */
+  body > .carousel-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
 
-    /* ----------------------------------
-       CAROUSEL CONTAINER
-    ---------------------------------- */
-    body > .carousel-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-    }
+  .carousel-container {
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 0 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-    .carousel-container {
-      max-width: 700px;
-      margin: 20px auto;
-      padding: 0 20px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 10px;
-    }
+  #puzzle-counter {
+    text-align: center;
+    margin: 10px 0 20px;
+    font-weight: 600;
+    /* Fluid font-size: min 0.95rem, ideal 2.5vw, max 1.1rem */
+    font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+    color: var(--accent-color);
+    user-select: none;
+  }
 
-    #puzzle-counter {
-      text-align: center;
-      margin: 10px 0 20px;
-      font-weight: 600;
-      /* Fluid font-size: min 0.95rem, ideal 2.5vw, max 1.1rem */
-      font-size: clamp(0.95rem, 2.5vw, 1.1rem);
-      color: var(--accent-color);
-      user-select: none;
-    }
+  .carousel-content {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 20px;
+    padding: 10px;
+  }
 
+  .puzzle-box {
+    min-height: 400px;
+    max-height: 600px;
+    max-width: 80vw;
+    margin: 0 auto 30px;
+    overflow-y: auto;
+    background: var(--box-color);
+    backdrop-filter: blur(16px);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px var(--shadow);
+    padding: 30px;
+    font-size: 1rem;
+    color: var(--text-color);
+    overflow-wrap: break-word;
+    word-break: break-word;
+    display: none;
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+  }
+
+  .puzzle-box.active {
+    display: block;
+  }
+
+  .puzzle-box h1 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: var(--accent-color);
+  }
+
+  .puzzle-box p {
+    margin: 10px 0;
+  }
+
+  /* ----------------------------------
+     ARROWS (hide on narrow screens)
+  ---------------------------------- */
+  .arrow {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    background: transparent;
+    border: none;
+    padding: 0 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.3s ease;
+  }
+  .arrow:hover {
+    color: var(--accent-color);
+  }
+  .left-arrow {
+    order: 0;
+  }
+  .right-arrow {
+    order: 2;
+  }
+
+  @media (max-width: 768px) {
+    .arrow {
+      display: none !important;
+    }
     .carousel-content {
-      width: 100%;
-      max-width: 640px;
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      gap: 20px;
       padding: 10px;
     }
-
     .puzzle-box {
-      min-height: 400px;
-      max-height: 600px;
-      max-width: 80vw;
-      margin: 0 auto 30px;
-      overflow-y: auto;
-      background: var(--box-color);
-      backdrop-filter: blur(16px);
-      border-radius: 18px;
-      box-shadow: 0 10px 30px var(--shadow);
-      padding: 30px;
-      font-size: 1rem;
-      color: var(--text-color);
-      overflow-wrap: break-word;
-      word-break: break-word;
-      display: none;
+      font-size: 0.95rem;
+      padding: 20px;
+      min-height: 320px;
+      max-height: 500px;
+      height: auto;
+      max-width: 90vw;
       scroll-snap-align: start;
-      flex: 0 0 auto;
-    }
-
-    .puzzle-box.active {
+      flex: 0 0 90vw;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
       display: block;
     }
-
-    .puzzle-box h1 {
-      font-size: 1.4rem;
-      margin-bottom: 10px;
-      color: var(--accent-color);
+    #puzzle-counter {
+      margin: 10px 0 20px;
+      font-size: 1rem;
     }
-
-    .puzzle-box p {
-      margin: 10px 0;
+    .carousel-container {
+      max-width: 100%;
+      margin: 20px 0;
+      padding: 0;
     }
+  }
 
-    /* ----------------------------------
-       ARROWS (hide on narrow screens)
-    ---------------------------------- */
-    .arrow {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--accent-color);
-      background: transparent;
-      border: none;
-      padding: 0 8px;
-      cursor: pointer;
-      user-select: none;
-      transition: color 0.3s ease;
-    }
-    .arrow:hover {
-      color: var(--accent-color);
-    }
-    .left-arrow {
-      order: 0;
-    }
-    .right-arrow {
-      order: 2;
-    }
+  /* ----------------------------------
+     FOOTER
+  ---------------------------------- */
+  .footer-container {
+    flex-shrink: 0;
+    background: var(--header-footer-bg);
+    color: var(--text-color);
 
-    @media (max-width: 768px) {
-      .arrow {
-        display: none !important;
-      }
-      .carousel-content {
-        padding: 10px;
-      }
-      .puzzle-box {
-        font-size: 0.95rem;
-        padding: 20px;
-        min-height: 320px;
-        max-height: 500px;
-        height: auto;
-        max-width: 90vw;
-        scroll-snap-align: start;
-        flex: 0 0 90vw;
-        margin: 0;
-        border-radius: 0;
-        box-shadow: none;
-        display: block;
-      }
-      #puzzle-counter {
-        margin: 10px 0 20px;
-        font-size: 1rem;
-      }
-      .carousel-container {
-        max-width: 100%;
-        margin: 20px 0;
-        padding: 0;
-      }
-    }
+    /* Fluid vertical padding:
+       min 0.75rem (12px) → ideal 5vw → max 2rem (32px) */
+    padding: clamp(0.75rem, 5vw, 2rem) 0;
 
-    /* ----------------------------------
-       FOOTER
-    ---------------------------------- */
-.footer-container {
-  flex-shrink: 0;
-  background: var(--header-footer-bg);
-  color: var(--text-color);
+    text-align: center; /* center child inline/inline-flex elements */
+    font-size: clamp(0.7rem, 2.5vw, 0.9rem); /* fluid base font-size */
+    user-select: none;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+  }
 
-  /* Fluid vertical padding:
-     min 0.75rem (12px) → ideal 5vw → max 2rem (32px) */
-  padding: clamp(0.75rem, 5vw, 2rem) 0;
+  /* ----------------------------------
+     FOOTER LOGO (FIRST ROW)
+  ---------------------------------- */
+  .footer-container > a {
+    display: inline-block; /* shrink to logo width, then center */
+    margin-bottom: 1rem;   /* space below the logo */
+  }
+  .footer-container > a .logo {
+    /* Fluid width: min 80px → ideal 20vw → max 120px */
+    width: clamp(80px, 20vw, 120px);
+    height: auto;
+  }
 
-  text-align: center; /* center child inline/inline-flex elements */
-  font-size: clamp(0.7rem, 2.5vw, 0.9rem); /* fluid base font-size */
-  user-select: none;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(10px);
-}
-    
-    /* ----------------------------
-  FOOTER LOGO (aligns top center)
-   ---------------------------- */
- .footer-container .logo {
-  /* Fluid width: min 80px → ideal 20vw → max 120px */
-  width: clamp(80px, 20vw, 120px);
-  height: auto;
-  margin-bottom: 1rem; /* space below the logo */
-}
+  /* ----------------------------------
+     SOCIAL ICONS ROW (SECOND ROW)
+  ---------------------------------- */
+  .footer-container .social-row {
+    display: inline-flex; /* center under footer */
+    justify-content: center;
+    gap: clamp(0.5rem, 2vw, 1rem); /* fluid gap */
+    margin: 1rem 0; /* vertical spacing */
+    align-items: center;
+  }
 
-    /* ----------------------------
-   TEXT ROW (bottom row)
-   ---------------------------- */
-.footer-container .footer-text {
-  /* This uses the .footer-container’s font-size (clamped above) */
-  line-height: 1.3;
-  color: var(--text-color); /* ensure plain text is correct color */
-  margin-top: 0.5rem;       /* a touch of space above the text row */
-}
-.footer-container .footer-text a {
-  /* x-link rules already make the “#TARA” get accent+hover logic */
-  margin-left: 0.5rem; /* small space between “© 2025 …” and “#TARA” */
-}
+  /* Shared .x-link rules (text + icons) */
+  .x-link {
+    display: inline-flex; /* icons (and any text) align nicely */
+    align-items: center;
+    color: var(--accent-color);
+    transition: color 0.3s ease;
+    text-decoration: none;
+  }
+  .x-link:hover {
+    color: var(--text-color);
+  }
 
-/* ----------------------------
-   SOCIAL ICONS ROW (middle row)
-   ---------------------------- */
-.footer-container .social-row {
-  display: inline-flex;
-  gap: clamp(0.5rem, 2vw, 1rem); /* fluid gap between icons */
-  margin: 1rem 0; /* space above/below the icons */
-  align-items: center;
-}
+  /* Fluid icon sizing: min 16px → ideal 4vw → max 28px */
+  .x-link svg {
+    width: clamp(16px, 4vw, 28px);
+    height: auto;
+    fill: currentColor;
+    vertical-align: middle;
+    transition: color 0.3s ease;
+  }
 
- /* Shared x-link rules (text + icons) */
-.x-link {
-  color: var(--accent-color);
-  transition: color 0.3s ease;
-  text-decoration: none;
-  /* inline-flex so that icons + any text align nicely */
-  display: inline-flex;
-  align-items: center;
-}
-.x-link:hover {
-  color: var(--text-color);
-}
+  /* Telegram plane override (white by default, accent on hover) */
+  .t-link svg path {
+    fill: #fff;
+  }
+  .t-link:hover svg path {
+    fill: var(--accent-color);
+  }
 
-/* Fluid icon sizing: min 16px → ideal 4vw → max 28px */
-.x-link svg {
-  width: clamp(16px, 4vw, 28px);
-  height: auto;
-  fill: currentColor;
-  vertical-align: middle;
-  transition: color 0.3s ease;
-}
+  /* ----------------------------------
+     TEXT ROW (THIRD ROW)
+  ---------------------------------- */
+  .footer-container .footer-text {
+    margin-top: 0.5rem; /* space above text */
+    line-height: 1.3;
+    color: var(--text-color);
+  }
+  .footer-container .footer-text a {
+    margin-left: 0.5rem; /* space before “#TARA” */
+  }
+</style>
 
- /* Telegram plane override (white by default, accent on hover) */
-.t-link svg path {
-  fill: #fff;
-}
-.t-link:hover svg path {
-  fill: var(--accent-color);
-}
-  </style>
 </head>
 <body>
   <!-- ===== HEADER ===== -->

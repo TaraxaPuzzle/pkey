@@ -337,6 +337,8 @@
     /* ----------------------------------
        MOBILE (≤ 768px)
     ---------------------------------- */
+	
+	/*
 @media (max-width: 768px) {
   /* ==== TOP PANE (header + carousel + counter) ==== */
   .top-pane {
@@ -345,7 +347,7 @@
     flex-direction: column;
     justify-content: flex-start; /* header sits at top, no gap */
     scroll-snap-align: start;
-    overflow: visible;
+    overflow: hidden;
   }
 
   /* ===== HEADER (still part of top pane, no sticky here) ===== */
@@ -534,6 +536,50 @@
 
   /* Hide carousel arrows on mobile */
   .arrow {
+    display: none !important;
+  }
+}
+*/
+
+@media (max-width: 768px) {
+  /* 1) Ensure no parent is “hiding” the horizontal scroll area */
+  .top-pane .puzzle-section {
+    overflow: visible;   /* parent must allow child to overflow horizontally */
+    min-height: 0;       /* allow child to shrink/scroll properly */
+  }
+
+  /* 2) Make the carousel container scroll horizontally */
+  .top-pane .carousel-container {
+    overflow-x: auto !important;           /* ← allow side‐to‐side swipes */
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;      /* smooth iOS momentum */
+    width: 100%;
+    max-width: 90vw;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  /* 3) Inner carousel row: flex so children sit in one line */
+  .top-pane .carousel-content {
+    display: flex !important;
+    gap: 1rem;
+    scroll-snap-type: x mandatory;
+    width: max-content;                     /* child widths define total width */
+  }
+
+  /* 4) Each puzzle‐box is 90% of the viewport width and snaps to its left edge */
+  .top-pane .puzzle-box {
+    flex: 0 0 90vw !important;              /* fixed width for snapping */
+    scroll-snap-align: start;
+    background: var(--box-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow);
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  /* 5) Hide arrows on mobile so they don’t intercept touch */
+  .top-pane .carousel-container .arrow {
     display: none !important;
   }
 }

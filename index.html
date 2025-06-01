@@ -19,6 +19,7 @@
       --shadow: rgba(0, 0, 0, 0.08);
       --arrow-bg: rgba(139, 92, 246, 0.1);
       --arrow-hover: rgba(139, 92, 246, 0.3);
+	  --header-height: 0px;
     }
 
     body.dark-theme {
@@ -354,7 +355,7 @@
 
   /* 3) PUZZLE SECTION: grow to fill whatever space remains under the header */
   .puzzle-section {
-    height: calc(100vh - 96px);
+    height: calc(100vh - var(--header-height));
     display: flex;
     flex-direction: column;
     margin: 0;
@@ -639,5 +640,26 @@
       });
     });
   </script>
+  
+  <script>
+  function updateHeaderHeightCSSVar() {
+    const header = document.querySelector('header');
+    if (!header) return;
+    // getBoundingClientRect().height or offsetHeight both give actual rendered height
+    const measured = header.getBoundingClientRect().height;
+    // set a CSS variable on :root
+    document.documentElement.style.setProperty(
+      '--header-height',
+      measured + 'px'
+    );
+  }
+
+  // Run on initial load:
+  window.addEventListener('DOMContentLoaded', () => {
+    updateHeaderHeightCSSVar();
+    // Also update if the window resizes (in case header padding/font changes)
+    window.addEventListener('resize', updateHeaderHeightCSSVar);
+  });
+</script>
 </body>
 </html>

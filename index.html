@@ -198,7 +198,7 @@
 -------------------------------------------------------- */
   
 @media (max-width: 600px) {
-  /* 1) Puzzle section wrapper fills screen & centers children */
+  /* 1) Make .puzzle-section fill the screen, center its children */
   .puzzle-section {
     min-height: 100vh;
     display: flex;
@@ -209,20 +209,26 @@
     padding: 0;
   }
 
-  /* 2) Allow the carousel itself to shrink instead of forcing a big box */
+  /* 2) Turn off flex:1 on the carousel so it doesn’t push itself to the bottom */
+  .puzzle-section > .carousel-container {
+    flex: 0 0 auto !important;
+    height: auto !important;
+  }
+
+  /* 3) Override fixed min/max heights on each puzzle-box */
   .puzzle-box {
-    /* Remove any fixed min/max height so it can size to its content */
     min-height: auto !important;
     max-height: none !important;
   }
 
-  /* 3) Remove extra bottom margin that was pushing the counter off‐screen */
-  .carousel-container {
-    margin: 0 auto; /* center, no top/bottom gap */
-    max-width: 90vw; /* still responsive width */
+  /* 4) Remove extra margins so the carousel stays centered */
+  .puzzle-section > .carousel-container {
+    margin: 0 auto;
+    max-width: 90vw; /* keep a responsive width */
+    padding: 0;      /* if you had left/right padding, you can keep it or remove */
   }
 
-  /* 4) Keep the counter just below the carousel with a small gap */
+  /* 5) Keep the counter directly below the carousel */
   #puzzle-counter {
     margin: clamp(0.5rem, 2vw, 1rem) 0; /* small top/bottom margin */
   }

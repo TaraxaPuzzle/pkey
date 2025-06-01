@@ -336,43 +336,46 @@
     /* ----------------------------------
        MOBILE (≤ 768px)
     ---------------------------------- */
- @media (max-width: 1024px) {
-  /* 1) Make the header stick at the top */
+@media (max-width: 1024px) {
+
+  /* 1) Keep header at the top */
   header {
     position: sticky;
     top: 0;
     z-index: 10;
   }
 
-  /* 2) Make <body> a column flex container and prevent it from scrolling */
+  /* 2) Make <body> a column‐flex of exactly one viewport height */
   body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    overflow: hidden; /* so only puzzle-section scrolls */
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* so only the puzzle area scrolls */
   }
 
-  /* 3) PUZZLE SECTION: flex‐grow to fill space under header */
+  /* 3) PUZZLE SECTION: grow to fill whatever space remains under the header */
   .puzzle-section {
-    flex: 1;                /* fill whatever vertical space remains */
+    flex: 1;                 /* expand to fill under the header */
     display: flex;
     flex-direction: column;
     margin: 0;
     padding: 0;
-    overflow: hidden;       /* carousel will scroll internally */
+    overflow: hidden;        /* hide overflow—carousel scrolls inside */
   }
 
-  /* 3a) Let the carousel‐container fill space above the counter */
+  /* 3a) The carousel‐container takes all the space above the counter */
   .puzzle-section > .carousel-container {
-    flex: 1;                /* take all space above the counter */
-    overflow-y: auto;       /* scroll puzzles inside */
+    flex: 1;                 /* fill vertical space above the counter */
+    overflow-y: auto;        /* scroll puzzles inside here */
     width: 100%;
     max-width: 90vw;
     margin: 0 auto;
     padding: 0;
   }
 
-  /* 3b) Puzzle‐boxes simply size to their content */
+  /* 3b) Puzzle‐boxes simply size to content */
   .puzzle-box {
     min-height: auto !important;
     max-height: none !important;
@@ -398,7 +401,7 @@
     margin: 0;
   }
 
-  /* 4) BOT SECTION: standard flow below puzzle */
+  /* 4) BOT SECTION appears immediately after puzzle‐section */
   .bot-section {
     flex: 0 0 auto;
     height: auto;
@@ -412,7 +415,7 @@
     box-shadow: 0 4px 12px var(--shadow);
   }
 
-  /* 5) FOOTER: standard flow below bot */
+  /* 5) FOOTER follows in normal document flow */
   .footer-container {
     flex: 0 0 auto;
     height: auto;
@@ -424,7 +427,7 @@
     margin-top: 1rem;
   }
 
-  /* 6) Hide arrows on mobile */
+  /* 6) Hide carousel arrows on narrower screens */
   .arrow {
     display: none !important;
   }

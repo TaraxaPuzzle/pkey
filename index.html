@@ -340,6 +340,63 @@
   margin: 0;
   padding: 0;
 }
+
+/* ----------------------------------
+   BOT SECTION
+---------------------------------- */
+.bot-section {
+  /* Center everything and give a bit of breathing room */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Fluid vertical spacing: min 1rem → ideal 3vw → max 2rem */
+  margin: clamp(1rem, 3vw, 2rem) auto;
+  padding: clamp(0.5rem, 3vw, 2rem);
+  background: var(--box-color);
+  backdrop-filter: blur(16px);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px var(--shadow);
+  max-width: 700px;    /* match your carousel max-width */
+  width: 90%;          /* take up most of the viewport on small screens */
+}
+
+/* Image placeholder, fluid sizing: min 80px → ideal 20vw → max 120px */
+.bot-section .bot-image {
+  width: clamp(80px, 20vw, 120px);
+  height: auto;
+  margin-bottom: clamp(0.5rem, 2vw, 1rem);
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Bot description text: fluid font-size between 0.9rem and 1.1rem */
+.bot-section .bot-description {
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  color: var(--text-color);
+  text-align: center;
+  line-height: 1.4;
+  margin-bottom: clamp(0.75rem, 2.5vw, 1.25rem);
+}
+
+/* “Start the Bot” button styling */
+.bot-section .bot-button {
+  display: inline-block;
+  background-color: var(--accent-color);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  /* Fluid padding: min 0.5rem 1rem → ideal 1.5vw 3vw → max 0.75rem 1.5rem */
+  padding: clamp(0.5rem, 1.5vw, 0.75rem)
+           clamp(1rem, 3vw, 1.5rem);
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.bot-section .bot-button:hover {
+  background-color: var(--text-color);
+  color: var(--primary-color);
+}
+
 </style>
 
 </head>
@@ -392,6 +449,35 @@
   </div>
 
   <div id="puzzle-counter"></div>
+  
+   <!-- ===== Telegram Bot ===== -->
+  
+  <div class="bot-section">
+  <img
+    src="taraxa-wallet-tracker.jpg"
+    alt="Taraxa Wallet Tracker Bot"
+    class="bot-image"
+  />
+
+  <p class="bot-description">
+  <h1>Taraxa Wallet Tracker</h1>
+  <h2>@PkeyWatchBot</h2>
+  <br>
+    Meet our Telegram Wallet Tracker Bot! 🚀<br />
+    Simply click the button below to start tracking your native TARA balances in real time. Stay updated on transfers and balance changes—directly inside Telegram.
+  </p>
+  <br>
+  <!-- Example “Start Bot” button linking to your bot -->
+  <a
+    href="https://t.me/PkeyWatchBot"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="bot-button"
+  >
+    Start the Bot
+  </a>
+</div>
+
 
   <!-- ===== FOOTER ===== -->
 <footer class="footer-container">

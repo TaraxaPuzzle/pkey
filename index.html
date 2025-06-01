@@ -201,27 +201,21 @@
   
   @media (max-width: 600px) {
   .puzzle-section {
-    /* Make the puzzle‐section at least as tall as the screen */
     min-height: 100vh;
-
-    /* Stack carousel + counter vertically, and center them */
     display: flex;
     flex-direction: column;
-    justify-content: center; /* centers content vertically */
-    align-items: center;     /* centers horizontally (if needed) */
-
-    /* Optional: you can remove extra top/bottom margin/padding here */
-    margin: 0;              
+    justify-content: center;
+    align-items: center;
+    margin: 0;
     padding: 0;
   }
 
-  /* If carousel‐container or puzzle‐counter had extra margin-bottom,
-     you can trim it here to avoid overflow */
+  /* Tweak margins if needed to keep carousel + counter centered */
   .carousel-container {
-    margin-bottom: 0;
+    margin: 0 auto; /* no extra vertical margin */
   }
   #puzzle-counter {
-    margin-top: 0;
+    margin: clamp(0.5rem, 2vw, 1rem) 0;
   }
 }
 

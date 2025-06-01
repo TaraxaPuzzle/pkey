@@ -661,20 +661,19 @@
 <script>
   function updateHeaderHeightCSSVar() {
     const header = document.querySelector('header');
-    if (!header) {
-      
-      return;
-    }
-    const measured = header.getBoundingClientRect().height;
-  
+    if (!header) return;
+    // Round to nearest integer to avoid decimals:
+    const measured = Math.round(header.getBoundingClientRect().height);
     document.documentElement.style.setProperty(
       '--header-height',
       measured + 'px'
     );
+    // Now the debug banner’s text will update automatically
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     updateHeaderHeightCSSVar();
+    // Also re‐measure if the device is rotated/resized:
     window.addEventListener('resize', updateHeaderHeightCSSVar);
   });
 </script>

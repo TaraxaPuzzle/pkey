@@ -338,27 +338,31 @@
 @media (max-width: 768px) {
   /* 1) Ensure no parent is “hiding” the horizontal scroll area */
   .top-pane .puzzle-section {
-    overflow: visible;   /* parent must allow child to overflow horizontally */
-    min-height: 0;       /* allow child to shrink/scroll properly */
+    overflow: visible !important;
+    min-height: 0 !important;
   }
 
   /* 2) Make the carousel container scroll horizontally */
   .top-pane .carousel-container {
-    overflow-x: auto !important;           /* ← allow side‐to‐side swipes */
-    overflow-y: hidden !important;
-    -webkit-overflow-scrolling: touch;      /* smooth iOS momentum */
+    display: block !important;        /* no flex alignment on mobile */
+    overflow-x: auto !important;      /* allow side‐to‐side swiping */
+    overflow-y: hidden !important;    /* no vertical scroll here */
+    -webkit-overflow-scrolling: touch; /* smooth momentum on iOS */
+    padding: 0;
+    margin: 0 auto;
     width: 100%;
     max-width: 90vw;
-    margin: 0 auto;
-    padding: 0;
+    min-height: 0 !important;
   }
 
   /* 3) Inner carousel row: flex so children sit in one line */
   .top-pane .carousel-content {
     display: flex !important;
-    gap: 1rem;
-    scroll-snap-type: x mandatory;
-    width: max-content;                     /* child widths define total width */
+    width: max-content !important;        /* let its children define total width */
+    gap: 1rem !important;
+    scroll-snap-type: x mandatory !important;
+    overflow: visible !important;
+    padding: clamp(0.5rem, 2vw, 1rem) !important;
   }
 
   /* 4) Each puzzle‐box is 90% of the viewport width and snaps to its left edge */
@@ -370,6 +374,7 @@
     box-shadow: 0 4px 12px var(--shadow);
     padding: 1rem;
     font-size: 0.95rem;
+	display: block !important; 
   }
 
   /* 5) Hide arrows on mobile so they don’t intercept touch */

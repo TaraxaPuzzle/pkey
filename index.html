@@ -468,9 +468,21 @@
     <button id="theme-toggle">🌙 Dark Mode</button>
   </header>
 
-<div id="debug-header-height">
-    Header height = var(--header-height)
-  </div>
+<div id="debug-header-height" style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 0, 0, 0.1);
+  color: black;
+  text-align: center;
+  font-size: 0.9rem;
+  z-index: 9999;
+  pointer-events: none;
+  padding: 4px 0;
+">
+  <!-- JS will fill this in -->
+</div>
 
   <!-- ===== PUZZLE SECTION ===== -->
   <div class="puzzle-section">
@@ -673,18 +685,21 @@
   function updateHeaderHeightCSSVar() {
     const header = document.querySelector('header');
     if (!header) return;
-    // Round to nearest integer to avoid decimals:
     const measured = Math.round(header.getBoundingClientRect().height);
+    // 1) Set the CSS variable so other CSS can use it
     document.documentElement.style.setProperty(
       '--header-height',
       measured + 'px'
     );
-    // Now the debug banner’s text will update automatically
+    // 2) Also write that value into the on‐page debug div:
+    const dbg = document.getElementById('debug-header-height');
+    if (dbg) {
+      dbg.textContent = 'Header height = ' + measured + 'px';
+    }
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     updateHeaderHeightCSSVar();
-    // Also re‐measure if the device is rotated/resized:
     window.addEventListener('resize', updateHeaderHeightCSSVar);
   });
 </script>

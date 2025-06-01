@@ -356,7 +356,7 @@
   /* 3) PUZZLE SECTION: grow to fill whatever space remains under the header */
   .puzzle-section {
     height: calc(100vh - var(--header-height));
-    display: flex;
+    height: 300px !important;
     flex-direction: column;
     margin: 0;
     padding: 0;
@@ -366,7 +366,8 @@
 
   /* 3a) The carousel‐container takes all the space above the counter */
   .puzzle-section > .carousel-container {
-    height: 300px !important;
+    display: flex;
+	min-height: 0;
     overflow-y: auto;        /* scroll puzzles inside here */
     width: 100%;
     max-width: 90vw;

@@ -355,8 +355,7 @@
 
   /* 3) PUZZLE SECTION: grow to fill whatever space remains under the header */
   .puzzle-section {
-    height: calc(100vh - var(--header-height));
-	min-height: 0;
+    height: max(100px, calc(100vh - var(--header-height)));
     display: flex;
     flex-direction: column;
     margin: 0;

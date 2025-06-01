@@ -198,39 +198,35 @@
 -------------------------------------------------------- */
   
 @media (max-width: 600px) {
-  /* 1) Make .puzzle-section fill the screen, center its children */
+  /* 1) Puzzle section wrapper fills screen, but starts at top (no big gap) */
   .puzzle-section {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* center carousel + counter vertically */
-    align-items: center;     /* center horizontally */
+    justify-content: flex-start; /* ← change was here */
+    align-items: center;
     margin: 0;
     padding: 0;
   }
 
-  /* 2) Turn off flex:1 on the carousel so it doesn’t push itself to the bottom */
-  .puzzle-section > .carousel-container {
-    flex: 0 0 auto !important;
-    height: auto !important;
-  }
-
-  /* 3) Override fixed min/max heights on each puzzle-box */
+  /* 2) Let each puzzle-box shrink to its content */
   .puzzle-box {
     min-height: auto !important;
     max-height: none !important;
   }
 
-  /* 4) Remove extra margins so the carousel stays centered */
+  /* 3) Remove extra margins so the carousel sits directly under the header */
   .puzzle-section > .carousel-container {
+    flex: 0 0 auto !important;
+    height: auto !important;
     margin: 0 auto;
-    max-width: 90vw; /* keep a responsive width */
-    padding: 0;      /* if you had left/right padding, you can keep it or remove */
+    max-width: 90vw;
+    padding: 0;
   }
 
-  /* 5) Keep the counter directly below the carousel */
+  /* 4) Keep the counter just below the carousel with a small gap */
   #puzzle-counter {
-    margin: clamp(0.5rem, 2vw, 1rem) 0; /* small top/bottom margin */
+    margin: clamp(0.5rem, 2vw, 1rem) 0;
   }
 }
 

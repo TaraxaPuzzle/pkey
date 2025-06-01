@@ -337,51 +337,51 @@
     /* ----------------------------------
        MOBILE (≤ 768px)
     ---------------------------------- */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
 
   /* 1) Keep header at the top */
   header {
-    position: flex;
+    position: sticky;  /* corrected from “flex” to “sticky” */
     top: 0;
     z-index: 10;
   }
 
-  /* 2) Make <body> a column‐flex of exactly one viewport height */
+  /* 2) Allow the whole page to scroll */
   body {
-      margin: 0;
-  padding: 0;
-  overflow: auto; /* allow the whole page to scroll */
+    margin: 0;
+    padding: 0;
+    overflow: auto;
   }
 
-  /* 3) PUZZLE SECTION: grow to fill whatever space remains under the header */
+  /* 3) PUZZLE SECTION: fill “100vh minus header height” */
   .puzzle-section {
     height: calc(100vh - var(--header-height));
     display: flex !important;
-	min-height: 0 !important;
     flex-direction: column;
+    min-height: 0 !important;
     margin: 0;
     padding: 0;
-    overflow: visible !important;        /* hide overflow—carousel scrolls inside */
-	border: 2px solid red !important;
+    overflow: hidden !important;  /* hide overflow—carousel scrolls inside */
+    border: 2px solid red !important;  /* debug border */
   }
 
-  /* 3a) The carousel‐container takes all the space above the counter */
+  /* 3a) The carousel-container takes space above the counter */
   .puzzle-section > .carousel-container {
     display: flex;
-	height: 200px !important;
-	min-height: 0 !important;
-    overflow-y: auto;        /* scroll puzzles inside here */
+    height: 200px !important;    /* forced test height */
+    min-height: 0 !important;     /* allow proper shrinking + scrolling */
+    overflow-y: auto;             /* scroll puzzles inside here */
     width: 100%;
     max-width: 90vw;
     margin: 0 auto;
     padding: 0;
-	border: 2px solid blue !important;
+    border: 2px solid blue !important;  /* debug border */
   }
 
-  /* 3b) Puzzle‐boxes simply size to content */
+  /* 3b) Each puzzle-box outlines */
   .puzzle-box {
     min-height: auto !important;
-    max-height: none !importan
+    max-height: none !important; /* fixed missing “t” and missing semicolon */
     margin: 0.5rem 0;
     padding: 1rem;
     background: var(--box-color);
@@ -389,39 +389,36 @@
     box-shadow: 0 4px 12px var(--shadow);
     width: 100%;
     font-size: 0.95rem;
-	border: 2px solid green !important;
+    border: 2px solid green !important;  /* debug border */
   }
 
   /* 3c) Pin the counter to the bottom of .puzzle-section */
   #puzzle-counter {
+    margin: 0;                     /* reset all margins */
+    margin-top: auto !important;   /* push it to the bottom */
     background: var(--box-color);
     padding: 0.5rem 0;
     font-size: 1rem;
     color: var(--accent-color);
     text-align: center;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    margin: 0;
-	margin-top: auto !important;
-	border: 2px solid orange !important;
+    border: 2px solid orange !important;  /* debug border */
   }
 
-  /* 4) BOT SECTION appears immediately after puzzle‐section */
+  /* 4) BOT SECTION immediately after puzzle-section */
   .bot-section {
-    height: auto;
-    overflow: visible;
-    display: block;
-     margin-top: 1rem !important;
-     margin-left: auto;
-     margin-right: auto;
+    margin-top: 1rem !important;
+    margin-left: auto;
+    margin-right: auto;
     padding: 1rem;
     max-width: 90vw;
     background: var(--box-color);
     border-radius: 8px;
     box-shadow: 0 4px 12px var(--shadow);
-	border: 2px solid purple !important;
+    border: 2px solid purple !important;  /* debug border */
   }
 
-  /* 5) FOOTER follows in normal document flow */
+  /* 5) FOOTER follows normally */
   .footer-container {
     flex: 0 0 auto;
     height: auto;
@@ -433,11 +430,12 @@
     margin-top: 1rem;
   }
 
-  /* 6) Hide carousel arrows on narrower screens */
+  /* 6) Hide carousel arrows on mobile */
   .arrow {
     display: none !important;
   }
 }
+
   </style>
 </head>
 <body>

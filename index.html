@@ -341,7 +341,7 @@
 
   /* 1) Keep header at the top */
   header {
-    position: sticky;
+    position: flex;
     top: 0;
     z-index: 10;
   }
@@ -359,7 +359,6 @@
     display: flex;
     flex-direction: column;
     margin: 0;
-	margin-top: auto;
     padding: 0;
     overflow: hidden;        /* hide overflow—carousel scrolls inside */
   }
@@ -389,6 +388,8 @@
 
   /* 3c) Pin the counter to the bottom of .puzzle-section */
   #puzzle-counter {
+    position: sticky;
+    bottom: 0;
     background: var(--box-color);
     padding: 0.5rem 0;
     font-size: 1rem;
@@ -400,6 +401,7 @@
 
   /* 4) BOT SECTION appears immediately after puzzle‐section */
   .bot-section {
+    flex: 0 0 auto;
     height: auto;
     overflow: visible;
     display: block;
@@ -413,6 +415,7 @@
 
   /* 5) FOOTER follows in normal document flow */
   .footer-container {
+    flex: 0 0 auto;
     height: auto;
     overflow: visible;
     padding: 1rem;

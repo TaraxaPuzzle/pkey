@@ -204,6 +204,24 @@
   .arrow {
     display: none !important;
   }
+  
+    body {
+    overflow: hidden;
+  }
+  
+  .scroll-container {
+    height: 100vh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+  }
+  
+    .puzzle-section,
+  .bot-section,
+  .footer-container {
+    height: 100vh;
+    scroll-snap-align: start;
+    overflow-y: auto;
+  }
 
   /* ----------------------------------------
      2) Tweak carousel‐content padding
@@ -467,6 +485,8 @@
       Solve the puzzle. Claim the treasure. Good luck! 🕵️‍♂️
     </div>
   </header>
+  
+  <div class="scroll-container">
 
 <div class="puzzle-section">
 
@@ -509,6 +529,7 @@
 
   <div id="puzzle-counter"></div>
   
+</div>
 </div>
   
    <!-- ===== Telegram Bot ===== -->

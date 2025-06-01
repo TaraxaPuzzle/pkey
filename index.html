@@ -661,11 +661,11 @@
   function updateHeaderHeightCSSVar() {
     const header = document.querySelector('header');
     if (!header) {
-      console.warn('No <header> found!');
+      alert('⚠️ No <header> found!');
       return;
     }
     const measured = header.getBoundingClientRect().height;
-    console.log('Measured header height:', measured, 'px');
+    alert('Header height = ' + measured + 'px');
     document.documentElement.style.setProperty(
       '--header-height',
       measured + 'px'

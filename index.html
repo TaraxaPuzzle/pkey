@@ -411,19 +411,21 @@
         <div class="puzzle-box">
           <h1>🧩 Taraxa Puzzle #1</h1>
           <p>Solve this to find the private key:</p>
-          <p>
-            41100 + 1029905 + 5984910 + 10361939 +
-            7758299 + 9670018<br />
-            + 4780081 + 14749272 + 9704383 + 14173074 + 13629956
-          </p>
-          <p><br /><br />💰 10 $TARA in Wallet 1</p>
-          <p>
-            <a
-              href="https://mainnet.explorer.taraxa.io/address/0xf708499a2e3214f1c7bb5f5546b4d2cc3c5d2ed5"
-              target="_blank"
-              rel="noopener noreferrer"
-            >📍0xf708499a2e3214f1c7Bb5f5546B4D2Cc3C5D2ed5</a>
-          </p>
+       <p>
+  41100 + 1029905 + 5984910 + 10361939 +
+  7758299 + 9670018<br />
+  + 4780081 + 14749272 + 9704383 + 14173074 + 13629956
+</p>
+<br /><br />
+  <p>💰 10 $TARA in Wallet 1</p>
+<p>
+  <a href="https://mainnet.explorer.taraxa.io/address/0xf708499a2e3214f1c7bb5f5546b4d2cc3c5d2ed5"
+     target="_blank"
+     rel="noopener noreferrer"
+  >
+    📍0xf708499a2e3214f1c7Bb5f5546B4D2Cc3C5D2ed5
+  </a>
+</p>
         </div>
         <div class="puzzle-box">
           <h1>🧩 Taraxa Puzzle #2</h1>
@@ -545,12 +547,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const carouselContent = document.querySelector('.carousel-content');
   let currentIndex = 0;
 
-  // Update the counter text to “Puzzle X of Y”
+  // 1) Show exactly the puzzle at index "idx" on desktop:
+  function showSlide(idx) {
+    puzzles.forEach((p, i) => {
+      p.classList.toggle('active', i === idx);
+    });
+  }
+
+  // 2) Update the counter text to “Puzzle X of Y”
   function updateCounter() {
     counter.textContent = `Puzzle ${currentIndex + 1} of ${puzzles.length}`;
   }
 
-  // Smoothly scroll the carousel to the slide at index “idx”
+  // 3) If you want to animate desktop widths, scroll into view (optional):
   function scrollToIndex(idx) {
     const target = puzzles[idx];
     if (target) {
@@ -561,45 +570,50 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Arrow buttons:
+  // Left‐arrow click (desktop/mobile):
   leftArrow.addEventListener('click', () => {
     currentIndex = (currentIndex - 1 + puzzles.length) % puzzles.length;
+    showSlide(currentIndex);
     scrollToIndex(currentIndex);
     updateCounter();
   });
 
+  // Right‐arrow click:
   rightArrow.addEventListener('click', () => {
     currentIndex = (currentIndex + 1) % puzzles.length;
+    showSlide(currentIndex);
     scrollToIndex(currentIndex);
     updateCounter();
   });
 
-  // When the user swipes/scrolls horizontally, figure out which slide is closest,
-  // then update the counter accordingly.
+  // On horizontal scroll (mobile swipe), find the closest slide and update:
   carouselContent.addEventListener('scroll', () => {
     const containerRect = carouselContent.getBoundingClientRect();
-    let closestIndex = 0;
+    let closest = 0;
     let smallestOffset = Infinity;
-
-    puzzles.forEach((puzzle, i) => {
-      const rect = puzzle.getBoundingClientRect();
-      const offset = Math.abs(rect.left - containerRect.left);
+    puzzles.forEach((p, i) => {
+      const r = p.getBoundingClientRect();
+      const offset = Math.abs(r.left - containerRect.left);
       if (offset < smallestOffset) {
         smallestOffset = offset;
-        closestIndex = i;
+        closest = i;
       }
     });
-
-    if (closestIndex !== currentIndex) {
-      currentIndex = closestIndex;
+    if (closest !== currentIndex) {
+      currentIndex = closest;
+      // On mobile, all slides are already visible (CSS override), so just update the counter:
       updateCounter();
+      // Also toggling .active here ensures desktop stays in sync if the window resizes back:
+      showSlide(currentIndex);
     }
   });
 
-  // Initialize on load:
+  // 4) Initialize on load:
+  showSlide(0);
   updateCounter();
   scrollToIndex(0);
 });
+
 </script>
 
   <script>

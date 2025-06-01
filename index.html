@@ -380,9 +380,10 @@
   /* ===== CAROUSEL-CONTAINER: fills area above counter ===== */
   .top-pane .puzzle-section > .carousel-container {
     flex: 1;               /* grow to fill all vertical space above counter */
-    display: flex;
+    display: block;
     align-items: center;
-    overflow: hidden;      /* no vertical scroll here */
+	overflow-x: auto;
+    overflow-y: hidden;      /* no vertical scroll here */
     width: 100%;
     max-width: 90vw;
     margin: 0 auto;
@@ -403,7 +404,7 @@
     -webkit-overflow-scrolling: touch;/* momentum scroll on iOS */
     gap: 1rem;
     padding: clamp(0.5rem, 2vw, 1rem);
-    width: 100%;
+    width: max-content;
   }
 
   /* Each puzzle-box is 90vw wide, snaps to start */

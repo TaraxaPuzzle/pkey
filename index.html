@@ -544,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const counter = document.getElementById('puzzle-counter');
   const leftArrow = document.querySelector('.left-arrow');
   const rightArrow = document.querySelector('.right-arrow');
-  const carouselContent = document.querySelector('.carousel-container');
+  const carouselContent = document.querySelector('.carousel-content');
   let currentIndex = 0;
 
   // 1) Show exactly the puzzle at index "idx" on desktop:
@@ -563,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function scrollToIndex(idx) {
     const target = puzzles[idx];
     if (target) {
-      carouselContainer.scrollTo({
+      carouselContent.scrollTo({
         left: target.offsetLeft,
         behavior: 'smooth'
       });
@@ -587,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // On horizontal scroll (mobile swipe), find the closest slide and update:
-  carouselContainer.addEventListener('scroll', () => {
+  carouselContent.addEventListener('scroll', () => {
     const containerRect = carouselContent.getBoundingClientRect();
     let closest = 0;
     let smallestOffset = Infinity;

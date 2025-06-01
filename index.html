@@ -356,6 +356,7 @@
   /* 3) PUZZLE SECTION: grow to fill whatever space remains under the header */
   .puzzle-section {
     height: calc(100vh - var(--header-height));
+	min-height: 0;
     display: flex;
     flex-direction: column;
     margin: 0;
@@ -430,29 +431,6 @@
     display: none !important;
   }
 }
-
-    #debug-header-height {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255, 0, 0, 0.1);
-      color: black;
-      text-align: center;
-      font-size: 0.9rem;
-      z-index: 9999;
-      pointer-events: none;
-      padding: 4px 0;
-    }
-
-    /* 4) Placeholder content below so you can see scrolling */
-    .content {
-      margin-top: calc(var(--header-height) + 32px);
-      padding: 16px;
-    }
-    .content p {
-      margin-bottom: 1rem;
-    }
   </style>
 </head>
 <body>
@@ -467,22 +445,6 @@
     </div>
     <button id="theme-toggle">🌙 Dark Mode</button>
   </header>
-
-<div id="debug-header-height" style="
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 0, 0, 0.1);
-  color: black;
-  text-align: center;
-  font-size: 0.9rem;
-  z-index: 9999;
-  pointer-events: none;
-  padding: 4px 0;
-">
-  <!-- JS will fill this in -->
-</div>
 
   <!-- ===== PUZZLE SECTION ===== -->
   <div class="puzzle-section">

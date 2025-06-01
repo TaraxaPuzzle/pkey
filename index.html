@@ -192,6 +192,38 @@
   .puzzle-box p {
     margin: 10px 0;
   }
+  
+  /* --------------------------------------------------------
+   On mobile, let the puzzle‐area (carousel + counter) fill
+   the entire viewport. Only after you scroll will you see
+   the Bot section and footer below.
+-------------------------------------------------------- */
+  
+  @media (max-width: 600px) {
+  .puzzle-section {
+    /* Make the puzzle‐section at least as tall as the screen */
+    min-height: 100vh;
+
+    /* Stack carousel + counter vertically, and center them */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* centers content vertically */
+    align-items: center;     /* centers horizontally (if needed) */
+
+    /* Optional: you can remove extra top/bottom margin/padding here */
+    margin: 0;              
+    padding: 0;
+  }
+
+  /* If carousel‐container or puzzle‐counter had extra margin-bottom,
+     you can trim it here to avoid overflow */
+  .carousel-container {
+    margin-bottom: 0;
+  }
+  #puzzle-counter {
+    margin-top: 0;
+  }
+}
 
   /* ----------------------------------
      ARROWS (hide on narrow screens)
@@ -411,6 +443,8 @@
     </div>
   </header>
 
+<div class="puzzle-section">
+
   <!-- ===== CAROUSEL ===== -->
   <div class="carousel-container">
     <button class="arrow left-arrow" aria-label="Previous Puzzle">&#8592;</button>
@@ -449,6 +483,8 @@
   </div>
 
   <div id="puzzle-counter"></div>
+  
+</div>
   
    <!-- ===== Telegram Bot ===== -->
   

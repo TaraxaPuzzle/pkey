@@ -198,44 +198,41 @@
 -------------------------------------------------------- */
   
 @media (max-width: 768px) {
-  /* 1) Prevent body from scrolling; only .scroll-container scrolls */
+  /* 1) Make header stick to the top */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  /* 2) Prevent body from scrolling; puzzle-section will scroll instead */
   body {
     overflow: hidden;
   }
 
-  /* 2) scroll-snap container (wraps all three panes) */
-  .scroll-container {
-    height: 100vh;
-    overflow-y: auto;
-    scroll-snap-type: y mandatory;
-  }
-
-  /* ===============================
-     PANE #1: .puzzle-section (100vh)
-  =============================== */
+  /* 3) PUZZLE SECTION: fill remaining viewport height below header */
   .puzzle-section {
-    height: 100vh;             /* full screen for carousel+counter */
-    scroll-snap-align: start;  /* snap-top when scrolling */
+    /* Subtract the header’s height from 100vh so it truly fits under the header */
+    /* If your header’s height is roughly 56px, use calc(100vh - 56px). Adjust to match your actual header height. */
+    height: calc(100vh - 56px);
+    overflow-y: auto;           /* allow the list of puzzles to scroll internally */
     display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* push carousel to top, counter to bottom */
-    align-items: center;
+    flex-direction: column;     /* stack carousel-content on top of counter */
     margin: 0;
     padding: 0;
-    overflow: hidden;          /* carousel scrolls internally if overflow */
   }
 
-  /* 2a) Let the carousel part fill all space above the counter */
+  /* 4) CAROUSEL‐CONTAINER can grow/shrink as needed */
   .puzzle-section > .carousel-container {
-    flex: 1;            /* take up whatever vertical space remains */
-    overflow-y: auto;   /* if many puzzle boxes, scroll here */
+    flex: 1;                    /* take all available space above counter */
+    overflow-y: auto;           /* scroll puzzles inside here if they overflow */
     width: 100%;
     max-width: 90vw;
     margin: 0 auto;
     padding: 0;
   }
 
-  /* 2b) Individual puzzle-boxes simply size to content */
+  /* 5) Each puzzle‐box simply sizes to content (no forced min-height) */
   .puzzle-box {
     min-height: auto !important;
     max-height: none !important;
@@ -247,46 +244,52 @@
     width: 100%;
   }
 
-  /* 2c) Counter sits flush at the bottom of the 100vh pane */
+  /* 6) Make the counter “stick” at the bottom of puzzle‐section */
   #puzzle-counter {
-    margin: 0;
+    position: sticky;
+    bottom: 0;
+    background: var(--box-color);
     padding: 0.5rem 0;
     font-size: 1rem;
     color: var(--accent-color);
+    text-align: center;
+    /* Optional: add a tiny box‐shadow to separate it from puzzles above */
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
   }
 
-  /* ===============================
-     PANE #2: .bot-section (100vh)
-  =============================== */
+  /* 7) BOT SECTION follows immediately after puzzle‐section (no extra gap) */
   .bot-section {
-    height: 100vh;
-    scroll-snap-align: start;
-    overflow-y: auto;  /* if bot content is taller, scroll here */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
+    /* remove any forced 100vh */
+    height: auto;
+    overflow: visible;
+    display: block;
+    margin: 1rem auto;
     padding: 1rem;
+    max-width: 90vw;
     background: var(--box-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow);
   }
 
-  /* ===============================
-     PANE #3: .footer-container (100vh)
-  =============================== */
+  /* 8) FOOTER behaves normally below the Bot */
   .footer-container {
-    height: 100vh;
-    scroll-snap-align: start;
-    overflow-y: auto;
+    height: auto;
+    overflow: visible;
     padding: 1rem;
     text-align: center;
     background: var(--header-footer-bg);
     color: var(--text-color);
+    margin-top: 1rem;
   }
 
-  /* 9) Optionally hide any desktop‐only elements */
+  /* 9) Hide carousel arrows on mobile */
   .arrow {
     display: none !important;
+  }
+
+  /* 10) Slightly smaller puzzle text on phones */
+  .puzzle-box {
+    font-size: 0.95rem;
   }
 }
 

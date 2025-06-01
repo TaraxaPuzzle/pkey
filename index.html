@@ -343,12 +343,12 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* remove any vertical centering */
+    justify-content: flex-start; /* header sits at top, no gap */
     scroll-snap-align: start;
     overflow: hidden;
   }
 
-  /* ===== HEADER (simply part of the top pane, no extra gap) ===== */
+  /* ===== HEADER (still part of top pane, no sticky here) ===== */
   .top-pane header {
     background: var(--header-footer-bg);
     color: var(--text-color);
@@ -366,60 +366,62 @@
     margin-top: 0.75rem;
   }
 
-  /* ===== PUZZLE SECTION: flex‐container under header ===== */
+  /* ===== PUZZLE SECTION: fills all space below header ===== */
   .top-pane .puzzle-section {
-    flex: 1;              /* take all remaining space under header */
+    flex: 1;               /* take the rest of the top pane under the header */
     display: flex;
     flex-direction: column;
     margin: 0;
     padding: 0;
-    overflow: hidden;     /* carousel scrolls inside */
+    overflow: hidden;      /* hide overflow—carousel will scroll inside */
+    min-height: 0;         /* allow it to shrink/scroll correctly */
   }
 
-  /* ===== CAROUSEL‐CONTAINER: fills area above counter ===== */
+  /* ===== CAROUSEL-CONTAINER: fills area above counter ===== */
   .top-pane .puzzle-section > .carousel-container {
-    flex: 1;                  /* fill all vertical space */
+    flex: 1;               /* grow to fill all vertical space above counter */
     display: flex;
     align-items: center;
-    overflow-y: hidden;       /* no vertical scroll here */
+    overflow: hidden;      /* no vertical scroll here */
     width: 100%;
     max-width: 90vw;
     margin: 0 auto;
-    padding: 0;               /* reset any extra padding */
+    padding: 0;
+    min-height: 0;         /* crucial to allow internal scrolling */
   }
 
-  /* Hide arrows, they’ll reappear via JS if needed, but hidden on mobile */
+  /* hide arrows on mobile */
   .top-pane .carousel-container .arrow {
     display: none !important;
   }
 
-  /* ===== CAROUSEL‐CONTENT: horizontal scroll + snap ===== */
+  /* ===== CAROUSEL-CONTENT: horizontal scroll + snap ===== */
   .top-pane .carousel-content {
     display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;                /* allow horizontal swipes */
+    scroll-snap-type: x mandatory;    /* snap each puzzle-box to left edge */
+    -webkit-overflow-scrolling: touch;/* momentum scroll on iOS */
     gap: 1rem;
     padding: clamp(0.5rem, 2vw, 1rem);
     width: 100%;
   }
 
-  /* Each puzzle‐box sits 90vw wide, scroll‐snap aligns left */
+  /* Each puzzle-box is 90vw wide, snaps to start */
   .top-pane .puzzle-box {
-    flex: 0 0 90vw;
-    scroll-snap-align: start;
+    flex: 0 0 90vw;                   /* fixed 90% of viewport width */
+    scroll-snap-align: start;         /* snap its left edge */
     background: var(--box-color);
     border-radius: 8px;
     box-shadow: 0 4px 12px var(--shadow);
     padding: 1rem;
     font-size: 0.95rem;
-    margin: 0;  /* spacing is handled by gap on carousel-content */
+    margin: 0;                        /* spacing comes from gap on carousel-content */
   }
 
-  /* ===== PUZZLE COUNTER pinned at bottom of puzzle‐section ===== */
+  /* ===== PUZZLE COUNTER pinned to bottom of puzzle-section ===== */
   .top-pane #puzzle-counter {
     margin: 0;
-    margin-top: auto;       /* push to bottom of puzzle‐section */
+    margin-top: auto;      /* push to the bottom of .puzzle-section */
     background: var(--box-color);
     padding: 0.5rem 0;
     font-size: 1rem;
@@ -437,7 +439,7 @@
     overflow: hidden;
   }
 
-  /* Bot Section scrolls if needed */
+  /* Bot Section scrolls internally if content overflows */
   .bottom-pane .bot-section {
     flex: 1;
     overflow-y: auto;
@@ -448,6 +450,7 @@
     border-radius: 8px;
     box-shadow: 0 4px 12px var(--shadow);
     text-align: center;
+    min-height: 0;        /* ensure scrolling works inside */
   }
   .bottom-pane .bot-image {
     width: clamp(80px, 20vw, 120px);
@@ -479,7 +482,7 @@
     color: var(--primary-color);
   }
 
-  /* Footer sits fixed at bottom within the bottom pane */
+  /* Footer sits at bottom of bottom-pane */
   .bottom-pane .footer-container {
     flex: 0 0 auto;
     background: var(--header-footer-bg);
@@ -529,11 +532,12 @@
     margin-left: 0.5rem;
   }
 
-  /* Hide arrows inside the carousel on mobile */
+  /* Hide carousel arrows on mobile */
   .arrow {
     display: none !important;
   }
 }
+
 
 
 

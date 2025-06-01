@@ -337,7 +337,7 @@
     /* ----------------------------------
        MOBILE (≤ 768px)
     ---------------------------------- */
-@media (max-width: 1024px) {
+@media (max-width: 600px) {
 
   /* 1) Keep header at the top */
   header {
@@ -355,7 +355,7 @@
 
   /* 3) PUZZLE SECTION: grow to fill whatever space remains under the header */
   .puzzle-section {
-    height: max(100px, calc(100vh - var(--header-height)));
+    height: calc(100vh - var(--header-height));
     display: flex;
     flex-direction: column;
     margin: 0;
@@ -376,7 +376,7 @@
   /* 3b) Puzzle‐boxes simply size to content */
   .puzzle-box {
     min-height: auto !important;
-    max-height: none !important;
+    max-height: none !importan
     margin: 0.5rem 0;
     padding: 1rem;
     background: var(--box-color);

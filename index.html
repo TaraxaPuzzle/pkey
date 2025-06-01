@@ -336,97 +336,99 @@
     /* ----------------------------------
        MOBILE (≤ 768px)
     ---------------------------------- */
-    @media (max-width: 768px) {
-      /* 1) Make header sticky */
-      header {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-      }
+ @media (max-width: 768px) {
+  /* 1) Make the header stick at the top */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
 
-      /* 2) Prevent body scrolling */
-      body {
-        overflow: hidden;
-      }
+  /* 2) Make <body> a column flex container and prevent it from scrolling */
+  body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden; /* so only puzzle-section scrolls */
+  }
 
-      /* 3) PUZZLE SECTION: fill remaining viewport height under header */
-      .puzzle-section {
-        /* Adjust "64px" to match your header’s actual height (inspect to confirm) */
-        height: calc(100vh - 64px);
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between; /* carousel at top, counter at bottom */
-        align-items: center;
-        margin: 0;
-        padding: 0;
-        overflow: hidden; /* carousel scrolls inside */
-      }
+  /* 3) PUZZLE SECTION: flex‐grow to fill space under header */
+  .puzzle-section {
+    flex: 1;                /* fill whatever vertical space remains */
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;       /* carousel will scroll internally */
+  }
 
-      /* 3a) Let the carousel-container scroll internally if needed */
-      .puzzle-section > .carousel-container {
-        flex: 1;            /* take all available space above counter */
-        overflow-y: auto;   /* scroll puzzles inside this area */
-        width: 100%;
-        max-width: 90vw;
-        margin: 0 auto;
-        padding: 0;
-      }
+  /* 3a) Let the carousel‐container fill space above the counter */
+  .puzzle-section > .carousel-container {
+    flex: 1;                /* take all space above the counter */
+    overflow-y: auto;       /* scroll puzzles inside */
+    width: 100%;
+    max-width: 90vw;
+    margin: 0 auto;
+    padding: 0;
+  }
 
-      /* 3b) Puzzle boxes size to content */
-      .puzzle-box {
-        min-height: auto !important;
-        max-height: none !important;
-        margin: 0.5rem 0;
-        padding: 1rem;
-        background: var(--box-color);
-        border-radius: 8px;
-        box-shadow: 0 4px 12px var(--shadow);
-        width: 100%;
-        font-size: 0.95rem;
-      }
+  /* 3b) Puzzle‐boxes simply size to their content */
+  .puzzle-box {
+    min-height: auto !important;
+    max-height: none !important;
+    margin: 0.5rem 0;
+    padding: 1rem;
+    background: var(--box-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow);
+    width: 100%;
+    font-size: 0.95rem;
+  }
 
-      /* 3c) Pin the counter to bottom of puzzle-section */
-      #puzzle-counter {
-        position: sticky;
-        bottom: 0;
-        background: var(--box-color);
-        padding: 0.5rem 0;
-        font-size: 1rem;
-        color: var(--accent-color);
-        text-align: center;
-        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-        margin: 0;
-      }
+  /* 3c) Pin the counter to the bottom of .puzzle-section */
+  #puzzle-counter {
+    position: sticky;
+    bottom: 0;
+    background: var(--box-color);
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    color: var(--accent-color);
+    text-align: center;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    margin: 0;
+  }
 
-      /* 4) BOT SECTION appears immediately after puzzle-section */
-      .bot-section {
-        height: auto;
-        overflow: visible;
-        display: block;
-        margin: 0 auto 1rem;
-        padding: 1rem;
-        max-width: 90vw;
-        background: var(--box-color);
-        border-radius: 8px;
-        box-shadow: 0 4px 12px var(--shadow);
-      }
+  /* 4) BOT SECTION: standard flow below puzzle */
+  .bot-section {
+    flex: 0 0 auto;
+    height: auto;
+    overflow: visible;
+    display: block;
+    margin: 1rem auto;
+    padding: 1rem;
+    max-width: 90vw;
+    background: var(--box-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow);
+  }
 
-      /* 5) FOOTER appears immediately under bot-section */
-      .footer-container {
-        height: auto;
-        overflow: visible;
-        padding: 1rem;
-        text-align: center;
-        background: var(--header-footer-bg);
-        color: var(--text-color);
-        margin-top: 1rem;
-      }
+  /* 5) FOOTER: standard flow below bot */
+  .footer-container {
+    flex: 0 0 auto;
+    height: auto;
+    overflow: visible;
+    padding: 1rem;
+    text-align: center;
+    background: var(--header-footer-bg);
+    color: var(--text-color);
+    margin-top: 1rem;
+  }
 
-      /* 6) Hide carousel arrows on mobile */
-      .arrow {
-        display: none !important;
-      }
-    }
+  /* 6) Hide arrows on mobile */
+  .arrow {
+    display: none !important;
+  }
+}
   </style>
 </head>
 <body>

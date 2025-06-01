@@ -194,39 +194,91 @@
   }
   
   /* --------------------------------------------------------
-   MOBILE (≤ 600px): make puzzle‐section fill & center
+   MOBILE (≤ 768px): make puzzle‐section fill & center
 -------------------------------------------------------- */
   
 @media (max-width: 768px) {
-  /* 1) Puzzle section wrapper fills screen, but starts at top (no big gap) */
+  /* ----------------------------------------
+     1) Hide carousel arrows on small screens
+  ---------------------------------------- */
+  .arrow {
+    display: none !important;
+  }
+
+  /* ----------------------------------------
+     2) Tweak carousel‐content padding
+  ---------------------------------------- */
+  .carousel-content {
+    padding: 10px;
+  }
+
+  /* ----------------------------------------
+     3) Make .puzzle-section fill the screen
+  ---------------------------------------- */
   .puzzle-section {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* ← change was here */
+    justify-content: flex-start; /* start at top, no extra gap */
     align-items: center;
     margin: 0;
     padding: 0;
   }
 
-  /* 2) Let each puzzle-box shrink to its content */
+  /* ----------------------------------------
+     4) Override .carousel-container so it can shrink/grow
+  ---------------------------------------- */
+  .puzzle-section > .carousel-container {
+    flex: 0 0 auto !important; /* disable the “flex:1” on mobile */
+    height: auto !important;
+    margin: 0 auto;             /* center it horizontally */
+    max-width: 90vw;            /* responsive width */
+    padding: 0;                 /* remove any extra padding */
+  }
+
+  /* ----------------------------------------
+     5) Let each .puzzle-box shrink to its content
+  ---------------------------------------- */
   .puzzle-box {
     min-height: auto !important;
     max-height: none !important;
-  }
-
-  /* 3) Remove extra margins so the carousel sits directly under the header */
-  .puzzle-section > .carousel-container {
-    flex: 0 0 auto !important;
-    height: auto !important;
-    margin: 0 auto;
+    font-size: 0.95rem;    /* slightly smaller text on mobile */
+    padding: 20px;         /* keep your mobile padding */
     max-width: 90vw;
-    padding: 0;
+    scroll-snap-align: start;
+    flex: 0 0 90vw;
+    margin: 0;             /* no extra margin */
+    border-radius: 0;
+    box-shadow: none;
+    display: block;        /* ensure each puzzle is visible */
   }
 
-  /* 4) Keep the counter just below the carousel with a small gap */
+  /* ----------------------------------------
+     6) Carousel‐container layout tweaks
+  ---------------------------------------- */
+  .carousel-container {
+    max-width: 100%;
+    margin: 20px 0;        /* some vertical breathing room */
+    padding: 0;            /* no extra padding */
+  }
+
+  /* ----------------------------------------
+     7) Pin #puzzle-counter to just below the carousel
+  ---------------------------------------- */
   #puzzle-counter {
     margin: clamp(0.5rem, 2vw, 1rem) 0;
+    font-size: 1rem;       /* a slightly larger counter on mobile */
+  }
+
+  /* ----------------------------------------
+     8) Pull .bot-section up closer to the counter
+  ---------------------------------------- */
+  .bot-section {
+    /* only a small gap above the bot, instead of a large one */
+    margin-top: clamp(0.5rem, 2vw, 1rem);
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: clamp(1rem, 3vw, 2rem);
   }
 }
 
@@ -252,38 +304,6 @@
   }
   .right-arrow {
     order: 2;
-  }
-
-  @media (max-width: 768px) {
-    .arrow {
-      display: none !important;
-    }
-    .carousel-content {
-      padding: 10px;
-    }
-    .puzzle-box {
-      font-size: 0.95rem;
-      padding: 20px;
-      min-height: 320px;
-      max-height: 500px;
-      height: auto;
-      max-width: 90vw;
-      scroll-snap-align: start;
-      flex: 0 0 90vw;
-      margin: 0;
-      border-radius: 0;
-      box-shadow: none;
-      display: block;
-    }
-    #puzzle-counter {
-      margin: 10px 0 20px;
-      font-size: 1rem;
-    }
-    .carousel-container {
-      max-width: 100%;
-      margin: 20px 0;
-      padding: 0;
-    }
   }
 
   /* ----------------------------------

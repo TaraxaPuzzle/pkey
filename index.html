@@ -641,23 +641,23 @@
     });
   </script>
   
-  <script>
+<script>
   function updateHeaderHeightCSSVar() {
     const header = document.querySelector('header');
-    if (!header) return;
-    // getBoundingClientRect().height or offsetHeight both give actual rendered height
+    if (!header) {
+      console.warn('No <header> found!');
+      return;
+    }
     const measured = header.getBoundingClientRect().height;
-    // set a CSS variable on :root
+    console.log('Measured header height:', measured, 'px');
     document.documentElement.style.setProperty(
       '--header-height',
       measured + 'px'
     );
   }
 
-  // Run on initial load:
   window.addEventListener('DOMContentLoaded', () => {
     updateHeaderHeightCSSVar();
-    // Also update if the window resizes (in case header padding/font changes)
     window.addEventListener('resize', updateHeaderHeightCSSVar);
   });
 </script>

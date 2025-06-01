@@ -536,55 +536,71 @@
 </div> <!-- end .scroll-container -->
 
   <!-- ===== SCRIPTS ===== -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const puzzles = document.querySelectorAll('.puzzle-box');
-      const counter = document.getElementById('puzzle-counter');
-      const leftArrow = document.querySelector('.left-arrow');
-      const rightArrow = document.querySelector('.right-arrow');
-      const carouselContent = document.querySelector('.carousel-content');
-      let currentIndex = 0;
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const puzzles = Array.from(document.querySelectorAll('.puzzle-box'));
+  const counter = document.getElementById('puzzle-counter');
+  const leftArrow = document.querySelector('.left-arrow');
+  const rightArrow = document.querySelector('.right-arrow');
+  const carouselContent = document.querySelector('.carousel-content');
+  let currentIndex = 0;
 
-      function updateCarousel() {
-        puzzles.forEach((puzzle, i) => {
-          puzzle.classList.toggle('active', i === currentIndex);
-        });
-        counter.textContent = `Puzzle ${currentIndex + 1} of ${puzzles.length}`;
+  // Update the counter text to “Puzzle X of Y”
+  function updateCounter() {
+    counter.textContent = `Puzzle ${currentIndex + 1} of ${puzzles.length}`;
+  }
+
+  // Smoothly scroll the carousel to the slide at index “idx”
+  function scrollToIndex(idx) {
+    const target = puzzles[idx];
+    if (target) {
+      carouselContent.scrollTo({
+        left: target.offsetLeft,
+        behavior: 'smooth'
+      });
+    }
+  }
+
+  // Arrow buttons:
+  leftArrow.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + puzzles.length) % puzzles.length;
+    scrollToIndex(currentIndex);
+    updateCounter();
+  });
+
+  rightArrow.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % puzzles.length;
+    scrollToIndex(currentIndex);
+    updateCounter();
+  });
+
+  // When the user swipes/scrolls horizontally, figure out which slide is closest,
+  // then update the counter accordingly.
+  carouselContent.addEventListener('scroll', () => {
+    const containerRect = carouselContent.getBoundingClientRect();
+    let closestIndex = 0;
+    let smallestOffset = Infinity;
+
+    puzzles.forEach((puzzle, i) => {
+      const rect = puzzle.getBoundingClientRect();
+      const offset = Math.abs(rect.left - containerRect.left);
+      if (offset < smallestOffset) {
+        smallestOffset = offset;
+        closestIndex = i;
       }
-
-      leftArrow.addEventListener('click', () => {
-        currentIndex = (currentIndex - 1 + puzzles.length) % puzzles.length;
-        updateCarousel();
-      });
-
-      rightArrow.addEventListener('click', () => {
-        currentIndex = (currentIndex + 1) % puzzles.length;
-        updateCarousel();
-      });
-
-      carouselContent.addEventListener('scroll', () => {
-        const containerRect = carouselContent.getBoundingClientRect();
-        let closestIndex = 0;
-        let smallestOffset = Infinity;
-
-        puzzles.forEach((puzzle, i) => {
-          const puzzleRect = puzzle.getBoundingClientRect();
-          const offset = Math.abs(puzzleRect.left - containerRect.left);
-          if (offset < smallestOffset) {
-            smallestOffset = offset;
-            closestIndex = i;
-          }
-        });
-
-        if (closestIndex !== currentIndex) {
-          currentIndex = closestIndex;
-          updateCarousel();
-        }
-      });
-
-      updateCarousel();
     });
-  </script>
+
+    if (closestIndex !== currentIndex) {
+      currentIndex = closestIndex;
+      updateCounter();
+    }
+  });
+
+  // Initialize on load:
+  updateCounter();
+  scrollToIndex(0);
+});
+</script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {

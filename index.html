@@ -4,470 +4,368 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Taraxa Puzzle</title>
-  <link rel="icon" type="image/png" href="favicon.png.png" />
 
-  <button
-    id="theme-toggle"
-    style="
-      margin-top: 10px;
-      font-size: 0.9rem;
-      padding: 5px 10px;
+  <style>
+    :root {
+      --font-family: 'Inter', sans-serif;
+      --accent-color: #8b5cf6;
+      --text-color: #1f2937;
+      --box-color: #ffffff;
+      --header-footer-bg: #ffffffee;
+      --shadow: rgba(0, 0, 0, 0.08);
+    }
+
+    /* ----------------------------------
+       GLOBAL RESET + BASE STYLES
+    ---------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font-family);
+      background: var(--gradient);
+      color: var(--text-color);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    a {
+      color: var(--accent-color);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    a:hover {
+      color: var(--text-color);
+    }
+
+    /* ----------------------------------
+       HEADER
+    ---------------------------------- */
+    header {
+      position: relative;
+      background: var(--header-footer-bg);
+      color: var(--text-color);
+      padding: clamp(0.75rem, 5vw, 2rem) clamp(0.5rem, 3vw, 1rem);
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+    header h2 {
+      font-size: clamp(1.2rem, 5vw, 1.7rem);
+      font-weight: 700;
+      color: var(--accent-color);
+      margin-bottom: 0.5em;
+      line-height: 1.2;
+    }
+    .tagline {
+      font-size: clamp(0.8rem, 3.5vw, 0.95rem);
+      color: var(--text-color);
+      line-height: 1.3;
+    }
+
+    /* ----------------------------------
+       CAROUSEL (DESKTOP/STANDARD)
+    ---------------------------------- */
+    body > .carousel-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .carousel-container {
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 0 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #puzzle-counter {
+      text-align: center;
+      margin: 10px 0 20px;
+      font-weight: 600;
+      font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+      color: var(--accent-color);
+      user-select: none;
+    }
+
+    .carousel-content {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      gap: 20px;
+      padding: 10px;
+    }
+
+    .puzzle-box {
+      min-height: 400px;
+      max-height: 600px;
+      max-width: 80vw;
+      margin: 0 auto 30px;
+      overflow-y: auto;
+      background: var(--box-color);
+      backdrop-filter: blur(16px);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px var(--shadow);
+      padding: 30px;
+      font-size: 1rem;
+      color: var(--text-color);
+      overflow-wrap: break-word;
+      word-break: break-word;
+      display: none;
+      scroll-snap-align: start;
+      flex: 0 0 auto;
+    }
+    .puzzle-box.active {
+      display: block;
+    }
+    .puzzle-box h1 {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      color: var(--accent-color);
+    }
+    .puzzle-box p {
+      margin: 10px 0;
+    }
+
+    /* ----------------------------------
+       BOT SECTION (BASE)
+    ---------------------------------- */
+    .bot-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: clamp(1rem, 3vw, 2rem) auto;
+      padding: clamp(0.5rem, 3vw, 2rem);
+      background: var(--box-color);
+      backdrop-filter: blur(16px);
+      border-radius: 12px;
+      box-shadow: 0 6px 20px var(--shadow);
+      max-width: 700px;
+      width: 90%;
+    }
+    .bot-section .bot-image {
+      width: clamp(80px, 20vw, 120px);
+      height: auto;
+      margin-bottom: clamp(0.5rem, 2vw, 1rem);
       border-radius: 8px;
-      border: none;
-      cursor: pointer;
+      object-fit: cover;
+    }
+    .bot-section .bot-description {
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      color: var(--text-color);
+      text-align: center;
+      line-height: 1.4;
+      margin-bottom: clamp(0.75rem, 2.5vw, 1.25rem);
+    }
+    .bot-section .bot-button {
+      display: inline-block;
       background-color: var(--accent-color);
       color: #fff;
-    "
-  >
-    🌙 Dark Mode
-  </button>
+      text-decoration: none;
+      font-weight: 600;
+      padding: clamp(0.5rem, 1.5vw, 0.75rem)
+               clamp(1rem, 3vw, 1.5rem);
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+    .bot-section .bot-button:hover {
+      background-color: var(--text-color);
+      color: var(--primary-color);
+    }
 
- <style>
-  :root {
-    --font-family: 'Inter', sans-serif;
+    /* ----------------------------------
+       FOOTER (BASE)
+    ---------------------------------- */
+    .footer-container {
+      flex-shrink: 0;
+      background: var(--header-footer-bg);
+      color: var(--text-color);
+      padding-top: clamp(0.5rem, 4vw, 1rem);
+      padding-bottom: clamp(0.75rem, 5vw, 2rem);
+      text-align: center;
+      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+      user-select: none;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
+    .footer-container > a {
+      display: inline-block;
+      margin-bottom: 0;
+    }
+    .footer-container > a .logo {
+      width: clamp(80px, 20vw, 120px);
+      height: auto;
+    }
+    .footer-container .social-row {
+      display: inline-flex;
+      justify-content: center;
+      gap: clamp(0.5rem, 2vw, 1rem);
+      margin: 1rem 0;
+      align-items: center;
+    }
+    .x-link {
+      display: inline-flex;
+      align-items: center;
+      color: var(--accent-color);
+      transition: color 0.3s ease;
+      text-decoration: none;
+    }
+    .x-link:hover {
+      color: var(--text-color);
+    }
+    .x-link svg {
+      width: clamp(16px, 4vw, 28px);
+      height: auto;
+      fill: currentColor;
+      vertical-align: middle;
+      transition: color 0.3s ease;
+    }
+    .t-link svg path {
+      fill: #fff;
+    }
+    .t-link:hover svg path {
+      fill: var(--accent-color);
+    }
+    .footer-container .footer-text {
+      margin-top: 0.5rem;
+      line-height: 1.3;
+      color: var(--text-color);
+    }
+    .footer-container .footer-text a {
+      margin-left: 0.5rem;
+    }
 
-    /* Light theme (default) */
-    --primary-color: #f9fafb;
-    --accent-color: #8b5cf6;
-    --gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-    --text-color: #1f2937;
-    --box-color: #ffffff;
-    --header-footer-bg: #ffffffee;
-    --shadow: rgba(0, 0, 0, 0.08);
-    --arrow-bg: rgba(139, 92, 246, 0.1);
-    --arrow-hover: rgba(139, 92, 246, 0.3);
-  }
+    /* ----------------------------------
+       ARROWS (hide on narrow screens)
+    ---------------------------------- */
+    .arrow {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      background: transparent;
+      border: none;
+      padding: 0 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    .arrow:hover {
+      color: var(--accent-color);
+    }
+    .left-arrow {
+      order: 0;
+    }
+    .right-arrow {
+      order: 2;
+    }
 
-  body.dark-theme {
-    --primary-color: #141628;
-    --accent-color: #6EE7B7;
-    --gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    --text-color: #f5faff;
-    --box-color: rgba(255, 255, 255, 0.05);
-    --header-footer-bg: rgba(20, 22, 40, 0.9);
-    --shadow: rgba(0, 0, 0, 0.3);
-    --arrow-bg: rgba(110, 231, 183, 0.1);
-    --arrow-hover: rgba(110, 231, 183, 0.3);
-  }
+    /* ----------------------------------
+       MOBILE (≤ 768px)
+    ---------------------------------- */
+    @media (max-width: 768px) {
+      /* 1) Make header sticky */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
 
-  /* ----------------------------------
-     GLOBAL RESET
-  ---------------------------------- */
-  *,
-  *::before,
-  *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+      /* 2) Prevent body scrolling */
+      body {
+        overflow: hidden;
+      }
 
-  html,
-  body {
-    height: 100%;
-    font-family: var(--font-family);
-    background: var(--gradient);
-    color: var(--text-color);
-    line-height: 1.6;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
+      /* 3) Puzzle area fills exactly under header */
+      .puzzle-section {
+        height: calc(100vh - 64px); /* adjust 64px to your header’s real height */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between; /* carousel at top, counter at bottom */
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* let carousel scroll inside */
+      }
+      .puzzle-section > .carousel-container {
+        flex: 1;
+        overflow-y: auto;
+        width: 100%;
+        max-width: 90vw;
+        margin: 0 auto;
+        padding: 0;
+      }
+      .puzzle-box {
+        min-height: auto !important;
+        max-height: none !important;
+        margin: 0.5rem 0;
+        padding: 1rem;
+        background: var(--box-color);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px var(--shadow);
+        width: 100%;
+        font-size: 0.95rem;
+      }
+      #puzzle-counter {
+        position: sticky;
+        bottom: 0;
+        background: var(--box-color);
+        padding: 0.5rem 0;
+        font-size: 1rem;
+        color: var(--accent-color);
+        text-align: center;
+        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        margin: 0;
+      }
 
-  a {
-    color: var(--accent-color);
-    text-decoration: none;
-    transition: color 0.3s ease;
-  }
-  a:hover {
-    color: var(--text-color);
-  }
+      /* 4) Bot section follows immediately */
+      .bot-section {
+        height: auto;
+        overflow: visible;
+        display: block;
+        margin: 0 auto 1rem;
+        padding: 1rem;
+        max-width: 90vw;
+        background: var(--box-color);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px var(--shadow);
+      }
 
-  /* ----------------------------------
-     HEADER
-  ---------------------------------- */
-  header {
-    position: relative;
-    background: var(--header-footer-bg);
-    color: var(--text-color);
-    /* Fluid padding: min 0.75rem (12px), ideal 5vw, max 2rem (32px) */
-    padding: clamp(0.75rem, 5vw, 2rem) clamp(0.5rem, 3vw, 1rem);
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    backdrop-filter: blur(10px);
-  }
+      /* 5) Footer follows immediately */
+      .footer-container {
+        height: auto;
+        overflow: visible;
+        padding: 1rem;
+        text-align: center;
+        background: var(--header-footer-bg);
+        color: var(--text-color);
+        margin-top: 1rem;
+      }
 
-  header h2 {
-    /* Fluid font-size: min 1.2rem, ideal 5vw, max 1.7rem */
-    font-size: clamp(1.2rem, 5vw, 1.7rem);
-    font-weight: 700;
-    color: var(--accent-color);
-    margin-bottom: 0.5em;
-    line-height: 1.2;
-  }
-
-  .tagline {
-    /* Fluid font-size: min 0.8rem, ideal 3.5vw, max 0.95rem */
-    font-size: clamp(0.8rem, 3.5vw, 0.95rem);
-    color: var(--text-color);
-    line-height: 1.3;
-  }
-
-  /* ----------------------------------
-     CAROUSEL CONTAINER
-  ---------------------------------- */
-  body > .carousel-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-  }
-
-  .carousel-container {
-    max-width: 700px;
-    margin: 20px auto;
-    padding: 0 20px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  #puzzle-counter {
-    text-align: center;
-    margin: 10px 0 20px;
-    font-weight: 600;
-    /* Fluid font-size: min 0.95rem, ideal 2.5vw, max 1.1rem */
-    font-size: clamp(0.95rem, 2.5vw, 1.1rem);
-    color: var(--accent-color);
-    user-select: none;
-  }
-
-  .carousel-content {
-    width: 100%;
-    max-width: 640px;
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    gap: 20px;
-    padding: 10px;
-  }
-
-  .puzzle-box {
-    min-height: 400px;
-    max-height: 600px;
-    max-width: 80vw;
-    margin: 0 auto 30px;
-    overflow-y: auto;
-    background: var(--box-color);
-    backdrop-filter: blur(16px);
-    border-radius: 18px;
-    box-shadow: 0 10px 30px var(--shadow);
-    padding: 30px;
-    font-size: 1rem;
-    color: var(--text-color);
-    overflow-wrap: break-word;
-    word-break: break-word;
-    display: none;
-    scroll-snap-align: start;
-    flex: 0 0 auto;
-  }
-
-  .puzzle-box.active {
-    display: block;
-  }
-
-  .puzzle-box h1 {
-    font-size: 1.4rem;
-    margin-bottom: 10px;
-    color: var(--accent-color);
-  }
-
-  .puzzle-box p {
-    margin: 10px 0;
-  }
-  
-  /* --------------------------------------------------------
-   MOBILE (≤ 768px): make puzzle‐section fill & center
--------------------------------------------------------- */
-  
-@media (max-width: 768px) {
-  /* 1) Make header stick to the top */
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  /* 2) Prevent body from scrolling; puzzle-section will scroll instead */
-  body {
-    overflow: hidden;
-  }
-
-  /* 3) PUZZLE SECTION: fill remaining viewport height below header */
-  .puzzle-section {
-    /* Subtract the header’s height from 100vh so it truly fits under the header */
-    /* If your header’s height is roughly 56px, use calc(100vh - 56px). Adjust to match your actual header height. */
-    height: calc(100vh - 56px);
-    overflow-y: auto;           /* allow the list of puzzles to scroll internally */
-    display: flex;
-    flex-direction: column;     /* stack carousel-content on top of counter */
-    margin: 0;
-    padding: 0;
-  }
-
-  /* 4) CAROUSEL‐CONTAINER can grow/shrink as needed */
-  .puzzle-section > .carousel-container {
-    flex: 1;                    /* take all available space above counter */
-    overflow-y: auto;           /* scroll puzzles inside here if they overflow */
-    width: 100%;
-    max-width: 90vw;
-    margin: 0 auto;
-    padding: 0;
-  }
-
-  /* 5) Each puzzle‐box simply sizes to content (no forced min-height) */
-  .puzzle-box {
-    min-height: auto !important;
-    max-height: none !important;
-    margin: 0.5rem 0;
-    padding: 1rem;
-    background: var(--box-color);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px var(--shadow);
-    width: 100%;
-  }
-
-  /* 6) Make the counter “stick” at the bottom of puzzle‐section */
-  #puzzle-counter {
-    position: sticky;
-    bottom: 0;
-    background: var(--box-color);
-    padding: 0.5rem 0;
-    font-size: 1rem;
-    color: var(--accent-color);
-    text-align: center;
-    /* Optional: add a tiny box‐shadow to separate it from puzzles above */
-    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-  }
-
-  /* 7) BOT SECTION follows immediately after puzzle‐section (no extra gap) */
-  .bot-section {
-    /* remove any forced 100vh */
-    height: auto;
-    overflow: visible;
-    display: block;
-    margin: 1rem auto;
-    padding: 1rem;
-    max-width: 90vw;
-    background: var(--box-color);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px var(--shadow);
-  }
-
-  /* 8) FOOTER behaves normally below the Bot */
-  .footer-container {
-    height: auto;
-    overflow: visible;
-    padding: 1rem;
-    text-align: center;
-    background: var(--header-footer-bg);
-    color: var(--text-color);
-    margin-top: 1rem;
-  }
-
-  /* 9) Hide carousel arrows on mobile */
-  .arrow {
-    display: none !important;
-  }
-
-  /* 10) Slightly smaller puzzle text on phones */
-  .puzzle-box {
-    font-size: 0.95rem;
-  }
-}
-
-
-  /* ----------------------------------
-     ARROWS (hide on narrow screens)
-  ---------------------------------- */
-  .arrow {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--accent-color);
-    background: transparent;
-    border: none;
-    padding: 0 8px;
-    cursor: pointer;
-    user-select: none;
-    transition: color 0.3s ease;
-  }
-  .arrow:hover {
-    color: var(--accent-color);
-  }
-  .left-arrow {
-    order: 0;
-  }
-  .right-arrow {
-    order: 2;
-  }
-
-  /* ----------------------------------
-     FOOTER
-  ---------------------------------- */
-  .footer-container {
-    flex-shrink: 0;
-    background: var(--header-footer-bg);
-    color: var(--text-color);
-
-    /* Fluid vertical padding:
-       min 0.75rem (12px) → ideal 5vw → max 2rem (32px) */
-    padding-top: clamp(0.5rem, 4vw, 1rem);
-    padding-bottom: clamp(0.75rem, 5vw, 2rem);
-
-    text-align: center; /* center child inline/inline-flex elements */
-    font-size: clamp(0.7rem, 2.5vw, 0.9rem); /* fluid base font-size */
-    user-select: none;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(10px);
-  }
-
-  /* ----------------------------------
-     FOOTER LOGO (FIRST ROW)
-  ---------------------------------- */
-  .footer-container > a {
-    display: inline-block; /* shrink to logo width, then center */
-    margin-bottom: 0;   /* space below the logo */
-  }
-  .footer-container > a .logo {
-    /* Fluid width: min 80px → ideal 20vw → max 120px */
-    width: clamp(80px, 20vw, 120px);
-    height: auto;
-  }
-
-  /* ----------------------------------
-     SOCIAL ICONS ROW (SECOND ROW)
-  ---------------------------------- */
-  .footer-container .social-row {
-    display: inline-flex; /* center under footer */
-    justify-content: center;
-    gap: clamp(0.5rem, 2vw, 1rem); /* fluid gap */
-    margin: 1rem 0; /* vertical spacing */
-    align-items: center;
-  }
-
-  /* Shared .x-link rules (text + icons) */
-  .x-link {
-    display: inline-flex; /* icons (and any text) align nicely */
-    align-items: center;
-    color: var(--accent-color);
-    transition: color 0.3s ease;
-    text-decoration: none;
-  }
-  .x-link:hover {
-    color: var(--text-color);
-  }
-
-  /* Fluid icon sizing: min 16px → ideal 4vw → max 28px */
-  .x-link svg {
-    width: clamp(16px, 4vw, 28px);
-    height: auto;
-    fill: currentColor;
-    vertical-align: middle;
-    transition: color 0.3s ease;
-  }
-
-  /* Telegram plane override (white by default, accent on hover) */
-  .t-link svg path {
-    fill: #fff;
-  }
-  .t-link:hover svg path {
-    fill: var(--accent-color);
-  }
-
-  /* ----------------------------------
-     TEXT ROW (THIRD ROW)
-  ---------------------------------- */
-  .footer-container .footer-text {
-    margin-top: 0.5rem; /* space above text */
-    line-height: 1.3;
-    color: var(--text-color);
-  }
-  .footer-container .footer-text a {
-    margin-left: 0.5rem; /* space before “#TARA” */
-  }
-
-   .tiny-spacer {
-  display: block;
-  height: 0.25px;
-  margin: 0;
-  padding: 0;
-}
-
-/* ----------------------------------
-   BOT SECTION
----------------------------------- */
-.bot-section {
-  /* Center everything and give a bit of breathing room */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* Fluid vertical spacing: min 1rem → ideal 3vw → max 2rem */
-  margin: clamp(1rem, 3vw, 2rem) auto;
-  padding: clamp(0.5rem, 3vw, 2rem);
-  background: var(--box-color);
-  backdrop-filter: blur(16px);
-  border-radius: 12px;
-  box-shadow: 0 6px 20px var(--shadow);
-  max-width: 700px;    /* match your carousel max-width */
-  width: 90%;          /* take up most of the viewport on small screens */
-}
-
-/* Image placeholder, fluid sizing: min 80px → ideal 20vw → max 120px */
-.bot-section .bot-image {
-  width: clamp(80px, 20vw, 120px);
-  height: auto;
-  margin-bottom: clamp(0.5rem, 2vw, 1rem);
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-/* Bot description text: fluid font-size between 0.9rem and 1.1rem */
-.bot-section .bot-description {
-  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-  color: var(--text-color);
-  text-align: center;
-  line-height: 1.4;
-  margin-bottom: clamp(0.75rem, 2.5vw, 1.25rem);
-}
-
-/* “Start the Bot” button styling */
-.bot-section .bot-button {
-  display: inline-block;
-  background-color: var(--accent-color);
-  color: #fff;
-  text-decoration: none;
-  font-weight: 600;
-  /* Fluid padding: min 0.5rem 1rem → ideal 1.5vw 3vw → max 0.75rem 1.5rem */
-  padding: clamp(0.5rem, 1.5vw, 0.75rem)
-           clamp(1rem, 3vw, 1.5rem);
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
-}
-
-.bot-section .bot-button:hover {
-  background-color: var(--text-color);
-  color: var(--primary-color);
-}
-
-</style>
-
+      /* 6) Hide arrows on mobile */
+      .arrow {
+        display: none !important;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- ===== HEADER ===== -->
@@ -479,151 +377,116 @@
       Solve the puzzle. Claim the treasure. Good luck! 🕵️‍♂️
     </div>
   </header>
-  
-  <div class="scroll-container">
 
-<div class="puzzle-section">
-
-  <!-- ===== CAROUSEL ===== -->
-  <div class="carousel-container">
-    <button class="arrow left-arrow" aria-label="Previous Puzzle">&#8592;</button>
-    <div class="carousel-content">
-      <div class="puzzle-box">
-        <h1>🧩 Taraxa Puzzle #1</h1>
-        <p>Solve this to find the private key:</p>
-        <p>
-          41100 + 1029905 + 5984910 + 10361939 +
-          7758299 + 9670018<br> + 4780081 + 14749272 +
-          9704383 + 14173074 + 13629956
-        </p>
-		<br>
-        <p>💰 10 $TARA in Wallet 1</p>
-        <p>
-          <a
-            href="https://mainnet.explorer.taraxa.io/address/0xf708499a2e3214f1c7bb5f5546b4d2cc3c5d2ed5"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            📍0xf708499a2e3214f1c7Bb5f5546B4D2Cc3C5D2ed5
-          </a>
-        </p>
+  <!-- ===== PUZZLE SECTION ===== -->
+  <div class="puzzle-section">
+    <div class="carousel-container">
+      <button class="arrow left-arrow" aria-label="Previous Puzzle">&#8592;</button>
+      <div class="carousel-content">
+        <div class="puzzle-box">
+          <h1>🧩 Taraxa Puzzle #1</h1>
+          <p>Solve this to find the private key:</p>
+          <p>
+            41100 + 1029905 + 5984910 + 10361939 +
+            7758299 + 9670018<br /> + 4780081 + 14749272 +
+            9704383 + 14173074 + 13629956
+          </p>
+          <p>💰 10 $TARA in Wallet 1</p>
+          <p>
+            <a
+              href="https://mainnet.explorer.taraxa.io/address/0xf708499a2e3214f1c7bb5f5546b4d2cc3c5d2ed5"
+              target="_blank"
+              rel="noopener noreferrer"
+              >📍0xf708499a2e3214f1c7Bb5f5546B4D2Cc3C5D2ed5</a
+            >
+          </p>
+        </div>
+        <div class="puzzle-box">
+          <h1>🧩 Taraxa Puzzle #2</h1>
+          <p>...Coming Soon...</p>
+          <p>1 June 2025 Sunday</p>
+        </div>
+        <div class="puzzle-box">
+          <h1>Puzzle 3</h1>
+          <p>This is the content for Puzzle 3.</p>
+        </div>
       </div>
-      <div class="puzzle-box">
-        <h1>🧩 Taraxa Puzzle #2</h1>
-        <p>...Coming Soon...</p>
-        <p>1 June 2025 Sunday</p>
-      </div>
-      <div class="puzzle-box">
-        <h1>Puzzle 3</h1>
-        <p>This is the content for Puzzle 3.</p>
-      </div>
+      <button class="arrow right-arrow" aria-label="Next Puzzle">&#8594;</button>
     </div>
-    <button class="arrow right-arrow" aria-label="Next Puzzle">&#8594;</button>
+
+    <div id="puzzle-counter"></div>
   </div>
 
-  <div id="puzzle-counter"></div>
-  
-</div>
-  
-   <!-- ===== Telegram Bot ===== -->
-  
+  <!-- ===== BOT SECTION ===== -->
   <div class="bot-section">
-  <img
-    src="taraxa-wallet-tracker.jpg"
-    alt="Taraxa Wallet Tracker Bot"
-    class="bot-image"
-  />
-
-  <p class="bot-description">
-  <h1>Taraxa Wallet Tracker</h1>
-  <h2>@PkeyWatchBot</h2>
-  <br>
-    Meet our Telegram Wallet Tracker Bot! 🚀<br />
-    Simply click the button below to start tracking your native TARA balances in real time. Stay updated on transfers and balance changes—directly inside Telegram.
-  </p>
-  <br>
-  <!-- Example “Start Bot” button linking to your bot -->
-  <a
-    href="https://t.me/PkeyWatchBot"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="bot-button"
-  >
-    Start the Bot
-  </a>
-</div>
+    <img src="taraxa-wallet-tracker.jpg" alt="Taraxa Wallet Tracker Bot" class="bot-image" />
+    <p class="bot-description">
+      <strong>Taraxa Wallet Tracker</strong><br />
+      <em>@PkeyWatchBot</em><br /><br />
+      Meet our Telegram Wallet Tracker Bot! 🚀<br />
+      Simply click the button below to start tracking your native TARA balances in real time.
+      Stay updated on transfers and balance changes—directly inside Telegram.
+    </p>
+    <a
+      href="https://t.me/PkeyWatchBot"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="bot-button"
+      >Start the Bot</a
+    >
+  </div>
 
   <!-- ===== FOOTER ===== -->
-<footer class="footer-container">
-  <!-- Row 1: Logo -->
-  <a
-    href="https://fomo.biz/token/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A"
-    target="_blank"
-  >
-    <img src="logo.png" alt="PuzzleKey Logo" class="logo" />
-  </a>
+  <footer class="footer-container">
+    <!-- Row 1: Logo -->
+    <a href="https://fomo.biz/token/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A" target="_blank">
+      <img src="logo.png" alt="PuzzleKey Logo" class="logo" />
+    </a>
 
-  <span class="tiny-spacer"></span>
+    <span class="tiny-spacer"></span>
 
-  <!-- Row 2: Social Icons -->
-  <div class="social-row">
-    <a
-      href="https://x.com/TaraxaPuzzle"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="x-link"
-      aria-label="X account"
-    >
-      <svg
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-        role="img"
-        aria-label="X (Twitter) logo"
+    <!-- Row 2: Social Icons -->
+    <div class="social-row">
+      <a
+        href="https://x.com/TaraxaPuzzle"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="x-link"
+        aria-label="X account"
       >
-        <path
-          d="M19.18 0.21H22.66L14.69 10.28L24 23.78H16.62L10.77 15.10L4.10 23.78H0.62L9.08 12.80L0 0H7.59L12.82 7.63L19.18 0.21Z M18 20.57H20.10L11.07 11.37L17.21 20.57H18Z"
-          fill="currentColor"
-        />
-      </svg>
-    </a>
-&nbsp;&nbsp;
-    <a
-      href="https://t.me/pkeyquest"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="x-link t-link"
-      aria-label="Telegram account"
-    >
-      <svg
-        viewBox="0 0 240 240"
-        xmlns="http://www.w3.org/2000/svg"
-        role="img"
-        aria-label="Telegram logo"
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="X (Twitter) logo">
+          <path
+            d="M19.18 0.21H22.66L14.69 10.28L24 23.78H16.62L10.77 15.10L4.10 23.78H0.62L9.08 12.80L0 0H7.59L12.82 7.63L19.18 0.21Z M18 20.57H20.10L11.07 11.37L17.21 20.57H18Z"
+            fill="currentColor"
+          />
+        </svg>
+      </a>
+      &nbsp;&nbsp;
+      <a
+        href="https://t.me/pkeyquest"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="x-link t-link"
+        aria-label="Telegram account"
       >
-        <circle cx="120" cy="120" r="120" fill="currentColor" />
-        <path
-          d="M180.7 70.6 61.1 115.8c-4.6 1.7-4.6 6.5.6 8.1l29.2 9.1 11.2 34c1.4 4.2 2.4 5.8 5 5.8 2.6 0 3.7-1.1 5.1-4.1l14.1-28.1 29.4 21.8c5.4 3 9.3 1.4 10.6-5.1l17.2-80.5c2-8.4-3.2-12.3-8.8-10z"
-          fill="var(--accent-color)"
-        />
-      </svg>
-    </a>
-  </div>
+        <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Telegram logo">
+          <circle cx="120" cy="120" r="120" fill="currentColor" />
+          <path
+            d="M180.7 70.6 61.1 115.8c-4.6 1.7-4.6 6.5.6 8.1l29.2 9.1 11.2 34c1.4 4.2 2.4 5.8 5 5.8 2.6 0 3.7-1.1 5.1-4.1l14.1-28.1 29.4 21.8c5.4 3 9.3 1.4 10.6-5.1l17.2-80.5c2-8.4-3.2-12.3-8.8-10z"
+            fill="var(--accent-color)"
+          />
+        </svg>
+      </a>
+    </div>
 
-  <!-- Row 3: © 2025 pkey.quest + #TARA -->
-  <div class="footer-text">
-    © 2025 pkey.quest 
-    <a
-      href="https://taraxa.io/"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="x-link"
-    >
-      <b>#TARA</b>
-    </a>
-  </div>
-</footer>
-</div>
+    <!-- Row 3: © 2025 pkey.quest + #TARA -->
+    <div class="footer-text">
+      © 2025 pkey.quest
+      <a href="https://taraxa.io/" target="_blank" rel="noopener noreferrer" class="x-link"><b>#TARA</b></a>
+    </div>
+  </footer>
 
+  <!-- ===== SCRIPTS ===== -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const puzzles = document.querySelectorAll('.puzzle-box');
@@ -637,9 +500,7 @@
         puzzles.forEach((puzzle, i) => {
           puzzle.classList.toggle('active', i === currentIndex);
         });
-        counter.textContent = `Puzzle ${currentIndex + 1} of ${
-          puzzles.length
-        }`;
+        counter.textContent = `Puzzle ${currentIndex + 1} of ${puzzles.length}`;
       }
 
       leftArrow.addEventListener('click', () => {

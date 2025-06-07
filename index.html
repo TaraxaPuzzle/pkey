@@ -71,17 +71,14 @@
     /* ----------------------------------
        HEADER
     ---------------------------------- */
-    header {
-      position: relative;
-      background: var(--header-footer-bg);
-      color: var(--text-color);
-      /* Fluid padding: min 0.75rem (12px), ideal 5vw, max 2rem (32px) */
-      padding: clamp(0.75rem, 5vw, 2rem) clamp(0.5rem, 3vw, 1rem);
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      backdrop-filter: blur(10px);
-    }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem clamp(1rem,5vw,2rem);
+  position: relative;
+  background: var(--header-footer-bg);
+}
     header h2 {
       /* Fluid font-size: min 1.2rem, ideal 5vw, max 1.7rem */
       font-size: clamp(1.2rem, 5vw, 1.7rem);
@@ -97,79 +94,94 @@
       line-height: 1.3;
     }
 
+.header-brand {
+  max-width: 60%;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;   /* for absolute‐dropdown if desired */
+}
+
     /* ----------------------------------
        LIGHT/DARK MODE TOGGLE BUTTON
     ---------------------------------- */
-    #theme-toggle {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      padding: 5px 10px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      background-color: var(--accent-color);
-      color: #fff;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-    }
-	
-	/* ----------------------------------
-       Menu section
-    ---------------------------------- */
-.menu-container {
-  position: absolute;
-  top: 50%;
-  right: 10px;                /* adjust to sit just left of your theme toggle */
-  transform: translateY(-50%);
-  z-index: 1100;
+ #theme-toggle {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
 }
-
-/* the 🧩 button */
+	
+/* ----------------------------------
+   Menu section
+---------------------------------- */
 .menu-button {
-  font-size: 1.5rem;
   background: none;
   border: none;
+  font-size: 1.5rem;
   cursor: pointer;
-  color: var(--accent-color);
-  transition: color 0.2s;
 }
 .menu-button:hover {
   color: var(--text-color);
 }
 
-/* the dropdown itself */
-.dropdown-menu {
+/* position relative so the absolute menu is anchored here */
+.header-controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* the dropdown itself: hidden by default */
+.header-controls .dropdown-menu {
   position: absolute;
-  right: clamp(0.5rem, 3vw, 1rem);  /* same as your .menu-container right */
-  top: 100%;                        /* just below the header */
-  margin-top: 0.25rem;
-  list-style: none;
-  padding: 0.5rem 0;
-  border-radius: 6px;
+  top: 100%; right: 0;
+  margin-top: .5rem;
+  background: var(--box-color);
+  backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  background: var(--box-color);     /* white in light, translucent dark box in dark */
-  backdrop-filter: blur(10px);      /* keeps the frosted look in both modes */
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  border-radius: 6px;
+  list-style: none;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-5px);
+  transform: translateY(-.5rem);
+  transition: opacity .2s ease, transform .2s ease;
 }
-.dropdown-menu li a {
+
+/* menu items */
+.header-controls .dropdown-menu li + li {
+  margin-top: .25rem;
+}
+.header-controls .dropdown-menu li a {
   display: block;
-  padding: 0.5rem 1rem;
+  padding: .5rem 1rem;
   color: var(--text-color);
   white-space: nowrap;
 }
-.dropdown-menu li a:hover {
-  background: var(--arrow-hover);
-}
 
 /* when open */
-.menu-container.open .dropdown-menu {
+.header-controls.open .dropdown-menu {
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
+}
+.dropdown-menu {
+  background: var(--box-color);        /* same white or translucent background */
+  color: var(--text-color);            /* your main text color */
+  border: 1px solid var(--accent-color); /* optional accent border */
+}
+.dropdown-menu li a {
+  color: var(--text-color);
+}
+.dropdown-menu li a:hover {
+  background: var(--accent-color);
+  color: var(--primary-color);
 }
 
     /* ----------------------------------
@@ -394,6 +406,10 @@
 
 
 @media (max-width: 768px) {
+     .header-controls {
+    z-index: 1000;
+  }
+  
   /* 1) Ensure no parent is “hiding” the horizontal scroll area */
   .top-pane .puzzle-section {
     overflow: visible !important;
@@ -439,25 +455,31 @@
   .top-pane .carousel-container .arrow {
     display: none !important;
   }
-  
-  .menu-container {
-    right: 1rem;
-    top: 1rem;
-    transform: none;
+  .header-controls .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;             /* remove any right:50% */
+    width: auto;
+    background: var(--box-color);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    padding: 0.5rem 0;
+    list-style: none;
+
+    /* start hidden */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1001;
   }
-  .dropdown-menu {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    border-radius: 0;
-    min-width: unset;
-    display: none;
-    padding-top: 4rem;    /* leave space for header */
-  }
-  .menu-container.open .dropdown-menu {
-    display: block;
+
+  /* show it when “.open” is toggled on the controls wrapper */
+  .header-controls.open .dropdown-menu {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
   </style>
@@ -472,14 +494,16 @@
 	
   <!-- ===== HEADER WITH THEME TOGGLE ===== -->
   <header>
+  <div class="header-brand">
     <h2>🧩 pkey.quest 🔐</h2>
     <div class="tagline">
     Infrastructure for the community.<br />
     Building tools on the Taraxa network — starting with wallet tracking.
   </div>
-    <button id="theme-toggle">🌙 Dark Mode</button>
-	  <div class="menu-container">
-  <button class="menu-button" aria-label="Open menu">🧩 Menu</button>
+  </div>
+	  <div class="header-controls">
+	  <button id="theme-toggle">🌙 Dark Mode</button>
+  <button class="menu-button" aria-label="Open menu">🧩</button>
   <ul class="dropdown-menu" role="menu">
     <li><a href="index.html">Home</a></li>
     <li><a href="wallet_extractor.html">Wallet Extractor</a></li>
@@ -780,7 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const menuBtn = document.querySelector('.menu-button');
-    const menu   = document.querySelector('.menu-container');
+    const menu   = document.querySelector('.header-controls');
 
     menuBtn.addEventListener('click', () => {
       menu.classList.toggle('open');

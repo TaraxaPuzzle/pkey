@@ -347,9 +347,10 @@ header {
     position: absolute;
     top: calc(100% + 0.5rem);
     left: 50%;
-    transform: translateX(-50%);
-    right: auto;             /* remove any right:50% */
+    transform: translateX(-50%) translateY(-0.5rem);  /* center + slide up */
+    right: auto;
     width: auto;
+
     background: var(--box-color);
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -360,14 +361,17 @@ header {
     /* start hidden */
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+
+    /* animate both opacity and position */
+    transition: opacity 0.2s ease, transform 0.2s ease;
     z-index: 1001;
   }
 
-  /* show it when “.open” is toggled on the controls wrapper */
+  /* when open, just slide it down into place */
   .header-controls.open .dropdown-menu {
     opacity: 1;
     pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
   }
 }
   </style>

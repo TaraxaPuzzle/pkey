@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>pkeyquest</title>
   <link rel="icon" type="image/png" href="favicon.png.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Source+Sans+Pro:wght@300;400&display=swap" rel="stylesheet" />
   <style>
     :root {
       --font-family: 'Inter', sans-serif;
@@ -67,6 +68,33 @@
     a:hover {
       color: var(--text-color);
     }
+	
+	/* Brand name */
+
+.header-brand {
+  max-width: 60%;
+}
+
+.brand-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  color: var(--accent-color);
+  margin: 0;
+  letter-spacing: -0.5px; /* tighten up a bit */
+  text-transform: lowercase; /* keeps your “pkey.quest” style */
+  line-height: 1;
+}
+
+/* Tagline below brand */
+.tagline {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 300;
+  font-size: clamp(1rem, 3.5vw, 1.25rem);
+  color: var(--text-color);
+  margin-top: 0.5em;
+  line-height: 1.4;
+}
 
     /* ----------------------------------
        HEADER
@@ -79,32 +107,6 @@ header {
   position: relative;
   background: var(--header-footer-bg);
 }
-    header h2 {
-      /* Fluid font-size: min 1.2rem, ideal 5vw, max 1.7rem */
-      font-size: clamp(1.2rem, 5vw, 1.7rem);
-      font-weight: 700;
-      color: var(--accent-color);
-      margin-bottom: 0.5em;
-      line-height: 1.2;
-    }
-    .tagline {
-      /* Fluid font-size: min 0.8rem, ideal 3.5vw, max 0.95rem */
-      font-size: clamp(0.8rem, 3.5vw, 0.95rem);
-      color: var(--text-color);
-      line-height: 1.3;
-    }
-
-.header-brand {
-  max-width: 60%;
-}
-
-.header-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  position: relative;   /* for absolute‐dropdown if desired */
-}
-
     /* ----------------------------------
        LIGHT/DARK MODE TOGGLE BUTTON
     ---------------------------------- */
@@ -125,6 +127,8 @@ header {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
+  color: var(--accent-color);
+  transition: color 0.2s;
 }
 .menu-button:hover {
   color: var(--text-color);
@@ -494,13 +498,13 @@ header {
 	
   <!-- ===== HEADER WITH THEME TOGGLE ===== -->
   <header>
-  <div class="header-brand">
-    <h2>🧩 pkey.quest 🔐</h2>
-    <div class="tagline">
+ <div class="header-brand">
+  <h1 class="brand-name">pkey.quest</h1>
+  <p class="tagline">
     Infrastructure for the community.<br />
-    Building tools on the Taraxa network — starting with wallet tracking.
-  </div>
-  </div>
+    Building tools on the Taraxa network.
+  </p>
+</div>
 	  <div class="header-controls">
 	  <button id="theme-toggle">🌙 Dark Mode</button>
   <button class="menu-button" aria-label="Open menu">🧩</button>

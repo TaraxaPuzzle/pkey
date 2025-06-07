@@ -113,6 +113,64 @@
       top: 10px;
       right: 10px;
     }
+	
+	/* ----------------------------------
+       Menu section
+    ---------------------------------- */
+.menu-container {
+  position: absolute;
+  top: 50%;
+  right: 10px;                /* adjust to sit just left of your theme toggle */
+  transform: translateY(-50%);
+  z-index: 1100;
+}
+
+/* the 🧩 button */
+.menu-button {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--accent-color);
+  transition: color 0.2s;
+}
+.menu-button:hover {
+  color: var(--text-color);
+}
+
+/* the dropdown itself */
+.dropdown-menu {
+  position: absolute;
+  right: clamp(0.5rem, 3vw, 1rem);  /* same as your .menu-container right */
+  top: 100%;                        /* just below the header */
+  margin-top: 0.25rem;
+  list-style: none;
+  padding: 0.5rem 0;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: var(--box-color);     /* white in light, translucent dark box in dark */
+  backdrop-filter: blur(10px);      /* keeps the frosted look in both modes */
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-5px);
+}
+.dropdown-menu li a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--text-color);
+  white-space: nowrap;
+}
+.dropdown-menu li a:hover {
+  background: var(--arrow-hover);
+}
+
+/* when open */
+.menu-container.open .dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
 
     /* ----------------------------------
        CAROUSEL (DESKTOP/STANDARD)
@@ -381,6 +439,26 @@
   .top-pane .carousel-container .arrow {
     display: none !important;
   }
+  
+  .menu-container {
+    right: 1rem;
+    top: 1rem;
+    transform: none;
+  }
+  .dropdown-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 0;
+    min-width: unset;
+    display: none;
+    padding-top: 4rem;    /* leave space for header */
+  }
+  .menu-container.open .dropdown-menu {
+    display: block;
+  }
 }
   </style>
 </head>
@@ -400,6 +478,13 @@
     Building tools on the Taraxa network — starting with wallet tracking.
   </div>
     <button id="theme-toggle">🌙 Dark Mode</button>
+	  <div class="menu-container">
+  <button class="menu-button" aria-label="Open menu">🧩 Menu</button>
+  <ul class="dropdown-menu" role="menu">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="wallet_extractor.html">Wallet Extractor</a></li>
+  </ul>
+</div>
   </header>
   
   <!-- ===== BOT SECTION ===== -->
@@ -689,6 +774,24 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('DOMContentLoaded', () => {
     updateHeaderHeightCSSVar();
     window.addEventListener('resize', updateHeaderHeightCSSVar);
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const menuBtn = document.querySelector('.menu-button');
+    const menu   = document.querySelector('.menu-container');
+
+    menuBtn.addEventListener('click', () => {
+      menu.classList.toggle('open');
+    });
+
+    // close if you click outside
+    document.addEventListener('click', e => {
+      if (!menu.contains(e.target)) {
+        menu.classList.remove('open');
+      }
+    });
   });
 </script>
 </body>

@@ -403,8 +403,12 @@ body.dark-theme .header-controls .dropdown-menu li a:hover {
     <div class="extractor-box">
       <h3>🔍 Crypto Address Extractor</h3>
 
-      <label for="inputText" class="extractor-label">Paste your text here:</label>
-      <textarea id="inputText" placeholder="—for example, a CSV or raw table containing TARA addresses…"></textarea>
+      <label class="extractor-label">Paste your text here:</label>
+      <textarea id="inputText" rows="17" style="
+    width: 100%;
+    color: #aaa;
+    font-style: italic;
+"></textarea>
 
       <button id="extractBtn">Extract Addresses</button>
 
@@ -520,6 +524,61 @@ body.dark-theme .header-controls .dropdown-menu li a:hover {
       }
     });
   });
+</script>
+
+<script>
+const inputText = document.getElementById('inputText');
+
+const exampleText = `Taraxa Top 5 Holders:
+
+Rank	Address	Quantity	Percentage	Value
+1	0x00000000000000000000000000000000000000fe	3,618,573,137.26	33.6067%	$8,928,648.29
+
+---
+
+Random Telegram messages:
+
+"Did you see this whale? 0xa605dbb535847f803227cdbaec9cdfa34d4d4b77 just moved 500k!"
+
+Check this too:
+510k TARA sent from:
+Address → 0xd6216fc19db775df9774a6e33526131da7d19a2c
+to
+0x2933782b5a8d72f2754103d1489614f29bfa4625
+
+---
+
+Discord dump:
+
+Some hot wallets:
+• 0x68ecf99daab887c221f4fe5ff325de9558153b99
+• 0x6e7c2c4a4b43574d88b613c75a379170227f225f
+`;
+
+let isPlaceholderMode = true; // Track whether we are showing placeholder
+
+// Initialize with example text
+inputText.value = exampleText;
+
+// Focus event → clear if in placeholder mode
+inputText.addEventListener('focus', function() {
+    if (isPlaceholderMode) {
+        inputText.value = '';
+        inputText.style.color = '#000';
+        inputText.style.fontStyle = 'normal';
+        isPlaceholderMode = false;
+    }
+});
+
+// Blur event → restore placeholder if empty
+inputText.addEventListener('blur', function() {
+    if (inputText.value.trim() === '') {
+        inputText.value = exampleText;
+        inputText.style.color = '#aaa';
+        inputText.style.fontStyle = 'italic';
+        isPlaceholderMode = true;
+    }
+});
 </script>
 </body>
 </html>

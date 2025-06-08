@@ -11,28 +11,29 @@
       --font-family: 'Inter', sans-serif;
 
       /* Light theme (default) */
-      --primary-color: #f9fafb;
-      --accent-color: #8b5cf6;
-      --gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      --primary-color: #1fa5a2;
+      --accent-color: #17a099;
+      --gradient: linear-gradient(135deg, #e0f7f5 0%, #d2f1ef 100%);
       --text-color: #1f2937;
       --box-color: #ffffff;
       --header-footer-bg: #ffffffee;
-      --shadow: rgba(0, 0, 0, 0.08);
-      --arrow-bg: rgba(139, 92, 246, 0.1);
-      --arrow-hover: rgba(139, 92, 246, 0.3);
+      --shadow: rgba(31, 42, 49, 0.08);
+      --arrow-bg: rgba(31, 165, 162, 0.1);
+      --arrow-hover: rgba(31, 165, 162, 0.3);
 	  --header-height: 0px;
     }
 
     body.dark-theme {
       --primary-color: #141628;
-      --accent-color: #6EE7B7;
-      --gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      --accent-color: #2dccc8;
+	  --accent-hover: #28b9ab;
+      --gradient: linear-gradient(135deg, #041f3a 0%, #174d53 100%);
       --text-color: #f5faff;
       --box-color: rgba(255, 255, 255, 0.05);
       --header-footer-bg: rgba(20, 22, 40, 0.9);
       --shadow: rgba(0, 0, 0, 0.3);
-      --arrow-bg: rgba(110, 231, 183, 0.1);
-      --arrow-hover: rgba(110, 231, 183, 0.3);
+      --arrow-bg: rgba(45, 204, 200, 0.1);
+      --arrow-hover: rgba(45, 204, 200, 0.3);
     }
 
     /* ----------------------------------
@@ -146,8 +147,9 @@ header {
 /* the dropdown itself: hidden by default */
 .header-controls .dropdown-menu {
   position: absolute;
-  top: 100%; right: 0;
-  margin-top: .5rem;
+  top: 100%; 
+  right: 0;
+  margin-top: 0.5rem;
   background: var(--box-color);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -155,19 +157,21 @@ header {
   list-style: none;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-.5rem);
-  transition: opacity .2s ease, transform .2s ease;
+  transform: translateY(-0.5rem);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  border: 1px solid var(--accent-color);
 }
 
 /* menu items */
 .header-controls .dropdown-menu li + li {
-  margin-top: .25rem;
+  margin-top: 0.25rem;
 }
 .header-controls .dropdown-menu li a {
   display: block;
-  padding: .5rem 1rem;
-  color: var(--text-color);
+  padding: 0.5rem 1rem;
+  color: var(--accent-color);
   white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
 }
 
 /* when open */
@@ -176,16 +180,11 @@ header {
   pointer-events: auto;
   transform: translateY(0);
 }
-.dropdown-menu {
-  background: var(--box-color);        /* same white or translucent background */
-  color: var(--text-color);            /* your main text color */
-  border: 1px solid var(--accent-color); /* optional accent border */
-}
-.dropdown-menu li a {
-  color: var(--text-color);
-}
-.dropdown-menu li a:hover {
+.header-controls .dropdown-menu li a:hover {
   background: var(--accent-color);
+  color: var(--box-color);
+}
+body.dark-theme .header-controls .dropdown-menu li a:hover {
   color: var(--primary-color);
 }
 
@@ -199,14 +198,13 @@ header {
       align-items: center;
       width: 100%;
       margin-top: 1rem;
-      margin-bottom: 1rem;
+      margin: 2rem 0;
     }
 
     .extractor-box {
       background: var(--box-color);
-      backdrop-filter: blur(16px);
       border-radius: 12px;
-      box-shadow: 0 6px 20px var(--shadow);
+      box-shadow: 0 2px 8px var(--shadow);
       max-width: 700px;
       width: 90%;
       padding: clamp(1rem, 3vw, 2rem);
@@ -219,19 +217,20 @@ header {
       font-size: clamp(1.2rem, 4vw, 1.5rem);
       text-align: center;
       color: var(--accent-color);
+	  margin-bottom: 0.5rem;
     }
 
     .extractor-box textarea {
       width: 100%;
       min-height: 200px;
       padding: 1rem;
-      border: 1px solid #ccc;
+      border: 1px solid var(--shadow);
       border-radius: 8px;
       resize: vertical;
       font-family: monospace;
       font-size: 0.95rem;
       color: var(--text-color);
-      background: var(--primary-color);
+      background: transparent;
     }
 
     .extractor-box button {
@@ -245,24 +244,26 @@ header {
       background-color: var(--accent-color);
       color: #fff;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.2s ease;
     }
     .extractor-box button:hover {
       background-color: var(--text-color);
-      color: var(--primary-color);
     }
 
     #output {
-      background: var(--primary-color);
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 1rem;
-      font-family: monospace;
-      white-space: pre-wrap;
-      word-break: break-all;
-      min-height: 100px;
-      color: var(--text-color);
-    }
+  margin-top: 0.5rem;
+  width: 100%;
+  border: 1px solid var(--shadow);
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  min-height: 100px;
+  background: transparent;
+  color: var(--text-color);
+}
+
 
     .extractor-label {
       font-weight: 600;
@@ -343,7 +344,7 @@ header {
      .header-controls {
     z-index: 1000;
   }
-  .header-controls .dropdown-menu {
+.header-controls .dropdown-menu {
     position: absolute;
     top: calc(100% + 0.5rem);
     left: 50%;

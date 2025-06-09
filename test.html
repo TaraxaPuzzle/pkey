@@ -17,7 +17,51 @@
 <pre id="output">Waiting for input...</pre>
 
 <script>
-let source; // Global EventSource
+async function connectStream(token) {
+  const url = `https://your-heroku-app-name.herokuapp.com/fomo-token/${token}`;
+  const output = document.getElementById('output');
+  output.textContent = `Connecting to ${url}...\n`;
+
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      output.textContent += `Error: ${response.status}\n`;
+      return;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        output.textContent += 'Stream closed.\n';
+        break;
+      }
+      const chunk = decoder.decode(value);
+      console.log('Raw chunk:', chunk);
+
+      // Parse each data line
+      chunk.split('\n').forEach(line => {
+        if (line.startsWith('data:')) {
+          try {
+            const jsonStr = line.replace('data:', '').trim();
+            const jsonObj = JSON.parse(jsonStr);
+            const formatted = JSON.stringify(jsonObj, null, 2);
+            output.textContent += formatted + '\n\n';
+          } catch (err) {
+            console.error('JSON parse error:', err);
+            output.textContent += 'Parse error.\n';
+          }
+        }
+      });
+    }
+  } catch (err) {
+    console.error('Stream error:', err);
+    output.textContent += `Stream error: ${err}\n`;
+  }
+}
 
 document.getElementById('connect-btn').addEventListener('click', () => {
   const token = document.getElementById('token-input').value.trim();
@@ -26,46 +70,10 @@ document.getElementById('connect-btn').addEventListener('click', () => {
     return;
   }
 
-  // Close previous connection if exists
-  if (source) {
-    source.close();
-    console.log('Closed previous EventSource connection.');
-  }
-
-  // CHOOSE HERE:
-  // If testing locally:
-  // const url = `http://127.0.0.1:3000/fomo-token/${token}`;
-
-  // If using deployed Heroku app:
-  const url = `https://your-heroku-app-name.herokuapp.com/fomo-token/${token}`;
-
-  source = new EventSource(url);
-
-  document.getElementById('output').textContent = `Connecting to ${url}...\n`;
-
-  source.onopen = () => {
-    console.log('Connection opened!');
-    document.getElementById('output').textContent += 'Connection opened.\n\n';
-  };
-
-  source.addEventListener('message', (event) => {
-    console.log('Received message event:', event.data);
-    try {
-      const parsed = JSON.parse(event.data);
-      const formatted = JSON.stringify(parsed, null, 2);
-      document.getElementById('output').textContent += formatted + '\n\n';
-    } catch (err) {
-      console.error('JSON parse error:', err);
-      document.getElementById('output').textContent += 'Parse error.\n';
-    }
-  });
-
-  source.onerror = (err) => {
-    console.error('EventSource error:', err);
-    document.getElementById('output').textContent += 'EventSource error.\n';
-  };
+  connectStream(token);
 });
 </script>
+
 
 
 </body>

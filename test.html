@@ -32,8 +32,13 @@ document.getElementById('connect-btn').addEventListener('click', () => {
     console.log('Closed previous EventSource connection.');
   }
 
-  // Use 127.0.0.1 to avoid localhost bugs
-  const url = `http://127.0.0.1:4000/fomo-token/${token}`;
+  // CHOOSE HERE:
+  // If testing locally:
+  // const url = `http://127.0.0.1:3000/fomo-token/${token}`;
+
+  // If using deployed Heroku app:
+  const url = `https://your-heroku-app-name.herokuapp.com/fomo-token/${token}`;
+
   source = new EventSource(url);
 
   document.getElementById('output').textContent = `Connecting to ${url}...\n`;
@@ -61,6 +66,7 @@ document.getElementById('connect-btn').addEventListener('click', () => {
   };
 });
 </script>
+
 
 </body>
 </html>

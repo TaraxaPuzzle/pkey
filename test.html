@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fomo.biz Live Updates Tester</title>
+</head>
+<body>
+
+<h1>Fomo.biz Live Updates Tester</h1>
+
+<p>Enter contract address:</p>
+<input type="text" id="token-input" placeholder="0x..." />
+<button id="connect-btn">Connect to updates</button>
+
+<h2>Live Stream:</h2>
+<pre id="output">Waiting for input...</pre>
+
+<script>
+let source; // Global EventSource
+
+document.getElementById('connect-btn').addEventListener('click', () => {
+  const token = document.getElementById('token-input').value.trim();
+  if (!/^0x[a-fA-F0-9]{40}$/.test(token)) {
+    document.getElementById('output').textContent = 'Please enter a valid 0x... address.';
+    return;
+  }
+
+  // Close previous connection if exists
+  if (source) {
+    source.close();
+    console.log('Closed previous EventSource connection.');
+  }
+
+  // Use 127.0.0.1 to avoid localhost bugs
+  const url = `http://127.0.0.1:4000/fomo-token/${token}`;
+  source = new EventSource(url);
+
+  document.getElementById('output').textContent = `Connecting to ${url}...\n`;
+
+  source.onopen = () => {
+    console.log('Connection opened!');
+    document.getElementById('output').textContent += 'Connection opened.\n\n';
+  };
+
+  source.addEventListener('message', (event) => {
+    console.log('Received message event:', event.data);
+    try {
+      const parsed = JSON.parse(event.data);
+      const formatted = JSON.stringify(parsed, null, 2);
+      document.getElementById('output').textContent += formatted + '\n\n';
+    } catch (err) {
+      console.error('JSON parse error:', err);
+      document.getElementById('output').textContent += 'Parse error.\n';
+    }
+  });
+
+  source.onerror = (err) => {
+    console.error('EventSource error:', err);
+    document.getElementById('output').textContent += 'EventSource error.\n';
+  };
+});
+</script>
+
+</body>
+</html>

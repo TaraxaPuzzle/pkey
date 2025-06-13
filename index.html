@@ -312,6 +312,36 @@ body.dark-theme .header-controls .dropdown-menu li a:hover {
       background-color: var(--text-color);
       color: var(--primary-color);
     }
+	
+	
+	/* SOLVED puzzle style */
+	
+.puzzle-box.solved {
+  border: 2px solid var(--accent-color);
+  background: linear-gradient(135deg, #eafcfb, #d9f7f6);
+  opacity: 0.7;
+  position: relative;
+}
+
+.puzzle-box.solved::before {
+  content: "✅ SOLVED";
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--accent-color);
+  background: var(--box-color);
+  padding: 5px 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow);
+  z-index: 10;
+}
+
+.puzzle-box.solved p {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
 
     /* ----------------------------------
        FOOTER (BASE)
@@ -571,7 +601,7 @@ body.dark-theme .header-controls .dropdown-menu li a:hover {
       <div class="carousel-content">
 	  
 	  <!-- ===== PUZZLE 1 ===== -->
-        <div class="puzzle-box">
+        <div class="puzzle-box solved">
           <h1>🧩 Taraxa Puzzle #1</h1>
 		  <br />
           <p>41100 + 1029905 + 5984910 + 10361939 + 7758299 + 9670018<br /> + 4780081 + 14749272 + 9704383 + 14173074 + 13629956</p>

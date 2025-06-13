@@ -314,13 +314,16 @@ body.dark-theme .header-controls .dropdown-menu li a:hover {
     }
 	
 	
-	/* SOLVED puzzle style */
-	
+/* SOLVED puzzle style */
 .puzzle-box.solved {
   border: 2px solid var(--accent-color);
   background: linear-gradient(135deg, #eafcfb, #d9f7f6);
   opacity: 0.7;
   position: relative;
+}
+
+body.dark-theme .puzzle-box.solved {
+  background: linear-gradient(135deg, #0f2c35, #1d4d54);
 }
 
 .puzzle-box.solved::before {
@@ -342,6 +345,7 @@ body.dark-theme .header-controls .dropdown-menu li a:hover {
   text-decoration: line-through;
   opacity: 0.6;
 }
+
 
     /* ----------------------------------
        FOOTER (BASE)

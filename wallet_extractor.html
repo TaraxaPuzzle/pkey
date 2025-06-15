@@ -375,6 +375,22 @@ body.dark-theme .header-controls .dropdown-menu li a:hover {
     transform: translateX(-50%) translateY(0);
   }
 }
+#copyBtn {
+  transition: color 0.4s ease;
+}
+.output-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.copy-action {
+  cursor: pointer;
+  color: var(--accent-color);
+  font-size: 0.9em;
+  transition: color 0.3s ease;
+}
   </style>
 </head>
 <body>
@@ -412,8 +428,11 @@ body.dark-theme .header-controls .dropdown-menu li a:hover {
 
       <button id="extractBtn">Extract Addresses</button>
 
-      <label for="output" class="extractor-label">Extracted addresses:</label>
-      <div id="output">(none yet)</div>
+      <div class="output-label-row">
+  <label for="output" class="extractor-label">Extracted addresses:</label>
+  <span id="copyBtn" class="copy-action">📋 Copy</span>
+</div>
+<div id="output">(none yet)</div>
     </div>
   </div>
 
@@ -580,5 +599,32 @@ inputText.addEventListener('blur', function() {
     }
 });
 </script>
+
+<script>
+const copyBtn = document.getElementById("copyBtn");
+
+copyBtn.addEventListener("click", function () {
+  const output = document.getElementById("output");
+  const text = output.innerText;
+
+  if (!text || text === "(none yet)") {
+    return;
+  }
+
+  navigator.clipboard.writeText(text).then(() => {
+    const originalText = copyBtn.innerHTML;
+    copyBtn.innerHTML = "✅ Copied!";
+    copyBtn.style.color = "var(--text-color)";
+
+    setTimeout(() => {
+      copyBtn.innerHTML = originalText;
+      copyBtn.style.color = "var(--accent-color)";
+    }, 400);
+  }).catch(err => {
+    console.error("Copy failed:", err);
+  });
+});
+</script>
+
 </body>
 </html>

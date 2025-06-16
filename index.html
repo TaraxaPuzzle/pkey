@@ -523,6 +523,13 @@ body.dark-theme .puzzle-box.solved {
     transform: translateX(-50%) translateY(0);
   }
 }
+
+.star {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.9;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -654,11 +661,8 @@ body.dark-theme .puzzle-box.solved {
 		   </p>
         </div>
 		<!-- ===== PUZZLE 4 ===== -->
-        <div class="puzzle-box">
+        <div class="puzzle-box active" id="puzzleBox">
           <h1>🧩 Taraxa Puzzle #4</h1>
-		  <br />
-          <p>Coming soon...</p>
-		   <p>16th of June 2025</p>
         </div>
       </div>
       <button class="arrow right-arrow" aria-label="Next Puzzle">&#8594;</button>
@@ -876,5 +880,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 </script>
+
+<script>
+    const colors = [
+      '#62cb33',
+      '#80b6a6',
+      '#b2c6fe',
+      '#59276b',
+      '#c8fad4',
+      '#4d0b17',
+      '#622864',
+      '#432022',
+      '#57e994',
+      '#caf71b',
+      '#88f8'
+    ];
+
+    const starCount = 90;
+    const box = document.getElementById('puzzleBox');
+
+    const boxRect = box.getBoundingClientRect();
+
+    for (let i = 0; i < starCount; i++) {
+      const star = document.createElement('div');
+      const size = Math.random() * 2 + 1;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+
+      star.classList.add('star');
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      star.style.left = `${Math.random() * box.clientWidth}px`;
+      star.style.top = `${Math.random() * box.clientHeight}px`;
+      star.style.backgroundColor = color;
+      star.style.boxShadow = `0 0 8px ${color}`;
+
+      box.appendChild(star);
+    }
+  </script>
+
 </body>
 </html>

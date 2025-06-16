@@ -1,0 +1,518 @@
+<!-- Paste this into your QR Code Generator HTML file -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>pkeyquest – QR Code Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="favicon.png.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Source+Sans+Pro:wght@300;400&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <style>
+  
+  :root {
+      --font-family: 'Inter', sans-serif;
+
+      /* Light theme (default) */
+      --primary-color: #1fa5a2;
+      --accent-color: #17a099;
+      --gradient: linear-gradient(135deg, #e0f7f5 0%, #d2f1ef 100%);
+      --text-color: #1f2937;
+      --box-color: #ffffff;
+      --header-footer-bg: #ffffffee;
+      --shadow: rgba(31, 42, 49, 0.08);
+      --arrow-bg: rgba(31, 165, 162, 0.1);
+      --arrow-hover: rgba(31, 165, 162, 0.3);
+	  --header-height: 0px;
+    }
+
+    body.dark-theme {
+      --primary-color: #141628;
+      --accent-color: #2dccc8;
+	  --accent-hover: #28b9ab;
+      --gradient: linear-gradient(135deg, #041f3a 0%, #174d53 100%);
+      --text-color: #f5faff;
+      --box-color: rgba(255, 255, 255, 0.05);
+      --header-footer-bg: rgba(20, 22, 40, 0.9);
+      --shadow: rgba(0, 0, 0, 0.3);
+      --arrow-bg: rgba(45, 204, 200, 0.1);
+      --arrow-hover: rgba(45, 204, 200, 0.3);
+    }
+
+    /* ----------------------------------
+       GLOBAL RESET + BASE STYLES
+    ---------------------------------- */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: var(--font-family);
+      background: var(--gradient);
+      color: var(--text-color);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    a {
+      color: var(--accent-color);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    a:hover {
+      color: var(--text-color);
+    }
+	
+	/* Brand name */
+
+.header-brand {
+  max-width: 60%;
+}
+
+.brand-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  color: var(--accent-color);
+  margin: 0;
+  letter-spacing: -0.5px; /* tighten up a bit */
+  text-transform: lowercase; /* keeps your “pkey.quest” style */
+  line-height: 1;
+}
+
+/* Tagline below brand */
+.tagline {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 300;
+  font-size: clamp(1rem, 3.5vw, 1.25rem);
+  color: var(--text-color);
+  margin-top: 0.5em;
+  line-height: 1.4;
+}
+
+    /* ----------------------------------
+       HEADER
+    ---------------------------------- */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem clamp(1rem,5vw,2rem);
+  position: relative;
+  background: var(--header-footer-bg);
+}
+
+    /* ----------------------------------
+       LIGHT/DARK MODE TOGGLE BUTTON
+    ---------------------------------- */
+ #theme-toggle {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+	
+/* ----------------------------------
+   Menu section
+---------------------------------- */
+.menu-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--accent-color);
+  transition: color 0.2s;
+}
+.menu-button:hover {
+  color: var(--text-color);
+}
+
+/* position relative so the absolute menu is anchored here */
+.header-controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* the dropdown itself: hidden by default */
+.header-controls .dropdown-menu {
+  position: absolute;
+  top: 100%; 
+  right: 0;
+  margin-top: 0.5rem;
+  background: var(--box-color);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  list-style: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-0.5rem);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  border: 1px solid var(--accent-color);
+}
+
+/* menu items */
+.header-controls .dropdown-menu li + li {
+  margin-top: 0.25rem;
+}
+.header-controls .dropdown-menu li a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--accent-color);
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* when open */
+.header-controls.open .dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.header-controls .dropdown-menu li a:hover {
+  background: var(--accent-color);
+  color: var(--box-color);
+}
+body.dark-theme .header-controls .dropdown-menu li a:hover {
+  color: var(--primary-color);
+}
+
+
+    .converter-box {
+      background: var(--box-color);
+      max-width: 700px;
+      width: 90%;
+      margin: 2rem auto;
+      padding: clamp(1rem, 3vw, 2rem);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      background-color: #f8fafa;
+    }
+
+   #downloadBtn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+}
+	
+	#downloadBtn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+    #downloadBtn:hover {
+      background: var(--accent-color);
+    }
+	
+	#qrcode {
+  min-height: 220px;
+  margin-top: 1.5rem;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px dashed var(--accent-color);
+  border-radius: 12px;
+  color: var(--accent-color);
+  font-size: 1rem;
+  opacity: 0.6;
+  text-align: center;
+}
+
+.qr-heading {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.75rem, 5vw, 2.25rem); /* slightly smaller max size */
+  font-weight: 600; /* from 800 → 600 */
+  color: var(--accent-color);
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+/* Show only in light theme */
+.light-only {
+  display: inline;
+}
+.dark-only {
+  display: none;
+}
+
+/* Switch visibility when dark theme is active */
+body.dark-theme .light-only {
+  display: none;
+}
+body.dark-theme .dark-only {
+  display: inline;
+}
+	
+		 /* ----------------------------------
+       FOOTER (BASE)
+    ---------------------------------- */
+    .footer-container {
+      flex-shrink: 0;
+      background: var(--header-footer-bg);
+      color: var(--text-color);
+      padding-top: clamp(0.5rem, 4vw, 1rem);
+      padding-bottom: clamp(0.75rem, 5vw, 2rem);
+      text-align: center;
+      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+      user-select: none;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .footer-container > a {
+      display: inline-block;
+      margin-bottom: 0;
+    }
+    .footer-container > a .logo {
+      width: clamp(80px, 20vw, 120px);
+      height: auto;
+    }
+    .footer-container .social-row {
+      display: inline-flex;
+      justify-content: center;
+      gap: clamp(0.5rem, 2vw, 1rem);
+      margin: 1rem 0;
+      align-items: center;
+    }
+    .x-link {
+      display: inline-flex;
+      align-items: center;
+      color: var(--accent-color);
+      transition: color 0.3s ease;
+      text-decoration: none;
+    }
+    .x-link:hover {
+      color: var(--text-color);
+    }
+    .x-link svg {
+      width: clamp(16px, 4vw, 28px);
+      height: auto;
+      fill: currentColor;
+      vertical-align: middle;
+      transition: color 0.3s ease;
+    }
+    .t-link svg path {
+      fill: #fff;
+    }
+    .t-link:hover svg path {
+      fill: var(--accent-color);
+    }
+    .footer-container .footer-text {
+      margin-top: 0.5rem;
+      line-height: 1.3;
+      color: var(--text-color);
+    }
+    .footer-container .footer-text a {
+      margin-left: 0.5rem;
+    }
+
+    .tiny-spacer {
+      display: block;
+      height: 0.25px;
+      margin: 0;
+      padding: 0;
+    }
+
+@media (max-width: 768px) {
+     .header-controls {
+    z-index: 1000;
+  }
+.header-controls .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%) translateY(-0.5rem);  /* center + slide up */
+    right: auto;
+    width: auto;
+
+    background: var(--box-color);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    padding: 0.5rem 0;
+    list-style: none;
+
+    /* start hidden */
+    opacity: 0;
+    pointer-events: none;
+
+    /* animate both opacity and position */
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 1001;
+  }
+
+  /* when open, just slide it down into place */
+  .header-controls.open .dropdown-menu {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+	
+  </style>
+</head>
+<body>
+  <!-- ===== HEADER WITH THEME TOGGLE ===== -->
+  <header>
+ <div class="header-brand">
+  <h1 class="brand-name">pkey.quest</h1>
+  <p class="tagline">
+    Infrastructure for the community.<br />
+    Building tools on the Taraxa network.
+  </p>
+</div>
+	  <div class="header-controls">
+	  <button id="theme-toggle">🌙 Dark Mode</button>
+  <button class="menu-button" aria-label="Open menu">🧩</button>
+  <ul class="dropdown-menu" role="menu">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="wallet_extractor.html">Wallet Extractor</a></li>
+	<li><a href="currency_converter.html">TARA Converter</a></li>
+	<li><a href="qr_code_generator.html">QR Code Generator</a></li>
+  </ul>
+</div>
+  </header>
+
+  <div class="converter-box">
+    <h3 class="qr-heading">
+	 <img src="qr-icon1.png" class="qr-icon light-only" alt="QR Icon" style="height: 1.5em; vertical-align: middle; margin-right: 0.5em;" />
+	 <img src="qr-icon.png" class="qr-icon dark-only" alt="QR Icon" style="height: 1.5em; vertical-align: middle; margin-right: 0.5em;" />
+	QR Code Generator
+	</h3>
+    <input type="text" id="walletInput" placeholder="Enter wallet or contract address" />
+    <div id="qrcode">QR Code will appear here</div>
+    <button id="downloadBtn" disabled>⬇️ Download QR Code</button>
+  </div>
+
+   <!-- ===== FOOTER ===== -->
+  <footer class="footer-container">
+    <!-- Row 1: Logo -->
+    <a href="https://fomo.biz/token/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A" target="_blank">
+      <img src="logo.png" alt="PuzzleKey Logo" class="logo" />
+    </a>
+
+    <span class="tiny-spacer"></span>
+
+    <!-- Row 2: Social Icons -->
+    <div class="social-row">
+      <a href="https://x.com/pkeyquest" target="_blank" rel="noopener noreferrer" class="x-link" aria-label="X account">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="X (Twitter) logo">
+          <path d="M19.18 0.21H22.66L14.69 10.28L24 23.78H16.62L10.77 15.10L4.10 23.78H0.62L9.08 12.80L0 0H7.59L12.82 7.63L19.18 0.21Z M18 20.57H20.10L11.07 11.37L17.21 20.57H18Z" fill="currentColor"/>
+        </svg>
+      </a>
+
+      &nbsp;&nbsp;
+
+      <a href="https://t.me/pkeyquest" target="_blank" rel="noopener noreferrer" class="x-link t-link" aria-label="Telegram account">
+        <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Telegram logo">
+          <circle cx="120" cy="120" r="120" fill="currentColor" />
+          <path d="M180.7 70.6 61.1 115.8c-4.6 1.7-4.6 6.5.6 8.1l29.2 9.1 11.2 34c1.4 4.2 2.4 5.8 5 5.8 2.6 0 3.7-1.1 5.1-4.1l14.1-28.1 29.4 21.8c5.4 3 9.3 1.4 10.6-5.1l17.2-80.5c2-8.4-3.2-12.3-8.8-10z" fill="var(--accent-color)" />
+        </svg>
+      </a>
+    </div>
+
+    <!-- Row 3: © 2025 pkey.quest + #TARA -->
+    <div class="footer-text">
+      © 2025 pkey.quest
+      <a href="https://taraxa.io/" target="_blank" rel="noopener noreferrer" class="x-link"><b>#TARA</b></a>
+    </div>
+  </footer>
+<script>
+  // === Setup references ===
+  const toggle = document.getElementById('theme-toggle');
+  const body = document.body;
+  const menuBtn = document.querySelector('.menu-button');
+  const menu = document.querySelector('.header-controls');
+  const input = document.getElementById('walletInput');
+  const qrcodeContainer = document.getElementById('qrcode');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  // === Theme toggle ===
+  if (localStorage.getItem('theme') === 'dark') {
+    body.classList.add('dark-theme');
+    toggle.textContent = '🌞 Light Mode';
+  }
+
+  toggle.addEventListener('click', () => {
+    body.classList.toggle('dark-theme');
+    const isDark = body.classList.contains('dark-theme');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    toggle.textContent = isDark ? '🌞 Light Mode' : '🌙 Dark Mode';
+  });
+
+  // === Dropdown menu ===
+  menuBtn.addEventListener('click', () => menu.classList.toggle('open'));
+  document.addEventListener('click', (e) => {
+    if (!menu.contains(e.target)) menu.classList.remove('open');
+  });
+
+  // === QR Code logic ===
+  function generateQR(text) {
+    qrcodeContainer.innerHTML = '';
+    QRCode.toCanvas(text, { width: 200 }, function (err, canvas) {
+      if (err) return console.error(err);
+      qrcodeContainer.style.border = 'none';
+      qrcodeContainer.style.opacity = '1';
+      qrcodeContainer.appendChild(canvas);
+      downloadBtn.disabled = false;
+    });
+  }
+
+  input.addEventListener('input', () => {
+    const text = input.value.trim();
+    if (text) {
+      generateQR(text);
+    } else {
+      qrcodeContainer.innerHTML = 'QR Code will appear here';
+      qrcodeContainer.style.border = '2px dashed var(--accent-color)';
+      qrcodeContainer.style.opacity = '0.6';
+      downloadBtn.disabled = true;
+    }
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    const qrCanvas = document.querySelector('#qrcode canvas');
+    if (!qrCanvas) return;
+    const link = document.createElement('a');
+    link.href = qrCanvas.toDataURL();
+    link.download = 'taraxa-qr.png';
+    link.click();
+  });
+</script>
+
+</body>
+</html>

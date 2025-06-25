@@ -24,13 +24,18 @@
         display: inline-block;
       }
       .typewriter-2 {
-        overflow: hidden;
-        white-space: nowrap;
-        width: 0;
-        border-right: 3px solid transparent;
-        animation: typing2 1s steps(40, end) 1s forwards, blink-caret 0.75s step-end infinite 1s;
-        display: inline-block;
-      }
+  overflow: hidden;
+  display: inline-block;
+  animation: typing2 2.5s steps(40, end) 0.5s forwards, blink-caret 0.75s step-end infinite 3s;
+  border-right: 3px solid transparent;
+
+  /* ✅ allow wrapping */
+  white-space: normal;
+
+  /* ✅ auto width expansion */
+  width: auto;
+  max-width: 100%;
+}
       .hide-caret {
         border-right: none !important;
         animation: none !important;
@@ -40,9 +45,13 @@
         to { width: 100% }
       }
       @keyframes typing2 {
-        from { width: 0 }
-        to { width: 100% }
-      }
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
       @keyframes blink-caret {
         from, to { border-color: transparent }
         50% { border-color: rgba(31, 165, 162, 0.75); }

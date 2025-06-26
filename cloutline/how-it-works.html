@@ -192,42 +192,72 @@
 <script>
   async function generatePhrase() {
     const handle = document.getElementById("twitterHandle").value.trim();
-    const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ twitter: handle }),
-    });
+    console.log("⏳ Requesting phrase for handle:", handle); // DEBUG
 
-    const data = await res.json();
-    if (data.phrase) {
-      document.getElementById("phraseOutput").textContent =
-        `Paste this into your Twitter bio: ${data.phrase}`;
-      document.getElementById("phraseOutput").classList.remove("hidden");
+    if (!handle) {
+      console.warn("⚠️ No handle entered.");
+      return;
+    }
+
+    try {
+      const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ twitter: handle }),
+      });
+
+      const data = await res.json();
+      console.log("✅ Response data:", data); // DEBUG
+
+      if (data.phrase) {
+        document.getElementById("phraseOutput").textContent =
+          `Paste this into your Twitter bio: ${data.phrase}`;
+        document.getElementById("phraseOutput").classList.remove("hidden");
+      } else {
+        document.getElementById("phraseOutput").textContent = "❌ Failed to generate phrase.";
+        document.getElementById("phraseOutput").classList.remove("hidden");
+      }
+    } catch (err) {
+      console.error("❌ Fetch error:", err); // DEBUG
     }
   }
 
   async function verifyTwitter() {
     const handle = document.getElementById("twitterHandle").value.trim();
-    const res = await fetch("https://cloutline-production.up.railway.app/verify-twitter", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ twitter: handle }),
-    });
+    console.log("⏳ Verifying handle:", handle); // DEBUG
 
-    const data = await res.json();
-    const status = document.getElementById("verifyStatus");
+    if (!handle) {
+      console.warn("⚠️ No handle entered.");
+      return;
+    }
 
-    if (data.verified) {
-      status.textContent = `✅ Verified @${data.username} — profile created!`;
-      status.classList.remove("text-yellow-400");
-      status.classList.add("text-green-400");
-    } else {
-      status.textContent = data.message || "❌ Verification failed.";
-      status.classList.remove("text-green-400");
-      status.classList.add("text-yellow-400");
+    try {
+      const res = await fetch("https://cloutline-production.up.railway.app/verify-twitter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ twitter: handle }),
+      });
+
+      const data = await res.json();
+      console.log("✅ Verification response:", data); // DEBUG
+
+      const status = document.getElementById("verifyStatus");
+
+      if (data.verified) {
+        status.textContent = `✅ Verified @${data.username} — profile created!`;
+        status.classList.remove("text-yellow-400");
+        status.classList.add("text-green-400");
+      } else {
+        status.textContent = data.message || "❌ Verification failed.";
+        status.classList.remove("text-green-400");
+        status.classList.add("text-yellow-400");
+      }
+    } catch (err) {
+      console.error("❌ Verification fetch error:", err); // DEBUG
     }
   }
 </script>
+
 
 
   </body>

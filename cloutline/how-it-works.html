@@ -202,10 +202,13 @@
 <script>
 
 async function generatePhrase() {
-  const handle = document.getElementById("twitterHandle").value.trim();
-  const wallet = document.getElementById("walletAddress").value;
+  if (!window.connectedWalletAddress) {
+    alert("Please connect your wallet first.");
+    return;
+  }
 
-  if (!handle || !wallet) return;
+  const handle = document.getElementById("twitterHandle").value.trim();
+  if (!handle) return;
 
   const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
     method: "POST",
@@ -222,13 +225,21 @@ async function generatePhrase() {
 }
 
 async function verifyTwitter() {
+  if (!window.connectedWalletAddress) {
+    alert("Please connect your wallet first.");
+    return;
+  }
+
   const handle = document.getElementById("twitterHandle").value.trim();
-  const wallet = document.getElementById("walletAddress").value;
+  if (!handle) return;
 
   const res = await fetch("https://cloutline-production.up.railway.app/verify-twitter", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ twitter: handle, wallet }),
+    body: JSON.stringify({
+      twitter: handle,
+      wallet: window.connectedWalletAddress
+    }),
   });
 
   const data = await res.json();
@@ -244,6 +255,7 @@ async function verifyTwitter() {
     status.classList.add("text-yellow-400");
   }
 }
+
 
 
   </body>

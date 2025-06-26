@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cloutline - Message for TARA</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+	<link rel="icon" type="image/png" href="cloutline.png" />
+    <style>
+      body {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-white">
+<header class="bg-[#0e0e0e] border-b border-[#1a1a1a]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+    <!-- Logo -->
+    <div class="flex items-center space-x-2">
+  <img src="cloutline.png" alt="Cloutline Logo" class="h-8 w-auto" />
+  <h1 class="text-white text-xl font-semibold">Cloutline</h1>
+</div>
+
+    <!-- Nav Links -->
+    <nav class="hidden md:flex items-center space-x-8 text-sm text-gray-300">
+      <a href="cloutline.html" class="flex items-center gap-1 hover:text-white"><i class="lucide-message-circle w-4 h-4"></i> Messages</a>
+      <a href="leaderboard.html" class="flex items-center gap-1 hover:text-white"><i class="lucide-bookmark w-4 h-4"></i> Leaderboard</a>
+      <a href="how-it-works.html" class="flex items-center gap-1 hover:text-white"><i class="lucide-help-circle w-4 h-4"></i> How it Works</a>
+    </nav>
+
+    <!-- Connect Button -->
+    <button class="bg-[#253b80] text-white font-medium px-4 py-2 rounded-lg hover:bg-[#304c9c] transition">
+      Connect Wallet
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+    <input
+      type="text"
+      placeholder="Search for KOLs..."
+      class="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-2 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
+    />
+  </div>
+</header>
+
+
+    <main class="px-6 py-10 max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Profile Card -->
+        <div class="bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col justify-between">
+          <div class="flex items-center space-x-4 mb-4">
+            <img src="https://i.pravatar.cc/100" alt="Avatar" class="w-14 h-14 rounded-full" />
+            <div>
+              <h2 class="font-bold text-lg">CZ 🔶</h2>
+              <p class="text-sm text-gray-400">@cz_binance</p>
+              <p class="text-sm text-gray-500">👥 10.1M followers</p>
+            </div>
+            <span class="ml-auto bg-green-600 text-white text-xs px-2 py-1 rounded-full">Verified</span>
+          </div>
+
+          <div class="text-sm space-y-1 mb-4">
+            <p><strong>Price per message:</strong> 1 TARA</p>
+            <p><strong>Response rate:</strong> 64%</p>
+            <p><strong>Messages sent:</strong> 315</p>
+          </div>
+
+          <div class="flex flex-wrap gap-2 text-xs text-white mb-4">
+            <span class="bg-blue-600 px-2 py-1 rounded-full">#Blockchain</span>
+            <span class="bg-purple-600 px-2 py-1 rounded-full">#KOL</span>
+          </div>
+
+          <button class="bg-[#1fa5a2] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[#15938d] transition">View Profile</button>
+        </div>
+        <!-- Duplicate card structure for more profiles -->
+      </div>
+	  
+	  
+	  <!-- Pagination -->
+<div class="flex justify-center items-center space-x-2 mt-12">
+  <!-- Previous button -->
+  <button class="px-3 py-2 bg-[#111216] border border-[#2a2a2a] rounded-md text-gray-400 hover:text-white">
+    &lt;
+  </button>
+
+  <!-- Page numbers -->
+  <button class="px-3 py-2 bg-[#1a1b20] border border-[#3a3a3a] rounded-md text-white font-medium">
+    1
+  </button>
+  <button class="px-3 py-2 bg-[#111216] border border-[#2a2a2a] rounded-md text-gray-400 hover:text-white">
+    2
+  </button>
+  <button class="px-3 py-2 bg-[#111216] border border-[#2a2a2a] rounded-md text-gray-400 hover:text-white">
+    3
+  </button>
+  <span class="px-2 text-gray-500">...</span>
+  <button class="px-3 py-2 bg-[#111216] border border-[#2a2a2a] rounded-md text-gray-400 hover:text-white">
+    271
+  </button>
+
+  <!-- Next button -->
+  <button class="px-3 py-2 bg-[#111216] border border-[#2a2a2a] rounded-md text-gray-400 hover:text-white">
+    &gt;
+  </button>
+</div>
+</main>
+<footer class="border-t border-[#1a1a1a] mt-12 py-8 text-gray-400 text-sm">
+  <div class="max-w-7xl mx-auto px-6 flex flex-col items-center text-center space-y-5">
+
+    <!-- Logo + Name -->
+    <div class="flex items-center justify-center space-x-2">
+      <img src="cloutline.png" alt="Cloutline Logo" class="w-6 h-6 mt-[1px]" />
+      <span class="text-white font-semibold text-lg -ml-[1px]">Cloutline</span>
+    </div>
+
+    <!-- Nav Links -->
+    <div class="flex flex-wrap justify-center space-x-6 text-gray-300 text-sm">
+      <a href="#" class="hover:text-white">Messages</a>
+      <a href="#" class="hover:text-white">Leaderboard</a>
+      <a href="#" class="hover:text-white">How it Works</a>
+      <a href="#" class="hover:text-white">Profile</a>
+    </div>
+
+    <!-- Copyright -->
+    <div class="text-xs text-gray-500 leading-relaxed mt-1">
+      © 2025 Cloutline<br />
+      <span class="text-gray-400">A messaging service built for </span>
+      <span class="text-[#1fa5a2] font-medium">TARAXA</span><br />
+      <span class="text-gray-600">Powered by pkey.quest</span>
+    </div>
+
+  </div>
+</footer>
+
+  </body>
+</html>

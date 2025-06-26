@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cloutline - Message for TARA</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+	<link rel="icon" type="image/png" href="cloutline.png" />
+    <style>
+      body {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-white">
+<header class="bg-[#0e0e0e] border-b border-[#1a1a1a]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+    <!-- Logo -->
+    <div class="flex items-center space-x-2">
+  <img src="cloutline.png" alt="Cloutline Logo" class="h-8 w-auto" />
+  <h1 class="text-white text-xl font-semibold">Cloutline</h1>
+</div>
+
+    <!-- Nav Links -->
+    <nav class="hidden md:flex items-center space-x-8 text-sm text-gray-300">
+      <a href="cloutline.html" class="flex items-center gap-1 hover:text-white"><i class="lucide-message-circle w-4 h-4"></i> Messages</a>
+      <a href="leaderboard.html" class="flex items-center gap-1 hover:text-white"><i class="lucide-bookmark w-4 h-4"></i> Leaderboard</a>
+      <a href="how-it-works.html" class="flex items-center gap-1 hover:text-white"><i class="lucide-help-circle w-4 h-4"></i> How it Works</a>
+    </nav>
+
+    <!-- Connect Button -->
+    <button class="bg-[#253b80] text-white font-medium px-4 py-2 rounded-lg hover:bg-[#304c9c] transition">
+      Connect Wallet
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+    <input
+      type="text"
+      placeholder="Search for KOLs..."
+      class="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-2 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
+    />
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-6 py-16 text-gray-300 space-y-20">
+
+  <!-- Title -->
+  <h1 class="text-3xl font-bold text-white text-center">🚀 How Cloutline Works</h1>
+
+  <!-- Getting Started Section -->
+  <section class="grid md:grid-cols-2 gap-8">
+    <!-- For Users -->
+    <div class="bg-[#111112] rounded-xl p-6 border border-[#222] shadow-md">
+      <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">👥 For Users</h2>
+      <ol class="list-decimal list-inside text-sm space-y-3 leading-relaxed">
+        <li>Connect wallet via the “Connect Wallet” button.</li>
+        <li>Browse KOLs on the homepage or search.</li>
+        <li>Select a KOL and view their profile.</li>
+        <li>Pay TARA to send a message.</li>
+        <li>Chat directly through Cloutline’s secure system.</li>
+        <li>If allowed, send follow-ups at a reduced price for 5 days.</li>
+      </ol>
+      <div class="bg-yellow-900/40 text-yellow-400 text-xs mt-4 p-3 rounded">
+        If a KOL doesn’t respond in 5 days, you’ll receive a refund based on their custom rate.
+      </div>
+      <button class="mt-6 px-4 py-2 bg-[#1fa5a2] text-white text-sm font-medium rounded hover:bg-[#15938f] transition">
+        Start Exploring KOLs
+      </button>
+    </div>
+
+    <!-- For KOLs -->
+    <div class="bg-[#111112] rounded-xl p-6 border border-[#222] shadow-md">
+      <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">🧑‍💼 For KOLs</h2>
+      <ol class="list-decimal list-inside text-sm space-y-3 leading-relaxed">
+        <li>Connect wallet using “Connect Wallet.”</li>
+        <li>Access your profile via the top-right icon.</li>
+        <li>Verify identity by connecting X account.</li>
+        <li>Set your price for messages in TARA.</li>
+        <li>Complete your profile info and tags.</li>
+        <li>Optionally allow cheaper follow-up messages.</li>
+        <li>Set refund rate if no reply within 5 days.</li>
+      </ol>
+      <div class="bg-yellow-900/40 text-yellow-400 text-xs mt-4 p-3 rounded">
+        Platform charges a 10% fee on all received payments.
+      </div>
+      
+	  <div id="kol-verification" class="mt-6 space-y-4">
+  <input
+    id="twitterHandle"
+    type="text"
+    placeholder="@yourhandle"
+    class="w-full bg-[#1a1a1a] text-black border border-[#333] rounded-lg px-4 py-2 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#1fa5a2]"
+  />
+
+  <button
+    onclick="generatePhrase()"
+    class="w-full px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm font-medium rounded hover:opacity-90 transition"
+  >
+    Get Verification Phrase
+  </button>
+
+  <div id="phraseOutput" class="text-sm text-gray-300 hidden"></div>
+
+  <button
+    onclick="verifyTwitter()"
+    class="w-full px-4 py-2 bg-[#1fa5a2] text-white text-sm font-medium rounded hover:bg-[#15938f] transition"
+  >
+    Verify Twitter Bio
+  </button>
+
+  <div id="verifyStatus" class="text-xs text-yellow-400 mt-2"></div>
+</div>
+
+	  
+    </div>
+  </section>
+
+  <!-- Info Boxes Section -->
+  <section class="grid md:grid-cols-3 gap-6">
+    <!-- About KOLs -->
+    <div class="bg-[#111112] rounded-xl p-6 border border-[#222] shadow-md">
+      <h3 class="text-lg font-semibold text-cyan-300 mb-3 flex items-center gap-2">ℹ️ About Key Opinion Leaders</h3>
+      <p class="text-sm leading-relaxed">
+        KOLs are experts with credibility in blockchain, crypto, and web3.
+        <br><br>
+        You connect directly by paying their set rate in TARA, avoiding intermediaries.
+      </p>
+    </div>
+
+    <!-- Verified Identities -->
+    <div class="bg-[#111112] rounded-xl p-6 border border-[#222] shadow-md">
+      <h3 class="text-lg font-semibold text-green-400 mb-3 flex items-center gap-2">✅ Verified Identities</h3>
+      <p class="text-sm leading-relaxed">
+        KOLs who connect their X account earn a verified badge. This confirms their legitimacy and expertise.
+      </p>
+      <div class="bg-yellow-900/40 text-yellow-300 text-xs mt-4 p-3 rounded">
+        <strong>Note:</strong> Cloutline is permissionless — anyone can create a profile. Always double-check the linked X account.
+      </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="bg-[#111112] rounded-xl p-6 border border-[#222] shadow-md">
+      <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center gap-2">💲 Pricing</h3>
+      <p class="text-sm leading-relaxed mb-4">
+        KOLs can offer reduced prices for follow-up replies valid for 5 days. Refunds for no response are based on their custom rate.
+      </p>
+      <div class="bg-[#181a20] p-3 rounded text-sm text-gray-300 mb-2">
+        <strong>Follow-up Price:</strong><br>
+        Lowered rate valid for 5 days after first message.
+      </div>
+      <div class="bg-[#181a20] p-3 rounded text-sm text-gray-300">
+        <strong>Custom Refund:</strong><br>
+        Set by each KOL for no-response cases.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+
+<footer class="border-t border-[#1a1a1a] mt-12 py-8 text-gray-400 text-sm">
+  <div class="max-w-7xl mx-auto px-6 flex flex-col items-center text-center space-y-5">
+
+    <!-- Logo + Name -->
+    <div class="flex items-center justify-center space-x-2">
+      <img src="cloutline.png" alt="Cloutline Logo" class="w-6 h-6 mt-[1px]" />
+      <span class="text-white font-semibold text-lg -ml-[1px]">Cloutline</span>
+    </div>
+
+    <!-- Nav Links -->
+    <div class="flex flex-wrap justify-center space-x-6 text-gray-300 text-sm">
+      <a href="#" class="hover:text-white">Messages</a>
+      <a href="#" class="hover:text-white">Leaderboard</a>
+      <a href="#" class="hover:text-white">How it Works</a>
+      <a href="#" class="hover:text-white">Profile</a>
+    </div>
+
+    <!-- Copyright -->
+    <div class="text-xs text-gray-500 leading-relaxed mt-1">
+      © 2025 Cloutline<br />
+      <span class="text-gray-400">A messaging service built for </span>
+      <span class="text-[#1fa5a2] font-medium">TARAXA</span><br />
+      <span class="text-gray-600">Powered by pkey.quest</span>
+    </div>
+
+  </div>
+</footer>
+
+<script>
+  async function generatePhrase() {
+    const handle = document.getElementById("twitterHandle").value.trim();
+    const res = await fetch("/generate-verification-phrase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ twitter: handle }),
+    });
+
+    const data = await res.json();
+    if (data.phrase) {
+      document.getElementById("phraseOutput").textContent =
+        `Paste this into your Twitter bio: ${data.phrase}`;
+      document.getElementById("phraseOutput").classList.remove("hidden");
+    }
+  }
+
+  async function verifyTwitter() {
+    const handle = document.getElementById("twitterHandle").value.trim();
+    const res = await fetch("/verify-twitter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ twitter: handle }),
+    });
+
+    const data = await res.json();
+    const status = document.getElementById("verifyStatus");
+
+    if (data.verified) {
+      status.textContent = `✅ Verified @${data.username} — profile created!`;
+      status.classList.remove("text-yellow-400");
+      status.classList.add("text-green-400");
+    } else {
+      status.textContent = data.message || "❌ Verification failed.";
+      status.classList.remove("text-green-400");
+      status.classList.add("text-yellow-400");
+    }
+  }
+</script>
+
+
+  </body>
+</html>

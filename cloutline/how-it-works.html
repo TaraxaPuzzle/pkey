@@ -86,12 +86,16 @@
         Platform charges a 10% fee on all received payments.
       </div>
       
-	  <div id="kol-verification" class="mt-6 space-y-4">
+<!-- Only shown after WalletConnect is completed -->
+<input type="hidden" id="walletAddress" />
+
+<div id="kol-verification" class="mt-6 space-y-4">
+
   <input
     id="twitterHandle"
     type="text"
     placeholder="@yourhandle"
-    class="w-full bg-[#1a1a1a] text-black border border-[#333] rounded-lg px-4 py-2 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#1fa5a2]"
+    class="w-full bg-white text-black border border-[#333] rounded-lg px-4 py-2 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#1fa5a2]"
   />
 
   <button
@@ -101,17 +105,23 @@
     Get Verification Phrase
   </button>
 
-  <div id="phraseOutput" class="text-sm text-gray-300 hidden"></div>
+  <div id="phraseOutput" class="text-sm text-gray-700 dark:text-gray-300 hidden"></div>
 
   <button
     onclick="verifyTwitter()"
     class="w-full px-4 py-2 bg-[#1fa5a2] text-white text-sm font-medium rounded hover:bg-[#15938f] transition"
   >
-    Verify Twitter Bio
+    Save Handle & Request Manual Verification
   </button>
 
+  <div class="text-xs text-gray-400">
+    Once saved, paste the phrase into your bio or post it publicly and ping our Telegram group.
+  </div>
+
   <div id="verifyStatus" class="text-xs text-yellow-400 mt-2"></div>
+
 </div>
+
 
 	  
     </div>
@@ -190,74 +200,50 @@
 </footer>
 
 <script>
-  async function generatePhrase() {
-    const handle = document.getElementById("twitterHandle").value.trim();
-    console.log("⏳ Requesting phrase for handle:", handle); // DEBUG
 
-    if (!handle) {
-      console.warn("⚠️ No handle entered.");
-      return;
-    }
+async function generatePhrase() {
+  const handle = document.getElementById("twitterHandle").value.trim();
+  const wallet = document.getElementById("walletAddress").value;
 
-    try {
-      const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ twitter: handle }),
-      });
+  if (!handle || !wallet) return;
 
-      const data = await res.json();
-      console.log("✅ Response data:", data); // DEBUG
+  const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ twitter: handle }),
+  });
 
-      if (data.phrase) {
-        document.getElementById("phraseOutput").textContent =
-          `Paste this into your Twitter bio: ${data.phrase}`;
-        document.getElementById("phraseOutput").classList.remove("hidden");
-      } else {
-        document.getElementById("phraseOutput").textContent = "❌ Failed to generate phrase.";
-        document.getElementById("phraseOutput").classList.remove("hidden");
-      }
-    } catch (err) {
-      console.error("❌ Fetch error:", err); // DEBUG
-    }
+  const data = await res.json();
+  if (data.phrase) {
+    document.getElementById("phraseOutput").textContent =
+      `Paste this in your Twitter bio or post: ${data.phrase}`;
+    document.getElementById("phraseOutput").classList.remove("hidden");
   }
+}
 
-  async function verifyTwitter() {
-    const handle = document.getElementById("twitterHandle").value.trim();
-    console.log("⏳ Verifying handle:", handle); // DEBUG
+async function verifyTwitter() {
+  const handle = document.getElementById("twitterHandle").value.trim();
+  const wallet = document.getElementById("walletAddress").value;
 
-    if (!handle) {
-      console.warn("⚠️ No handle entered.");
-      return;
-    }
+  const res = await fetch("https://cloutline-production.up.railway.app/verify-twitter", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ twitter: handle, wallet }),
+  });
 
-    try {
-      const res = await fetch("https://cloutline-production.up.railway.app/verify-twitter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ twitter: handle }),
-      });
+  const data = await res.json();
+  const status = document.getElementById("verifyStatus");
 
-      const data = await res.json();
-      console.log("✅ Verification response:", data); // DEBUG
-
-      const status = document.getElementById("verifyStatus");
-
-      if (data.verified) {
-        status.textContent = `✅ Verified @${data.username} — profile created!`;
-        status.classList.remove("text-yellow-400");
-        status.classList.add("text-green-400");
-      } else {
-        status.textContent = data.message || "❌ Verification failed.";
-        status.classList.remove("text-green-400");
-        status.classList.add("text-yellow-400");
-      }
-    } catch (err) {
-      console.error("❌ Verification fetch error:", err); // DEBUG
-    }
+  if (data.success) {
+    status.textContent = "✅ Twitter handle attached to wallet!";
+    status.classList.remove("text-yellow-400");
+    status.classList.add("text-green-400");
+  } else {
+    status.textContent = data.message || "❌ Failed to verify.";
+    status.classList.remove("text-green-400");
+    status.classList.add("text-yellow-400");
   }
-</script>
-
+}
 
 
   </body>

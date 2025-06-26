@@ -192,7 +192,7 @@
 <script>
   async function generatePhrase() {
     const handle = document.getElementById("twitterHandle").value.trim();
-    const res = await fetch("/generate-verification-phrase", {
+    const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ twitter: handle }),
@@ -208,7 +208,7 @@
 
   async function verifyTwitter() {
     const handle = document.getElementById("twitterHandle").value.trim();
-    const res = await fetch("/verify-twitter", {
+    const res = await fetch("https://cloutline-production.up.railway.app/verify-twitter", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ twitter: handle }),

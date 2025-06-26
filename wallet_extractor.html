@@ -33,6 +33,14 @@
   html.dark {
     --placeholder-color: #888;
   }
+  
+  .hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
     </style>
   </head>
 <body class="flex flex-col min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#eef2f6] to-[#e4e9f0] dark:from-[#0f1117] dark:via-[#0b0d12] dark:to-[#06070a] text-gray-900 dark:text-white">
@@ -72,7 +80,7 @@
 </p>
 
     <textarea id="inputText"
-      class="w-full min-h-[120px] p-4 bg-white/70 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg text-sm leading-snug focus:outline-none focus:ring-2 focus:ring-[#1fa5a2] transition resize-none overflow-hidden"
+      class="w-full h-[120px] p-4 bg-white/70 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg hide-scrollbar text-sm leading-snug focus:outline-none focus:ring-2 focus:ring-[#1fa5a2] transition h-[120px] overflow-auto resize-none"
       rows="4"
       data-aos="fade-up"
       data-aos-delay="200"
@@ -268,11 +276,6 @@ inputText.addEventListener('blur', function () {
     isPlaceholderMode = true;
   }
 });
-
-    inputText.addEventListener('input', function () {
-      this.style.height = 'auto';
-      this.style.height = this.scrollHeight + 'px';
-    });
 
     extractBtn.addEventListener('click', () => {
       const text = inputText.value;

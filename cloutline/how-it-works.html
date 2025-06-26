@@ -256,7 +256,21 @@ async function verifyTwitter() {
   }
 }
 
-
+document.querySelector("button.bg-[#253b80]").addEventListener("click", async () => {
+  if (window.ethereum) {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const address = accounts[0];
+      window.connectedWalletAddress = address;
+      document.getElementById("walletAddress").value = address;
+      alert("✅ Wallet connected: " + address);
+    } catch (err) {
+      alert("❌ Wallet connection rejected.");
+    }
+  } else {
+    alert("❌ MetaMask not found. Please install it.");
+  }
+});
 
   </body>
 </html>

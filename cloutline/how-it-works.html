@@ -214,6 +214,23 @@
   import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.8.1/+esm";
 
   const provider = window.enkrypt?.providers?.ethereum;
+  
+  if (provider) {
+  provider.on("accountsChanged", (accounts) => {
+    if (accounts.length === 0) {
+      // User disconnected wallet
+      window.location.reload();
+    } else {
+      // User switched account
+      window.location.reload();
+    }
+  });
+
+  provider.on("chainChanged", () => {
+    window.location.reload();
+  });
+}
+  
   let connectedWalletAddress = null;
 
   document.getElementById("connectWalletBtn").addEventListener("click", async () => {
@@ -293,6 +310,27 @@ document.getElementById("getPhraseBtn").addEventListener("click", async () => {
   
 
 window.addEventListener("DOMContentLoaded", async () => {
+  // Check if already connected
+if (provider) {
+  try {
+    const accounts = await provider.request({ method: "eth_accounts" });
+    if (accounts.length > 0) {
+      const address = accounts[0];
+      connectedWalletAddress = address;
+
+      document.getElementById("walletAddress").value = address;
+      document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+      document.getElementById("connectedDisplay").classList.remove("hidden");
+      document.getElementById("connectWalletBtn").classList.add("hidden");
+      document.getElementById("profileBtn").classList.remove("hidden");
+      window.lucide && window.lucide.createIcons();
+    }
+  } catch (err) {
+    console.warn("🔌 Failed to auto-load wallet", err);
+  }
+}
+
+  // Also check for permalink view
   const hash = window.location.hash;
   if (hash && hash.startsWith("#0x")) {
     const wallet = hash.slice(1).toLowerCase();

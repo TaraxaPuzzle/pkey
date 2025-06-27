@@ -6,6 +6,8 @@
     <title>Cloutline - Message for TARA</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 	<link rel="icon" type="image/png" href="cloutline.png" />
+	<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
     <style>
       body {
         font-family: 'Manrope', sans-serif;
@@ -256,21 +258,34 @@ async function verifyTwitter() {
   }
 }
 
+let provider, web3;
+
 document.querySelector("button.bg-[#253b80]").addEventListener("click", async () => {
-  if (window.ethereum) {
-    try {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const address = accounts[0];
-      window.connectedWalletAddress = address;
-      document.getElementById("walletAddress").value = address;
-      alert("✅ Wallet connected: " + address);
-    } catch (err) {
-      alert("❌ Wallet connection rejected.");
-    }
-  } else {
-    alert("❌ MetaMask not found. Please install it.");
+  try {
+    provider = new WalletConnectProvider.default({
+      rpc: {
+        841: "https://rpc.mainnet.taraxa.io"  // Taraxa mainnet RPC
+      },
+      chainId: 841,
+    });
+
+    await provider.enable();
+    web3 = new Web3(provider);
+
+    const accounts = await web3.eth.getAccounts();
+    const address = accounts[0];
+
+    window.connectedWalletAddress = address;
+    document.getElementById("walletAddress").value = address;
+
+    alert("✅ Wallet connected: " + address);
+  } catch (err) {
+    console.error("❌ WalletConnect failed", err);
+    alert("❌ Wallet connection failed.");
   }
 });
+</script>
+
 
   </body>
 </html>

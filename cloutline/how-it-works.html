@@ -264,14 +264,21 @@ document.getElementById("connectWalletBtn").addEventListener("click", async () =
   console.log("Connect button clicked!");
 
   try {
-    provider = new WalletConnectProvider({ // ← fixed
-      rpc: { 841: "https://rpc.mainnet.taraxa.io" },
+    provider = new WalletConnectProvider.default({
+      rpc: {
+        841: "https://rpc.mainnet.taraxa.io",
+      },
       chainId: 841,
+      chainName: "Taraxa Mainnet",
+      nativeCurrency: {
+        name: "TARA",
+        symbol: "TARA",
+        decimals: 18,
+      },
+      blockExplorerUrls: ["https://explorer.taraxa.io"],
     });
 
-    console.log("Connecting to WalletConnect...");
     await provider.enable();
-
     web3 = new Web3(provider);
 
     const accounts = await web3.eth.getAccounts();

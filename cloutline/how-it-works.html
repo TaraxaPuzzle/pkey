@@ -367,7 +367,7 @@ async function loadKOLProfile(wallet) {
 
 document.getElementById("profileBtn").addEventListener("click", () => {
   if (!connectedWalletAddress) return;
-  window.location.href = `/#${connectedWalletAddress.toLowerCase()}`;
+  window.location.href = `${window.location.pathname}#${connectedWalletAddress.toLowerCase()}`;
 });
 
 </script>

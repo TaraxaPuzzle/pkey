@@ -6,8 +6,9 @@
     <title>Cloutline - Message for TARA</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 	<link rel="icon" type="image/png" href="cloutline.png" />
-	<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/web3modal@1.9.13/dist/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
     <style>
       body {
         font-family: 'Manrope', sans-serif;
@@ -15,6 +16,7 @@
     </style>
   </head>
   <body class="bg-gray-900 text-white">
+  <div id="toast" class="fixed bottom-6 right-6 bg-[#1fa5a2] text-white px-4 py-2 rounded-lg shadow-lg hidden z-50 transition-opacity duration-300"></div>
 <header class="bg-[#0e0e0e] border-b border-[#1a1a1a]">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
     <!-- Logo -->
@@ -34,6 +36,11 @@
     <button id="connectWalletBtn" class="bg-[#253b80] text-white font-medium px-4 py-2 rounded-lg hover:bg-[#304c9c] transition">
       Connect Wallet
     </button>
+	
+	<p id="connectedDisplay" class="text-sm text-green-400 mt-2 hidden">
+  ✅ Connected: <span id="walletShort"></span>
+</p>
+	
   </div>
 
   <!-- Search Bar -->
@@ -258,41 +265,67 @@ async function verifyTwitter() {
   }
 }
 
-let provider, web3;
+let web3, provider;
+const web3Modal = new Web3Modal.default({
+  cacheProvider: false,
+  providerOptions: {
+    walletconnect: {
+      package: WalletConnectProvider.default,
+      options: {
+        rpc: { 841: "https://rpc.mainnet.taraxa.io" },
+        chainId: 841,
+        chainName: "Taraxa Mainnet",
+        nativeCurrency: { name: "TARA", symbol: "TARA", decimals: 18 },
+        blockExplorerUrls: ["https://explorer.taraxa.io"],
+      }
+    }
+  }
+});
 
 document.getElementById("connectWalletBtn").addEventListener("click", async () => {
-  console.log("Connect button clicked!");
-
+  console.log("Opening Web3Modal…");
   try {
-    provider = new WalletConnectProvider.default({
-      rpc: {
-        841: "https://rpc.mainnet.taraxa.io",
-      },
-      chainId: 841,
-      chainName: "Taraxa Mainnet",
-      nativeCurrency: {
-        name: "TARA",
-        symbol: "TARA",
-        decimals: 18,
-      },
-      blockExplorerUrls: ["https://explorer.taraxa.io"],
-    });
-
-    await provider.enable();
+    provider = await web3Modal.connect(); // opens full modal
     web3 = new Web3(provider);
-
     const accounts = await web3.eth.getAccounts();
     const address = accounts[0];
-
     window.connectedWalletAddress = address;
     document.getElementById("walletAddress").value = address;
 
-    alert("✅ Wallet connected: " + address);
+    // 👇 Add these two lines here:
+    document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+    document.getElementById("connectedDisplay").classList.remove("hidden");
+
+    showToast("✅ Wallet connected!", "success");
   } catch (err) {
-    console.error("❌ WalletConnect failed", err);
-    alert("❌ Wallet connection failed.");
+    console.error("❌ Connection failed", err);
+    showToast("❌ Wallet connection failed.", "error");
   }
 });
+
+function showToast(message, type = "success") {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+
+  // Color scheme based on type
+  toast.className =
+    "fixed bottom-6 right-6 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300";
+  toast.classList.add(
+    type === "success" ? "bg-[#1fa5a2] text-white" : "bg-red-500 text-white"
+  );
+
+  toast.classList.remove("hidden");
+
+  setTimeout(() => {
+    toast.classList.add("opacity-0");
+    setTimeout(() => {
+      toast.classList.add("hidden");
+      toast.classList.remove("opacity-0");
+    }, 300);
+  }, 2500);
+}
+
+
 </script>
 
 

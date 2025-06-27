@@ -110,9 +110,9 @@
 <div id="phraseOutput" class="text-sm text-gray-700 dark:text-gray-300 hidden"></div>
 
 <p class="text-sm text-gray-400 mt-2">
-  Paste the phrase into your bio or post it publicly and 
+  Paste the phrase into your bio or post it publicly on X and ping our
   <a href="https://t.me/TaraWhales" target="_blank" class="text-[#1fa5a2] underline hover:text-[#15918f]">
-    ping our Telegram group
+    Telegram group
   </a>
 </p>
 
@@ -249,7 +249,7 @@ document.getElementById("getPhraseBtn").addEventListener("click", async () => {
     const d = await res.json();
     if (d.phrase) {
       const po = document.getElementById("phraseOutput");
-      po.textContent = `Paste this in your bio: ${d.phrase}`;
+      po.textContent = `Verification Phrase: ${d.phrase}`;
       po.classList.remove("hidden");
     } else showToast("Failed to get phrase.","error");
   } catch(e) {

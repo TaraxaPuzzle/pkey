@@ -234,7 +234,7 @@
     }
   });
 
- // ✅ Phrase generation
+// ✅ Phrase generation
 document.getElementById("getPhraseBtn").addEventListener("click", async () => {
   if (!connectedWalletAddress) return alert("Please connect wallet first.");
   const handle = document.getElementById("twitterHandle").value.trim();
@@ -244,19 +244,26 @@ document.getElementById("getPhraseBtn").addEventListener("click", async () => {
     const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ twitter: handle, wallet: connectedWalletAddress }) // ✅ include wallet here
+      body: JSON.stringify({ twitter: handle, wallet: connectedWalletAddress })
     });
+
     const d = await res.json();
-    if (d.phrase) {
-      const po = document.getElementById("phraseOutput");
+    const po = document.getElementById("phraseOutput");
+
+    if (d.success && d.phrase) {
       po.textContent = `Verification Phrase: ${d.phrase}`;
       po.classList.remove("hidden");
-    } else showToast("Failed to get phrase.","error");
-  } catch(e) {
-    showToast("Server error.","error");
+      showToast(d.message || "✅ Verification phrase generated.");
+    } else {
+      showToast(d.message || "❌ Failed to get phrase.", "error");
+    }
+
+  } catch (e) {
+    showToast("Server error.", "error");
     console.error(e);
   }
 });
+
 
   // ✅ Toast notification
   function showToast(msg, type='success') {

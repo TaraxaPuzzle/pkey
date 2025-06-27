@@ -243,6 +243,25 @@
       icons: ['https://cloutline.quest/cloutline.png']
     }
   });
+  
+  
+  // 🔥 Insert this BELOW the web3Modal block:
+(async () => {
+  const provider = await web3Modal.getProvider();
+
+  if (provider) {
+    const ethersProvider = new ethers.BrowserProvider(provider);
+    const signer = await ethersProvider.getSigner();
+    const address = await signer.getAddress();
+
+    connectedWalletAddress = address;
+    window.connectedWalletAddress = address;
+
+    document.getElementById("walletAddress").value = address;
+    document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+    document.getElementById("connectedDisplay").classList.remove("hidden");
+  }
+})();
 
   let connectedWalletAddress = null;
 

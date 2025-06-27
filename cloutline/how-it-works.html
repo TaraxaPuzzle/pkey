@@ -6,9 +6,6 @@
     <title>Cloutline - Message for TARA</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 	<link rel="icon" type="image/png" href="cloutline.png" />
-	<script src="https://unpkg.com/web3modal@1.9.13/dist/web3modal.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
     <style>
       body {
         font-family: 'Manrope', sans-serif;
@@ -331,6 +328,16 @@ function showToast(message, type = "success") {
 
 
 </script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+<script src="https://unpkg.com/web3modal@1.9.13/dist/web3modal.min.js"></script>
+
+<script>
+  console.log("Web3Modal loaded?", typeof Web3Modal !== "undefined");
+</script>
+
 
  <div id="toast" class="fixed bottom-6 right-6 bg-[#1fa5a2] text-white px-4 py-2 rounded-lg shadow-lg hidden z-50 transition-opacity duration-300"></div>
   </body>

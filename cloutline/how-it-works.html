@@ -249,31 +249,26 @@
     }
   });
 
-  document.getElementById("connectWalletBtn").addEventListener("click", async () => {
-    try {
-      await web3Modal.openModal();
+document.getElementById("connectWalletBtn").addEventListener("click", async () => {
+  try {
+    const provider = await web3Modal.connect(); // ✅ get provider
+    const ethersProvider = new ethers.BrowserProvider(provider);
+    const signer = await ethersProvider.getSigner();
+    const address = await signer.getAddress();
 
-      const unsubscribe = web3Modal.subscribeProvider(async (provider) => {
-        if (!provider) return;
+    // Store and display
+    window.connectedWalletAddress = address;
+    document.getElementById("walletAddress").value = address;
+    document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+    document.getElementById("connectedDisplay").classList.remove("hidden");
 
-        const ethersProvider = new ethers.BrowserProvider(provider);
-        const signer = await ethersProvider.getSigner();
-        const address = await signer.getAddress();
+    showToast("✅ Wallet connected!", "success");
+  } catch (err) {
+    console.error("❌ Wallet connection failed", err);
+    showToast("❌ Wallet connection failed.", "error");
+  }
+});
 
-        window.connectedWalletAddress = address;
-        document.getElementById("walletAddress").value = address;
-        document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
-        document.getElementById("connectedDisplay").classList.remove("hidden");
-
-        showToast("✅ Wallet connected!", "success");
-
-        unsubscribe(); // Unsub after first connect
-      });
-    } catch (err) {
-      console.error("❌ Wallet connection failed", err);
-      showToast("❌ Wallet connection failed.", "error");
-    }
-  });
 
   function showToast(message, type = "success") {
     const toast = document.getElementById("toast");

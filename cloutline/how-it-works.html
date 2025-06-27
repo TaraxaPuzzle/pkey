@@ -204,6 +204,81 @@
   </div>
 </footer>
 
+<script src="https://unpkg.com/web3modal@1.9.13/dist/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+
+
+<script>
+  let web3Modal;
+  let provider;
+  let web3;
+
+  window.addEventListener("load", async () => {
+    const providerOptions = {
+      walletconnect: {
+        package: window.WalletConnectProvider.default,
+        options: {
+          rpc: {
+            841: "https://rpc.mainnet.taraxa.io"
+          },
+          chainId: 841
+        }
+      }
+    };
+
+    // Fix for default export issue
+    const Web3ModalConstructor = window.Web3Modal.default || window.Web3Modal;
+    web3Modal = new Web3ModalConstructor({
+      cacheProvider: false,
+      providerOptions
+    });
+
+    document.getElementById("connectWalletBtn").addEventListener("click", async () => {
+      try {
+        provider = await web3Modal.connect();
+        web3 = new Web3(provider);
+
+        const accounts = await web3.eth.getAccounts();
+        const address = accounts[0];
+
+        window.connectedWalletAddress = address;
+        document.getElementById("walletAddress").value = address;
+        document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+        document.getElementById("connectedDisplay").classList.remove("hidden");
+
+        showToast("✅ Wallet connected!", "success");
+      } catch (err) {
+        console.error("❌ Wallet connection failed", err);
+        showToast("❌ Wallet connection failed.", "error");
+      }
+    });
+  });
+
+function showToast(message, type = "success") {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.className = "fixed bottom-6 right-6 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-100";
+
+  if (type === "success") {
+    toast.classList.add("bg-[#1fa5a2]", "text-white");
+  } else {
+    toast.classList.add("bg-red-500", "text-white");
+  }
+
+  toast.classList.remove("hidden", "opacity-0");
+
+  setTimeout(() => {
+    toast.classList.remove("opacity-100");
+    toast.classList.add("opacity-0");
+    setTimeout(() => {
+      toast.classList.add("hidden");
+    }, 300);
+  }, 3000);
+}
+
+</script>
+
 <script>
 
 async function generatePhrase() {
@@ -261,81 +336,6 @@ async function verifyTwitter() {
   }
 }
 
-let web3, provider;
-const web3Modal = new Web3Modal({
-  cacheProvider: false,
-  providerOptions: {
-    walletconnect: {
-      package: window.WalletConnectProvider,
-      options: {
-        rpc: { 841: "https://rpc.mainnet.taraxa.io" },
-        chainId: 841,
-        chainName: "Taraxa Mainnet",
-        nativeCurrency: { name: "TARA", symbol: "TARA", decimals: 18 },
-        blockExplorerUrls: ["https://explorer.taraxa.io"],
-      }
-    }
-  }
-});
-
-document.getElementById("connectWalletBtn").addEventListener("click", async () => {
-  console.log("Opening Web3Modal…");
-  try {
-    provider = await web3Modal.connect(); // opens full modal
-    web3 = new Web3(provider);
-    const accounts = await web3.eth.getAccounts();
-    const address = accounts[0];
-    window.connectedWalletAddress = address;
-    document.getElementById("walletAddress").value = address;
-
-    // 👇 Add these two lines here:
-    document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
-    document.getElementById("connectedDisplay").classList.remove("hidden");
-
-    showToast("✅ Wallet connected!", "success");
-  } catch (err) {
-    console.error("❌ Connection failed", err);
-    showToast("❌ Wallet connection failed.", "error");
-  }
-});
-
-function showToast(message, type = "success") {
-  const toast = document.getElementById("toast");
-
-  toast.textContent = message;
-
-  // Reset classes
-  toast.className = "fixed bottom-6 right-6 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300";
-
-  // Set color based on type
-  if (type === "success") {
-    toast.classList.add("bg-[#1fa5a2]", "text-white");
-  } else if (type === "error") {
-    toast.classList.add("bg-red-500", "text-white");
-  }
-
-  // Show the toast
-  toast.classList.remove("hidden", "opacity-0");
-
-  // Auto-hide after 2.5s
-  setTimeout(() => {
-    toast.classList.add("opacity-0");
-    setTimeout(() => {
-      toast.classList.add("hidden");
-    }, 300);
-  }, 2500);
-}
-
-
-</script>
-
-
-<script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-<script src="https://unpkg.com/web3modal@1.9.13/dist/web3modal.min.js"></script>
-
-<script>
-  console.log("Web3Modal loaded?", typeof Web3Modal !== "undefined");
 </script>
 
 

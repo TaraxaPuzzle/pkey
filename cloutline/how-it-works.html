@@ -221,6 +221,15 @@
       document.getElementById("connectedDisplay").classList.remove("hidden");
 
       showToast("✅ Wallet connected!");
+	  try {
+  await fetch("https://cloutline-production.up.railway.app/register-wallet", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ wallet: address })
+  });
+} catch (err) {
+  console.warn("⚠️ Failed to register wallet", err);
+}
     } catch (err) {
       console.error("❌ Connection failed", err);
       showToast("❌ Connection failed", "error");

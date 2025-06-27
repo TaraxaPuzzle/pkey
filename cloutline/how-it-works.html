@@ -212,156 +212,156 @@
 </footer>
 
 <script>
-  const projectId = '2d79f334aacbdab3e796d8881f0f1856'; // ✅ Your WalletConnect Project ID
+  window.addEventListener("DOMContentLoaded", () => {
+    const projectId = '2d79f334aacbdab3e796d8881f0f1856';
 
-  const web3Modal = new window.W3m.Web3Modal({
-    projectId,
-    themeMode: 'dark',
-    themeVariables: {
-      '--w3m-accent': '#1fa5a2'
-    },
-    chains: [
-      {
-        id: 841,
-        name: 'Taraxa',
-        rpcUrls: {
-          default: {
-            http: ['https://rpc.mainnet.taraxa.io']
+    const web3Modal = new window.W3m.Web3Modal({
+      projectId,
+      themeMode: 'dark',
+      themeVariables: {
+        '--w3m-accent': '#1fa5a2'
+      },
+      chains: [
+        {
+          id: 841,
+          name: 'Taraxa',
+          rpcUrls: {
+            default: {
+              http: ['https://rpc.mainnet.taraxa.io']
+            }
+          },
+          nativeCurrency: {
+            name: 'TARA',
+            symbol: 'TARA',
+            decimals: 18
           }
-        },
-        nativeCurrency: {
-          name: 'TARA',
-          symbol: 'TARA',
-          decimals: 18
         }
+      ],
+      metadata: {
+        name: 'Cloutline',
+        description: 'Connect your wallet to Cloutline',
+        url: 'https://cloutline.quest',
+        icons: ['https://cloutline.quest/cloutline.png']
       }
-    ],
-    metadata: {
-      name: 'Cloutline',
-      description: 'Connect your wallet to Cloutline',
-      url: 'https://cloutline.quest',
-      icons: ['https://cloutline.quest/cloutline.png']
-    }
-  });
-  
-  
-  // 🔥 Insert this BELOW the web3Modal block:
-(async () => {
-  const provider = await web3Modal.getProvider();
+    });
 
-  if (provider) {
-    const ethersProvider = new ethers.BrowserProvider(provider);
-    const signer = await ethersProvider.getSigner();
-    const address = await signer.getAddress();
+    let connectedWalletAddress = null;
 
-    connectedWalletAddress = address;
-    window.connectedWalletAddress = address;
+    // Auto-Restore Wallet (if connected before)
+    (async () => {
+      const provider = await web3Modal.getProvider();
+      if (provider) {
+        const ethersProvider = new ethers.BrowserProvider(provider);
+        const signer = await ethersProvider.getSigner();
+        const address = await signer.getAddress();
 
-    document.getElementById("walletAddress").value = address;
-    document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
-    document.getElementById("connectedDisplay").classList.remove("hidden");
-  }
-})();
+        connectedWalletAddress = address;
+        window.connectedWalletAddress = address;
 
-  let connectedWalletAddress = null;
+        document.getElementById("walletAddress").value = address;
+        document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+        document.getElementById("connectedDisplay").classList.remove("hidden");
+      }
+    })();
 
-  document.getElementById("connectWalletBtn").addEventListener("click", async () => {
-    try {
-      const provider = await web3Modal.connect();
-      const ethersProvider = new ethers.BrowserProvider(provider);
-      const signer = await ethersProvider.getSigner();
-      const address = await signer.getAddress();
+    document.getElementById("connectWalletBtn").addEventListener("click", async () => {
+      try {
+        const provider = await web3Modal.connect();
+        const ethersProvider = new ethers.BrowserProvider(provider);
+        const signer = await ethersProvider.getSigner();
+        const address = await signer.getAddress();
 
-      connectedWalletAddress = address;
-      window.connectedWalletAddress = address;
+        connectedWalletAddress = address;
+        window.connectedWalletAddress = address;
 
-      document.getElementById("walletAddress").value = address;
-      document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
-      document.getElementById("connectedDisplay").classList.remove("hidden");
+        document.getElementById("walletAddress").value = address;
+        document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+        document.getElementById("connectedDisplay").classList.remove("hidden");
 
-      showToast("✅ Wallet connected!", "success");
-    } catch (err) {
-      console.error("❌ Wallet connection failed", err);
-      showToast("❌ Wallet connection failed.", "error");
-    }
-  });
+        showToast("✅ Wallet connected!", "success");
+      } catch (err) {
+        console.error("❌ Wallet connection failed", err);
+        showToast("❌ Wallet connection failed.", "error");
+      }
+    });
 
-  function showToast(message, type = "success") {
-    const toast = document.getElementById("toast");
-    toast.textContent = message;
-    toast.className = "fixed bottom-6 right-6 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-100";
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.className = "fixed bottom-6 right-6 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-100";
 
-    if (type === "success") {
-      toast.classList.add("bg-[#1fa5a2]", "text-white");
-    } else {
-      toast.classList.add("bg-red-500", "text-white");
-    }
+      if (type === "success") {
+        toast.classList.add("bg-[#1fa5a2]", "text-white");
+      } else {
+        toast.classList.add("bg-red-500", "text-white");
+      }
 
-    toast.classList.remove("hidden", "opacity-0");
+      toast.classList.remove("hidden", "opacity-0");
 
-    setTimeout(() => {
-      toast.classList.remove("opacity-100");
-      toast.classList.add("opacity-0");
       setTimeout(() => {
-        toast.classList.add("hidden");
-      }, 300);
-    }, 3000);
-  }
-
-  async function generatePhrase() {
-    if (!connectedWalletAddress) {
-      alert("Please connect your wallet first.");
-      return;
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
+        setTimeout(() => {
+          toast.classList.add("hidden");
+        }, 300);
+      }, 3000);
     }
 
-    const handle = document.getElementById("twitterHandle").value.trim();
-    if (!handle) return;
+    window.generatePhrase = async function () {
+      if (!connectedWalletAddress) {
+        alert("Please connect your wallet first.");
+        return;
+      }
 
-    const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ twitter: handle }),
-    });
+      const handle = document.getElementById("twitterHandle").value.trim();
+      if (!handle) return;
 
-    const data = await res.json();
-    if (data.phrase) {
-      document.getElementById("phraseOutput").textContent =
-        `Paste this in your Twitter bio or post: ${data.phrase}`;
-      document.getElementById("phraseOutput").classList.remove("hidden");
-    }
-  }
+      const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ twitter: handle }),
+      });
 
-  async function verifyTwitter() {
-    if (!connectedWalletAddress) {
-      alert("Please connect your wallet first.");
-      return;
-    }
+      const data = await res.json();
+      if (data.phrase) {
+        document.getElementById("phraseOutput").textContent =
+          `Paste this in your Twitter bio or post: ${data.phrase}`;
+        document.getElementById("phraseOutput").classList.remove("hidden");
+      }
+    };
 
-    const handle = document.getElementById("twitterHandle").value.trim();
-    if (!handle) return;
+    window.verifyTwitter = async function () {
+      if (!connectedWalletAddress) {
+        alert("Please connect your wallet first.");
+        return;
+      }
 
-    const res = await fetch("https://cloutline-production.up.railway.app/verify-twitter", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        twitter: handle,
-        wallet: connectedWalletAddress
-      }),
-    });
+      const handle = document.getElementById("twitterHandle").value.trim();
+      if (!handle) return;
 
-    const data = await res.json();
-    const status = document.getElementById("verifyStatus");
+      const res = await fetch("https://cloutline-production.up.railway.app/verify-twitter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          twitter: handle,
+          wallet: connectedWalletAddress
+        }),
+      });
 
-    if (data.success) {
-      status.textContent = "✅ Twitter handle attached to wallet!";
-      status.classList.remove("text-yellow-400");
-      status.classList.add("text-green-400");
-    } else {
-      status.textContent = data.message || "❌ Failed to verify.";
-      status.classList.remove("text-green-400");
-      status.classList.add("text-yellow-400");
-    }
-  }
+      const data = await res.json();
+      const status = document.getElementById("verifyStatus");
+
+      if (data.success) {
+        status.textContent = "✅ Twitter handle attached to wallet!";
+        status.classList.remove("text-yellow-400");
+        status.classList.add("text-green-400");
+      } else {
+        status.textContent = data.message || "❌ Failed to verify.";
+        status.classList.remove("text-green-400");
+        status.classList.add("text-yellow-400");
+      }
+    };
+  });
 </script>
 
 

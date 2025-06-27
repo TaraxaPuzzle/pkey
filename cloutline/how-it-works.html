@@ -6,6 +6,13 @@
     <title>Cloutline - Message for TARA</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 	<link rel="icon" type="image/png" href="cloutline.png" />
+	
+	<!-- Web3Modal v2 -->
+<script src="https://unpkg.com/@web3modal/html@2.6.3/dist/index.js"></script>
+
+<!-- Ethers.js -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+	
     <style>
       body {
         font-family: 'Manrope', sans-serif;
@@ -204,43 +211,54 @@
   </div>
 </footer>
 
-<script src="https://unpkg.com/web3modal@1.9.13/dist/index.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
-
-
 <script>
-  let web3Modal;
-  let provider;
-  let web3;
+  const projectId = '2d79f334aacbdab3e796d8881f0f1856';
 
-  window.addEventListener("load", async () => {
-    const providerOptions = {
-      walletconnect: {
-        package: window.WalletConnectProvider.default,
-        options: {
-          rpc: {
-            841: "https://rpc.mainnet.taraxa.io"
-          },
-          chainId: 841
-        }
+  const chains = [{
+    id: 841,
+    name: 'Taraxa',
+    rpcUrls: {
+      default: {
+        http: ['https://rpc.mainnet.taraxa.io']
       }
-    };
+    },
+    nativeCurrency: {
+      name: 'TARA',
+      symbol: 'TARA',
+      decimals: 18
+    }
+  }];
 
-    // Fix for default export issue
-    const Web3ModalConstructor = window.Web3Modal.default || window.Web3Modal;
-    web3Modal = new Web3ModalConstructor({
-      cacheProvider: false,
-      providerOptions
-    });
+  const { EthereumClient, modalConnectors, walletConnectProvider } = window.W3m;
+  const { Web3Modal } = window.w3m;
 
-    document.getElementById("connectWalletBtn").addEventListener("click", async () => {
-      try {
-        provider = await web3Modal.connect();
-        web3 = new Web3(provider);
+  const ethereumClient = new EthereumClient({
+    chains,
+    provider: walletConnectProvider({ projectId, chains })
+  });
 
-        const accounts = await web3.eth.getAccounts();
-        const address = accounts[0];
+  const web3Modal = new Web3Modal({
+    projectId,
+    themeMode: "dark",
+    themeVariables: {
+      "--w3m-accent": "#1fa5a2"
+    },
+    ethereum: {
+      client: ethereumClient,
+      connectors: modalConnectors({ projectId, version: '2', chains })
+    }
+  });
+
+  document.getElementById("connectWalletBtn").addEventListener("click", async () => {
+    try {
+      await web3Modal.openModal();
+
+      const unsubscribe = web3Modal.subscribeProvider(async (provider) => {
+        if (!provider) return;
+
+        const ethersProvider = new ethers.BrowserProvider(provider);
+        const signer = await ethersProvider.getSigner();
+        const address = await signer.getAddress();
 
         window.connectedWalletAddress = address;
         document.getElementById("walletAddress").value = address;
@@ -248,94 +266,36 @@
         document.getElementById("connectedDisplay").classList.remove("hidden");
 
         showToast("✅ Wallet connected!", "success");
-      } catch (err) {
-        console.error("❌ Wallet connection failed", err);
-        showToast("❌ Wallet connection failed.", "error");
-      }
-    });
+
+        unsubscribe(); // Unsub after first connect
+      });
+    } catch (err) {
+      console.error("❌ Wallet connection failed", err);
+      showToast("❌ Wallet connection failed.", "error");
+    }
   });
 
-function showToast(message, type = "success") {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.className = "fixed bottom-6 right-6 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-100";
+  function showToast(message, type = "success") {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "fixed bottom-6 right-6 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-100";
 
-  if (type === "success") {
-    toast.classList.add("bg-[#1fa5a2]", "text-white");
-  } else {
-    toast.classList.add("bg-red-500", "text-white");
-  }
+    if (type === "success") {
+      toast.classList.add("bg-[#1fa5a2]", "text-white");
+    } else {
+      toast.classList.add("bg-red-500", "text-white");
+    }
 
-  toast.classList.remove("hidden", "opacity-0");
+    toast.classList.remove("hidden", "opacity-0");
 
-  setTimeout(() => {
-    toast.classList.remove("opacity-100");
-    toast.classList.add("opacity-0");
     setTimeout(() => {
-      toast.classList.add("hidden");
-    }, 300);
-  }, 3000);
-}
-
-</script>
-
-<script>
-
-async function generatePhrase() {
-  if (!window.connectedWalletAddress) {
-    alert("Please connect your wallet first.");
-    return;
+      toast.classList.remove("opacity-100");
+      toast.classList.add("opacity-0");
+      setTimeout(() => {
+        toast.classList.add("hidden");
+      }, 300);
+    }, 3000);
   }
-
-  const handle = document.getElementById("twitterHandle").value.trim();
-  if (!handle) return;
-
-  const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ twitter: handle }),
-  });
-
-  const data = await res.json();
-  if (data.phrase) {
-    document.getElementById("phraseOutput").textContent =
-      `Paste this in your Twitter bio or post: ${data.phrase}`;
-    document.getElementById("phraseOutput").classList.remove("hidden");
-  }
-}
-
-async function verifyTwitter() {
-  if (!window.connectedWalletAddress) {
-    alert("Please connect your wallet first.");
-    return;
-  }
-
-  const handle = document.getElementById("twitterHandle").value.trim();
-  if (!handle) return;
-
-  const res = await fetch("https://cloutline-production.up.railway.app/verify-twitter", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      twitter: handle,
-      wallet: window.connectedWalletAddress
-    }),
-  });
-
-  const data = await res.json();
-  const status = document.getElementById("verifyStatus");
-
-  if (data.success) {
-    status.textContent = "✅ Twitter handle attached to wallet!";
-    status.classList.remove("text-yellow-400");
-    status.classList.add("text-green-400");
-  } else {
-    status.textContent = data.message || "❌ Failed to verify.";
-    status.classList.remove("text-green-400");
-    status.classList.add("text-yellow-400");
-  }
-}
-
 </script>
 
 

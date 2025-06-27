@@ -35,7 +35,7 @@
     </button>
 	
 	<!-- After connect -->
-<button id="profileBtn" class="invisible w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition">
+<button id="profileBtn" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition">
   <i class="lucide lucide-circle-user w-5 h-5"></i>
   <span class="sr-only">Profile</span>
 </button>
@@ -231,7 +231,7 @@
 
       showToast("✅ Wallet connected!");
 	  document.getElementById("connectWalletBtn").classList.add("hidden");
-      document.getElementById("profileBtn").classList.remove("invisible");
+      document.getElementById("profileBtn").classList.remove("hidden");
 	  if (window.lucide) {
   window.lucide.createIcons();
 }

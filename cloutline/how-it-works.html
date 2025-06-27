@@ -212,6 +212,8 @@
 </footer>
 
 <script>
+let connectedWalletAddress = null;
+
   window.addEventListener("DOMContentLoaded", () => {
     const projectId = '2d79f334aacbdab3e796d8881f0f1856';
 
@@ -244,8 +246,6 @@
         icons: ['https://cloutline.quest/cloutline.png']
       }
     });
-
-    let connectedWalletAddress = null;
 
     // Auto-Restore Wallet (if connected before)
     (async () => {

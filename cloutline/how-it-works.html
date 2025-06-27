@@ -6,6 +6,7 @@
     <title>Cloutline - Message for TARA</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 	<link rel="icon" type="image/png" href="cloutline.png" />
+	<script src="https://unpkg.com/lucide@latest"></script>
     <style>
       body {
         font-family: 'Manrope', sans-serif;
@@ -32,6 +33,11 @@
     <button id="connectWalletBtn" class="bg-[#253b80] text-white font-medium px-4 py-2 rounded-lg hover:bg-[#304c9c] transition">
       Connect Enkrypt
     </button>
+	
+	<!-- After connect -->
+<button id="profileBtn" class="hidden w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition">
+  <i class="lucide lucide-user w-5 h-5"></i>
+</button>
 	
 	<p id="connectedDisplay" class="text-sm text-green-400 mt-2 hidden">
   ✅ Connected: <span id="walletShort"></span>
@@ -165,6 +171,10 @@
     </div>
   </section>
 
+<section id="profileArea" class="bg-[#111112] rounded-xl p-6 border border-[#222] shadow-md">
+  <!-- Profile content will be injected here -->
+</section>
+
 </main>
 
 
@@ -219,6 +229,9 @@
       document.getElementById("connectedDisplay").classList.remove("hidden");
 
       showToast("✅ Wallet connected!");
+	  document.getElementById("connectWalletBtn").classList.add("hidden");
+      document.getElementById("profileBtn").classList.remove("hidden");
+	  window.lucide && window.lucide.createIcons();
 	  try {
   await fetch("https://cloutline-production.up.railway.app/register-wallet", {
     method: "POST",
@@ -275,6 +288,43 @@ document.getElementById("getPhraseBtn").addEventListener("click", async () => {
       setTimeout(()=> t.classList.add('hidden'), 300);
     },3000);
   }
+  
+
+window.addEventListener("DOMContentLoaded", async () => {
+  const hash = window.location.hash;
+  if (hash && hash.startsWith("#0x")) {
+    const wallet = hash.slice(1).toLowerCase();
+    await loadKOLProfile(wallet);
+  }
+});
+
+async function loadKOLProfile(wallet) {
+  try {
+    const res = await fetch(`https://cloutline-production.up.railway.app/profile/${wallet}`);
+    const data = await res.json();
+
+    if (!data.success || !data.profile) {
+      document.getElementById("profileArea").innerHTML = `
+        <p class="text-red-500">❌ No profile found for this wallet.</p>
+      `;
+      return;
+    }
+
+    const profile = data.profile;
+
+    document.getElementById("profileArea").innerHTML = `
+      <h1 class="text-xl font-bold text-[#1fa5a2]">📄 KOL Profile</h1>
+      <p class="mt-2"><strong>Wallet:</strong> ${wallet}</p>
+      <p><strong>Twitter:</strong> ${profile.twitter || "N/A"}</p>
+      <p><strong>Verification Phrase:</strong> ${profile.verification_phrase || "N/A"}</p>
+      <p class="text-xs text-gray-500 mt-2">Last updated: ${new Date(profile.phrase_created_at || profile.submitted_at || "").toLocaleString()}</p>
+    `;
+  } catch (err) {
+    console.error("Error loading profile:", err);
+    document.getElementById("profileArea").innerHTML = `<p class="text-red-500">⚠️ Error loading profile.</p>`;
+  }
+}
+
 </script>
 
  <div id="toast" class="fixed bottom-6 right-6 bg-[#1fa5a2] text-white px-4 py-2 rounded-lg shadow-lg hidden z-50 transition-opacity duration-300"></div>

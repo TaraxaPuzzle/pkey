@@ -16,7 +16,6 @@
     </style>
   </head>
   <body class="bg-gray-900 text-white">
-  <div id="toast" class="fixed bottom-6 right-6 bg-[#1fa5a2] text-white px-4 py-2 rounded-lg shadow-lg hidden z-50 transition-opacity duration-300"></div>
 <header class="bg-[#0e0e0e] border-b border-[#1a1a1a]">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
     <!-- Logo -->
@@ -305,22 +304,27 @@ document.getElementById("connectWalletBtn").addEventListener("click", async () =
 
 function showToast(message, type = "success") {
   const toast = document.getElementById("toast");
+
   toast.textContent = message;
 
-  // Color scheme based on type
-  toast.className =
-    "fixed bottom-6 right-6 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300";
-  toast.classList.add(
-    type === "success" ? "bg-[#1fa5a2] text-white" : "bg-red-500 text-white"
-  );
+  // Reset classes
+  toast.className = "fixed bottom-6 right-6 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300";
 
-  toast.classList.remove("hidden");
+  // Set color based on type
+  if (type === "success") {
+    toast.classList.add("bg-[#1fa5a2]", "text-white");
+  } else if (type === "error") {
+    toast.classList.add("bg-red-500", "text-white");
+  }
 
+  // Show the toast
+  toast.classList.remove("hidden", "opacity-0");
+
+  // Auto-hide after 2.5s
   setTimeout(() => {
     toast.classList.add("opacity-0");
     setTimeout(() => {
       toast.classList.add("hidden");
-      toast.classList.remove("opacity-0");
     }, 300);
   }, 2500);
 }
@@ -328,6 +332,6 @@ function showToast(message, type = "success") {
 
 </script>
 
-
+ <div id="toast" class="fixed bottom-6 right-6 bg-[#1fa5a2] text-white px-4 py-2 rounded-lg shadow-lg hidden z-50 transition-opacity duration-300"></div>
   </body>
 </html>

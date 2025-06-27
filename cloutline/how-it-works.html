@@ -31,7 +31,7 @@
     </nav>
 
     <!-- Connect Button -->
-    <button class="bg-[#253b80] text-white font-medium px-4 py-2 rounded-lg hover:bg-[#304c9c] transition">
+    <button id="connectWalletBtn" class="bg-[#253b80] text-white font-medium px-4 py-2 rounded-lg hover:bg-[#304c9c] transition">
       Connect Wallet
     </button>
   </div>
@@ -260,16 +260,18 @@ async function verifyTwitter() {
 
 let provider, web3;
 
-document.querySelector("button.bg-[#253b80]").addEventListener("click", async () => {
+document.getElementById("connectWalletBtn").addEventListener("click", async () => {
+  console.log("Connect button clicked!");
+
   try {
-    provider = new WalletConnectProvider.default({
-      rpc: {
-        841: "https://rpc.mainnet.taraxa.io"  // Taraxa mainnet RPC
-      },
+    provider = new WalletConnectProvider({ // ← fixed
+      rpc: { 841: "https://rpc.mainnet.taraxa.io" },
       chainId: 841,
     });
 
+    console.log("Connecting to WalletConnect...");
     await provider.enable();
+
     web3 = new Web3(provider);
 
     const accounts = await web3.eth.getAccounts();

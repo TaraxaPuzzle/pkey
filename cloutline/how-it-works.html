@@ -236,25 +236,30 @@
     }
   });
 
-  // ✅ Phrase generation
-  document.getElementById("getPhraseBtn").addEventListener("click", async () => {
-    if (!connectedWalletAddress) return alert("Please connect wallet first.");
-    const handle = document.getElementById("twitterHandle").value.trim();
-    if (!handle) return;
+ // ✅ Phrase generation
+document.getElementById("getPhraseBtn").addEventListener("click", async () => {
+  if (!connectedWalletAddress) return alert("Please connect wallet first.");
+  const handle = document.getElementById("twitterHandle").value.trim();
+  if (!handle) return;
 
-    try {
-      const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
-        method: "POST", headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ twitter: handle })
-      });
-      const d = await res.json();
-      if (d.phrase) {
-        const po = document.getElementById("phraseOutput");
-        po.textContent = `Paste this in your bio: ${d.phrase}`;
-        po.classList.remove("hidden");
-      } else showToast("Failed to get phrase.","error");
-    } catch(e) { showToast("Server error.","error"); console.error(e); }
-  });
+  try {
+    const res = await fetch("https://cloutline-production.up.railway.app/generate-verification-phrase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ twitter: handle, wallet: connectedWalletAddress }) // ✅ include wallet here
+    });
+    const d = await res.json();
+    if (d.phrase) {
+      const po = document.getElementById("phraseOutput");
+      po.textContent = `Paste this in your bio: ${d.phrase}`;
+      po.classList.remove("hidden");
+    } else showToast("Failed to get phrase.","error");
+  } catch(e) {
+    showToast("Server error.","error");
+    console.error(e);
+  }
+});
+
 
   // ✅ Twitter verification
   document.getElementById("saveHandleBtn").addEventListener("click", async () => {

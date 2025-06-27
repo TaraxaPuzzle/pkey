@@ -199,11 +199,11 @@
   </div>
 </footer>
 
-<script src="https://unpkg.com/@web3modal/html@1.9.12/dist/bundle.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+<script type="module">
+  import { Web3Modal } from "https://cdn.jsdelivr.net/npm/@web3modal/html@2.7.1/dist/index.js";
+  import { EthereumClient, walletConnectProvider, modalConnectors } from "https://cdn.jsdelivr.net/npm/@web3modal/ethereum@2.7.1/dist/index.js";
+  import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.8.1/+esm";
 
-
-<script>
 
   const projectId = '2d79f334aacbdab3e796d8881f0f1856';
   const chains = [{ id: 841, name: 'Taraxa', rpcUrls: { default: { http: ['https://rpc.mainnet.taraxa.io'] } }, nativeCurrency: { name: 'TARA', symbol: 'TARA', decimals: 18 } }];

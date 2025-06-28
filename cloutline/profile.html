@@ -191,14 +191,23 @@
     });
 
     async function loadKOLProfile(wallet) {
-      try {
-        const res = await fetch(`https://cloutline-production.up.railway.app/profile/${wallet}`);
-        const data = await res.json();
+  try {
+    const res = await fetch(`https://cloutline-production.up.railway.app/profile/${wallet}`);
 
-        if (!data.success || !data.profile) {
-          alert("❌ No profile found.");
-          return;
-        }
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`❌ Backend responded with ${res.status}:`, errorText);
+      alert("❌ Profile not found or server error.");
+      return;
+    }
+
+    const data = await res.json();
+
+    if (!data.success || !data.profile) {
+      console.warn("⚠️ No profile in response:", data);
+      alert("❌ No profile found.");
+      return;
+    }
 
         const profile = data.profile;
 		document.getElementById("kolAvatar").src = profile.avatar;
@@ -214,7 +223,7 @@
         document.getElementById("kolPrice").textContent = `$${profile.price.toFixed(2)}` || "-";
         document.getElementById("infoPrice").textContent = profile.price || "-";
 		
-		const badge = document.getElementById("verificationBadge");
+const badge = document.getElementById("verificationBadge");
 if (profile.verified === true) {
   badge.textContent = "Verified";
   badge.classList.remove("bg-yellow-800", "text-yellow-300");

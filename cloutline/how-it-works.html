@@ -174,10 +174,6 @@
     </div>
   </section>
 
-<section id="profileArea" class="bg-[#111112] rounded-xl p-6 border border-[#222] shadow-md">
-  <!-- Profile content will be injected here -->
-</section>
-
 </main>
 
 
@@ -307,36 +303,6 @@ document.getElementById("getPhraseBtn").addEventListener("click", async () => {
       setTimeout(()=> t.classList.add('hidden'), 300);
     },3000);
   }
-  
-
-window.addEventListener("DOMContentLoaded", async () => {
-  // Check if already connected
-if (provider) {
-  try {
-    const accounts = await provider.request({ method: "eth_accounts" });
-    if (accounts.length > 0) {
-      const address = accounts[0];
-      connectedWalletAddress = address;
-
-      document.getElementById("walletAddress").value = address;
-      document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
-      document.getElementById("connectedDisplay").classList.remove("hidden");
-      document.getElementById("connectWalletBtn").classList.add("hidden");
-      document.getElementById("profileBtn").classList.remove("hidden");
-      window.lucide && window.lucide.createIcons();
-    }
-  } catch (err) {
-    console.warn("🔌 Failed to auto-load wallet", err);
-  }
-}
-
-  // Also check for permalink view
-  const hash = window.location.hash;
-  if (hash && hash.startsWith("#0x")) {
-    const wallet = hash.slice(1).toLowerCase();
-    await loadKOLProfile(wallet);
-  }
-});
 
 async function loadKOLProfile(wallet) {
   try {
@@ -344,31 +310,53 @@ async function loadKOLProfile(wallet) {
     const data = await res.json();
 
     if (!data.success || !data.profile) {
-      document.getElementById("profileArea").innerHTML = `
-        <p class="text-red-500">❌ No profile found for this wallet.</p>
-      `;
+      document.getElementById("profileSection").innerHTML = `
+        <p class="text-red-500">❌ No profile found for this wallet.</p>`;
       return;
     }
 
     const profile = data.profile;
-
-    document.getElementById("profileArea").innerHTML = `
-      <h1 class="text-xl font-bold text-[#1fa5a2]">📄 KOL Profile</h1>
-      <p class="mt-2"><strong>Wallet:</strong> ${wallet}</p>
-      <p><strong>Twitter:</strong> ${profile.twitter || "N/A"}</p>
-      <p><strong>Verification Phrase:</strong> ${profile.verification_phrase || "N/A"}</p>
-      <p class="text-xs text-gray-500 mt-2">Last updated: ${new Date(profile.phrase_created_at || profile.submitted_at || "").toLocaleString()}</p>
-    `;
+    document.getElementById("profileWallet").textContent = wallet;
+    document.getElementById("profileTwitter").textContent = profile.twitter || "N/A";
+    document.getElementById("profilePhrase").textContent = profile.verification_phrase || "N/A";
+    document.getElementById("profileUpdatedAt").textContent = new Date(profile.phrase_created_at || profile.submitted_at || "").toLocaleString();
   } catch (err) {
     console.error("Error loading profile:", err);
-    document.getElementById("profileArea").innerHTML = `<p class="text-red-500">⚠️ Error loading profile.</p>`;
+    document.getElementById("profileSection").innerHTML = `<p class="text-red-500">⚠️ Error loading profile.</p>`;
   }
 }
 
-document.getElementById("profileBtn").addEventListener("click", () => {
-  if (!connectedWalletAddress) return;
-  window.location.href = `${window.location.pathname}#${connectedWalletAddress.toLowerCase()}`;
+window.addEventListener("DOMContentLoaded", async () => {
+  // Check for connected wallet
+  if (provider) {
+    try {
+      const accounts = await provider.request({ method: "eth_accounts" });
+      if (accounts.length > 0) {
+        const address = accounts[0];
+        connectedWalletAddress = address;
+
+        document.getElementById("walletAddress").value = address;
+        document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+        document.getElementById("connectedDisplay").classList.remove("hidden");
+        document.getElementById("connectWalletBtn").classList.add("hidden");
+        document.getElementById("profileBtn").classList.remove("hidden");
+        window.lucide && window.lucide.createIcons();
+      }
+    } catch (err) {
+      console.warn("🔌 Failed to auto-load wallet", err);
+    }
+  }
+
+  // Support both #0x... and ?wallet=...
+  const hash = window.location.hash;
+  const params = new URLSearchParams(window.location.search);
+  const wallet = hash.startsWith("#0x") ? hash.slice(1).toLowerCase() : (params.get("wallet")?.toLowerCase() || null);
+
+  if (wallet) {
+    await loadKOLProfile(wallet);
+  }
 });
+
 
 </script>
 

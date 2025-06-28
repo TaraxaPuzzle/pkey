@@ -55,7 +55,7 @@
       </div>
 
       <!-- Messaging Panel -->
-      <div class="bg-[#16191f] p-6 rounded-3xl border border-[#222] shadow-lg flex flex-col gap-6">
+      <div id="messagePanel" class="bg-[#16191f] p-6 rounded-3xl border border-[#222] shadow-lg flex flex-col gap-6">
         <div>
           <h2 class="text-xl font-bold">Send Message to <span id="kolNameInline">KOL</span></h2>
           <div class="mt-4 bg-[#1a1d24] p-4 rounded-lg">
@@ -76,51 +76,111 @@
           </ul>
         </div>
       </div>
+	  
+	  <!-- My Messages Panel -->
+<div id="myMessages" class="hidden bg-[#16191f] p-6 rounded-3xl border border-[#222] shadow-lg flex flex-col items-center justify-center text-gray-300 text-center">
+  <h2 class="text-xl font-bold text-white mb-4">📨 My Messages</h2>
+  <div id="messageList" class="w-full space-y-4 text-left"></div>
+</div>
+	  
     </div>
 
-    <script>
-      const urlParams = new URLSearchParams(window.location.search);
-      const wallet = urlParams.get("wallet");
-      const charCount = document.getElementById("charCount");
-      const messageInput = document.getElementById("userMessage");
+<script>
+  (async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const wallet = urlParams.get("wallet");
+    let connectedWallet = null;
 
-      messageInput.addEventListener("input", () => {
-        charCount.textContent = messageInput.value.length;
-      });
-
-      async function loadKOLProfile(wallet) {
-        try {
-          const res = await fetch(`https://cloutline-production.up.railway.app/profile/${wallet}`);
-          const data = await res.json();
-
-          if (!data.success || !data.profile) {
-            alert("❌ No profile found.");
-            return;
-          }
-
-          const profile = data.profile;
-          document.getElementById("kolName").textContent = profile.twitter?.split("@")[1] || "KOL";
-          document.getElementById("kolNameInline").textContent = profile.twitter?.split("@")[1] || "KOL";
-          document.getElementById("kolTwitter").textContent = profile.twitter || "N/A";
-          document.getElementById("kolTwitterHandle").textContent = profile.twitter || "@handle";
-          document.getElementById("kolAbout").textContent = profile.bio || "No bio set.";
-          document.getElementById("statFollowers").textContent = profile.followers || "-";
-          document.getElementById("statFollowing").textContent = profile.following || "-";
-          document.getElementById("statPrice").textContent = profile.price || "-";
-          document.getElementById("statResponse").textContent = profile.response_rate || "-";
-          document.getElementById("kolPrice").textContent = profile.price || "-";
-          document.getElementById("infoPrice").textContent = profile.price || "-";
-        } catch (err) {
-          console.error("Error loading profile:", err);
-          alert("⚠️ Failed to load profile.");
+    // Get connected wallet
+    if (window.enkrypt?.providers?.ethereum) {
+      try {
+        const provider = window.enkrypt.providers.ethereum;
+        const accounts = await provider.request({ method: "eth_accounts" });
+        if (accounts.length > 0) {
+          connectedWallet = accounts[0].toLowerCase();
         }
+      } catch (err) {
+        console.warn("Could not get connected wallet:", err);
       }
+    }
 
-      if (wallet) {
-        loadKOLProfile(wallet);
-      } else {
-        alert("⚠️ No wallet address provided in URL.");
+    // Count characters
+    const charCount = document.getElementById("charCount");
+    const messageInput = document.getElementById("userMessage");
+    messageInput.addEventListener("input", () => {
+      charCount.textContent = messageInput.value.length;
+    });
+
+    async function loadKOLProfile(wallet) {
+      try {
+        const res = await fetch(`https://cloutline-production.up.railway.app/profile/${wallet}`);
+        const data = await res.json();
+
+        if (!data.success || !data.profile) {
+          alert("❌ No profile found.");
+          return;
+        }
+
+        const profile = data.profile;
+        document.getElementById("kolName").textContent = profile.twitter?.split("@")[1] || "KOL";
+        document.getElementById("kolNameInline").textContent = profile.twitter?.split("@")[1] || "KOL";
+        document.getElementById("kolTwitter").textContent = profile.twitter || "N/A";
+        document.getElementById("kolTwitterHandle").textContent = profile.twitter || "@handle";
+        document.getElementById("kolAbout").textContent = profile.bio || "No bio set.";
+        document.getElementById("statFollowers").textContent = profile.followers || "-";
+        document.getElementById("statFollowing").textContent = profile.following || "-";
+        document.getElementById("statPrice").textContent = profile.price || "-";
+        document.getElementById("statResponse").textContent = profile.response_rate || "-";
+        document.getElementById("kolPrice").textContent = profile.price || "-";
+        document.getElementById("infoPrice").textContent = profile.price || "-";
+      } catch (err) {
+        console.error("Error loading profile:", err);
+        alert("⚠️ Failed to load profile.");
       }
-    </script>
+    }
+
+    if (wallet) {
+      await loadKOLProfile(wallet);
+
+      if (connectedWallet === wallet.toLowerCase()) {
+        document.getElementById("messagePanel").classList.add("hidden");
+        document.getElementById("myMessages").classList.remove("hidden");
+		await loadMyMessages(wallet);
+      }
+    } else {
+      alert("⚠️ No wallet address provided in URL.");
+    }
+  })();
+  
+  async function loadMyMessages(wallet) {
+  try {
+    const res = await fetch(`https://cloutline-production.up.railway.app/messages/${wallet}`);
+    const data = await res.json();
+
+    const container = document.getElementById("messageList");
+    container.innerHTML = ""; // Clear any loading state
+
+    if (!data.success || !data.messages || data.messages.length === 0) {
+      container.innerHTML = `<p class="text-sm text-gray-400 text-center">No messages yet.</p>`;
+      return;
+    }
+
+    data.messages.forEach(msg => {
+      const el = document.createElement("div");
+      el.className = "bg-[#1a1d24] p-4 rounded-lg border border-[#2a2d35]";
+      el.innerHTML = `
+        <p class="text-sm text-gray-300 mb-2">📩 <strong>From:</strong> ${msg.sender || "Anonymous"}</p>
+        <p class="text-white">${msg.content}</p>
+        <p class="text-xs text-gray-500 mt-2 text-right">${new Date(msg.timestamp).toLocaleString()}</p>
+      `;
+      container.appendChild(el);
+    });
+  } catch (err) {
+    console.error("Failed to load messages:", err);
+    document.getElementById("messageList").innerHTML = `<p class="text-sm text-red-500 text-center">Error loading messages.</p>`;
+  }
+}
+</script>
+
   </body>
 </html>

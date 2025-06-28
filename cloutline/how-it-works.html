@@ -357,7 +357,10 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-
+document.getElementById("profileBtn").addEventListener("click", () => {
+  if (!connectedWalletAddress) return;
+  window.location.href = `/cloutline/profile.html?wallet=${connectedWalletAddress.toLowerCase()}`;
+});
 </script>
 
  <div id="toast" class="fixed bottom-6 right-6 bg-[#1fa5a2] text-white px-4 py-2 rounded-lg shadow-lg hidden z-50 transition-opacity duration-300"></div>

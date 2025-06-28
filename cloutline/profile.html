@@ -12,6 +12,52 @@
     </style>
   </head>
   <body class="bg-[#0f1115] text-white min-h-screen">
+  
+  <header class="bg-[#0e0e0e] border-b border-[#1a1a1a]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+    <!-- Logo -->
+    <div class="flex items-center space-x-2">
+  <img src="cloutline.png" alt="Cloutline Logo" class="h-8 w-auto" />
+  <h1 class="text-white text-xl font-semibold">Cloutline</h1>
+</div>
+
+    <!-- Nav Links -->
+    <nav class="hidden md:flex items-center space-x-8 text-sm text-gray-300">
+      <a href="cloutline.html" class="flex items-center gap-1 hover:text-white"><i class="lucide-message-circle w-4 h-4"></i> Messages</a>
+      <a href="leaderboard.html" class="flex items-center gap-1 hover:text-white"><i class="lucide-bookmark w-4 h-4"></i> Leaderboard</a>
+      <a href="how-it-works.html" class="flex items-center gap-1 hover:text-white"><i class="lucide-help-circle w-4 h-4"></i> How it Works</a>
+    </nav>
+
+    <!-- Connect Button -->
+    <button id="connectWalletBtn" class="bg-[#253b80] text-white font-medium px-4 py-2 rounded-lg hover:bg-[#304c9c] transition">
+      Connect Enkrypt
+    </button>
+	
+	<!-- After connect -->
+<button id="profileBtn" class="hidden w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition">
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M5.121 17.804A9.955 9.955 0 0112 15c2.21 0 4.253.715 5.879 1.921M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+  <span class="sr-only">Profile</span>
+</button>
+	
+	<p id="connectedDisplay" class="text-sm text-green-400 mt-2 hidden">
+  ✅ Connected: <span id="walletShort"></span>
+</p>
+	
+  </div>
+
+  <!-- Search Bar -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+    <input
+      type="text"
+      placeholder="Search for KOLs..."
+      class="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-2 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
+    />
+  </div>
+</header>
+
     <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-12">
 
       <!-- KOL Identity & Stats -->
@@ -84,6 +130,34 @@
 </div>
 	  
     </div>
+
+<footer class="border-t border-[#1a1a1a] mt-12 py-8 text-gray-400 text-sm">
+  <div class="max-w-7xl mx-auto px-6 flex flex-col items-center text-center space-y-5">
+
+    <!-- Logo + Name -->
+    <div class="flex items-center justify-center space-x-2">
+      <img src="cloutline.png" alt="Cloutline Logo" class="w-6 h-6 mt-[1px]" />
+      <span class="text-white font-semibold text-lg -ml-[1px]">Cloutline</span>
+    </div>
+
+    <!-- Nav Links -->
+    <div class="flex flex-wrap justify-center space-x-6 text-gray-300 text-sm">
+      <a href="#" class="hover:text-white">Messages</a>
+      <a href="#" class="hover:text-white">Leaderboard</a>
+      <a href="#" class="hover:text-white">How it Works</a>
+      <a href="#" class="hover:text-white">Profile</a>
+    </div>
+
+    <!-- Copyright -->
+    <div class="text-xs text-gray-500 leading-relaxed mt-1">
+      © 2025 Cloutline<br />
+      <span class="text-gray-400">A messaging service built for </span>
+      <span class="text-[#1fa5a2] font-medium">TARAXA</span><br />
+      <span class="text-gray-600">Powered by pkey.quest</span>
+    </div>
+
+  </div>
+</footer>
 
 <script>
   (async () => {

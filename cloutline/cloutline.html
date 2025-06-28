@@ -29,9 +29,23 @@
     </nav>
 
     <!-- Connect Button -->
-    <button class="bg-[#253b80] text-white font-medium px-4 py-2 rounded-lg hover:bg-[#304c9c] transition">
-      Connect Wallet
+    <button id="connectWalletBtn" class="bg-[#253b80] text-white font-medium px-4 py-2 rounded-lg hover:bg-[#304c9c] transition">
+      Connect Enkrypt
     </button>
+	
+	<!-- After connect -->
+<button id="profileBtn" class="hidden w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition">
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M5.121 17.804A9.955 9.955 0 0112 15c2.21 0 4.253.715 5.879 1.921M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+  <span class="sr-only">Profile</span>
+</button>
+	
+	<p id="connectedDisplay" class="text-sm text-green-400 mt-2 hidden">
+  ✅ Connected: <span id="walletShort"></span>
+</p>
+	
   </div>
 
   <!-- Search Bar -->

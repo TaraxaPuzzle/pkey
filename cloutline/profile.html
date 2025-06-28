@@ -197,7 +197,7 @@
         }
 
         const profile = data.profile;
-		document.getElementById("kolAvatar").src = profile.avatar || "/avatar_placeholder.png";
+		document.getElementById("kolAvatar").src = profile.avatar;
         document.getElementById("kolName").textContent = profile.twitter?.split("@")[1] || "KOL";
         document.getElementById("kolNameInline").textContent = profile.twitter?.split("@")[1] || "KOL";
         document.getElementById("kolTwitter").textContent = profile.twitter || "N/A";

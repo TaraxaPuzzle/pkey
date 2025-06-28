@@ -222,18 +222,20 @@
         document.getElementById("statResponse").textContent = profile.response_rate || "-";
         document.getElementById("kolPrice").textContent = `$${profile.price.toFixed(2)}` || "-";
         document.getElementById("infoPrice").textContent = profile.price || "-";
-		
-const badge = document.getElementById("verificationBadge");
-if (profile.verified === true) {
-  badge.textContent = "Verified";
-  badge.classList.remove("bg-yellow-800", "text-yellow-300");
-  badge.classList.add("bg-green-700", "text-green-200");
-} else {
-  badge.textContent = "Unverified";
-  badge.classList.remove("bg-green-700", "text-green-200");
-  badge.classList.add("bg-yellow-800", "text-yellow-300");
-}
-      } catch (err) {
+
+            // ✅ Place it RIGHT HERE
+        const badge = document.getElementById("verificationBadge");
+        if (badge) {
+          if (profile.verified === true) {
+            badge.textContent = "Verified";
+            badge.classList.remove("bg-yellow-800", "text-yellow-300");
+            badge.classList.add("bg-green-700", "text-green-200");
+          } else {
+            badge.textContent = "Unverified";
+            badge.classList.remove("bg-green-700", "text-green-200");
+            badge.classList.add("bg-yellow-800", "text-yellow-300");
+          }
+        } catch (err) {
         console.error("Error loading profile:", err);
         alert("⚠️ Failed to load profile.");
       }

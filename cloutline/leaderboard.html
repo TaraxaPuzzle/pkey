@@ -44,6 +44,7 @@
 	
 	<p id="connectedDisplay" class="text-sm text-green-400 mt-2 hidden">
   ✅ Connected: <span id="walletShort"></span>
+  <button id="disconnectBtn" class="ml-4 text-sm text-red-400 hover:text-red-500">Disconnect</button>
 </p>
 	
   </div>
@@ -70,15 +71,15 @@
   <section class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
     <div class="bg-[#111112] border border-[#222] rounded-xl py-6 shadow">
       <p class="text-sm text-gray-400 mb-1">Total KOLs</p>
-      <p class="text-3xl font-bold text-white">2,454</p>
+      <p class="text-3xl font-bold text-white">-</p>
     </div>
     <div class="bg-[#111112] border border-[#222] rounded-xl py-6 shadow">
       <p class="text-sm text-gray-400 mb-1">Volume Traded</p>
-      <p class="text-3xl font-bold text-yellow-400">305.698 <span class="text-sm">TARA</span></p>
+      <p class="text-3xl font-bold text-yellow-400">-<span class="text-sm">TARA</span></p>
     </div>
     <div class="bg-[#111112] border border-[#222] rounded-xl py-6 shadow">
       <p class="text-sm text-gray-400 mb-1">Paid Messages</p>
-      <p class="text-3xl font-bold text-white">931</p>
+      <p class="text-3xl font-bold text-white">-</p>
     </div>
   </section>
 
@@ -221,6 +222,21 @@
       console.warn("🔌 Wallet detection failed:", err);
     }
   });
+  
+    document.getElementById("disconnectBtn")?.addEventListener("click", () => {
+  // Reset state
+  connectedWalletAddress = null;
+
+  // Hide connected UI
+  document.getElementById("connectedDisplay")?.classList.add("hidden");
+  document.getElementById("profileBtn")?.classList.add("hidden");
+
+  // Show connect button
+  document.getElementById("connectWalletBtn")?.classList.remove("hidden");
+
+  // Show disconnect toast
+  showToast("🔌 Wallet disconnected", "error");
+});
 </script>
 
 

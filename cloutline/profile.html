@@ -258,7 +258,6 @@
 </script>
 
 
-
 <script type="module">
   import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.8.1/+esm";
 
@@ -270,58 +269,66 @@
     provider.on("chainChanged", () => window.location.reload());
   }
 
-  // ✅ Auto-detect connected wallet
-  window.addEventListener("DOMContentLoaded", async () => {
-    if (provider) {
-      try {
-        const accounts = await provider.request({ method: "eth_accounts" });
-        if (accounts.length > 0) {
-          const address = accounts[0];
-          connectedWalletAddress = address;
-
-          document.getElementById("walletAddress").value = address;
-          document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
-          document.getElementById("connectWalletBtn").classList.add("hidden");
-          document.getElementById("profileBtn").classList.remove("hidden");
-        }
-      } catch (err) {
-        console.warn("Auto-detect failed", err);
-      }
+  document.getElementById("connectWalletBtn")?.addEventListener("click", async () => {
+    if (!provider) {
+      alert("🦉 Enkrypt Wallet not found. Please install it.");
+      return;
     }
-  });
 
-  // ✅ Manual Connect
-  document.getElementById("connectWalletBtn").addEventListener("click", async () => {
-    if (!provider) return alert("🦉 Enkrypt Wallet not found. Please install it.");
     try {
       const accounts = await provider.request({ method: "eth_requestAccounts" });
       const address = accounts[0];
       connectedWalletAddress = address;
 
-      document.getElementById("walletAddress").value = address;
       document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+      document.getElementById("connectedDisplay")?.classList.remove("hidden");
 	  
 	  showToast("✅ Wallet connected!");
-      document.getElementById("connectWalletBtn").classList.add("hidden");
-      document.getElementById("profileBtn").classList.remove("hidden");
+      document.getElementById("connectWalletBtn")?.classList.add("hidden");
+      document.getElementById("profileBtn")?.classList.remove("hidden");
 
-      // Optional: register wallet
-      await fetch("https://cloutline-production.up.railway.app/register-wallet", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wallet: address })
-      });
-
+      try {
+        await fetch("https://cloutline-production.up.railway.app/register-wallet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ wallet: address })
+        });
+      } catch (err) {
+        console.warn("⚠️ Wallet registration failed:", err);
+      }
     } catch (err) {
-      console.error("❌ Connection failed", err);
+      console.error("❌ Wallet connection failed:", err);
     }
   });
 
-  // ✅ Profile redirect
-  document.getElementById("profileBtn").addEventListener("click", () => {
+  document.getElementById("profileBtn")?.addEventListener("click", () => {
     if (!connectedWalletAddress) return;
     window.location.href = `/cloutline/profile.html?wallet=${connectedWalletAddress.toLowerCase()}`;
   });
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    if (!provider) return;
+
+    try {
+      const accounts = await provider.request({ method: "eth_accounts" });
+      if (accounts.length > 0) {
+        const address = accounts[0];
+        connectedWalletAddress = address;
+
+        document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+        document.getElementById("connectedDisplay")?.classList.remove("hidden");
+        document.getElementById("connectWalletBtn")?.classList.add("hidden");
+        document.getElementById("profileBtn")?.classList.remove("hidden");
+      }
+    } catch (err) {
+      console.warn("🔌 Wallet detection failed:", err);
+    }
+  });
+</script>
+
+
+
+<script>
   
     // ✅ Toast notification
   function showToast(msg, type='success') {
@@ -337,6 +344,6 @@
 
 
 
-
+ <div id="toast" class="fixed bottom-6 right-6 bg-[#1fa5a2] text-white px-4 py-2 rounded-lg shadow-lg hidden z-50 transition-opacity duration-300"></div>
   </body>
 </html>

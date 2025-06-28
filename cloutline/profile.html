@@ -270,59 +270,71 @@
     provider.on("chainChanged", () => window.location.reload());
   }
 
-  async function detectConnectedWallet() {
-    if (!provider) return null;
-    try {
-      const accounts = await provider.request({ method: "eth_accounts" });
-      if (accounts.length > 0) {
-        connectedWalletAddress = accounts[0].toLowerCase();
-        updateUI(connectedWalletAddress);
-        return connectedWalletAddress;
-      }
-    } catch (err) {
-      console.warn("Wallet detection failed:", err);
-    }
-    return null;
-  }
+  // ✅ Auto-detect connected wallet
+  window.addEventListener("DOMContentLoaded", async () => {
+    if (provider) {
+      try {
+        const accounts = await provider.request({ method: "eth_accounts" });
+        if (accounts.length > 0) {
+          const address = accounts[0];
+          connectedWalletAddress = address;
 
-  async function connectWallet() {
-    if (!provider) return alert("🦉 Enkrypt Wallet not found.");
+          document.getElementById("walletAddress").value = address;
+          document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+          document.getElementById("connectWalletBtn").classList.add("hidden");
+          document.getElementById("profileBtn").classList.remove("hidden");
+        }
+      } catch (err) {
+        console.warn("Auto-detect failed", err);
+      }
+    }
+  });
+
+  // ✅ Manual Connect
+  document.getElementById("connectWalletBtn").addEventListener("click", async () => {
+    if (!provider) return alert("🦉 Enkrypt Wallet not found. Please install it.");
     try {
       const accounts = await provider.request({ method: "eth_requestAccounts" });
-      if (accounts.length > 0) {
-        connectedWalletAddress = accounts[0].toLowerCase();
-        updateUI(connectedWalletAddress);
-        window.location.reload(); // Optional: reload or stay on page
-      }
+      const address = accounts[0];
+      connectedWalletAddress = address;
+
+      document.getElementById("walletAddress").value = address;
+      document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+	  
+	  showToast("✅ Wallet connected!");
+      document.getElementById("connectWalletBtn").classList.add("hidden");
+      document.getElementById("profileBtn").classList.remove("hidden");
+
+      // Optional: register wallet
+      await fetch("https://cloutline-production.up.railway.app/register-wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wallet: address })
+      });
+
     } catch (err) {
-      console.error("❌ Wallet connection failed", err);
-      alert("Connection failed.");
+      console.error("❌ Connection failed", err);
     }
-  }
-
-  function updateUI(address) {
-    document.getElementById("walletShort")?.textContent =
-      address.slice(0, 6) + "..." + address.slice(-4);
-    document.getElementById("connectedDisplay")?.classList.remove("hidden");
-    document.getElementById("connectWalletBtn")?.classList.add("hidden");
-    document.getElementById("profileBtn")?.classList.remove("hidden");
-    window.lucide && window.lucide.createIcons();
-  }
-
-  // Expose globally
-  window.getConnectedWallet = () => connectedWalletAddress;
-
-  // Init
-  window.addEventListener("DOMContentLoaded", async () => {
-    await detectConnectedWallet();
-    document.getElementById("connectWalletBtn")?.addEventListener("click", connectWallet);
-    document.getElementById("profileBtn")?.addEventListener("click", () => {
-      if (connectedWalletAddress) {
-        window.location.href = `/cloutline/profile.html?wallet=${connectedWalletAddress}`;
-      }
-    });
   });
+
+  // ✅ Profile redirect
+  document.getElementById("profileBtn").addEventListener("click", () => {
+    if (!connectedWalletAddress) return;
+    window.location.href = `/cloutline/profile.html?wallet=${connectedWalletAddress.toLowerCase()}`;
+  });
+  
+    // ✅ Toast notification
+  function showToast(msg, type='success') {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.className = `fixed bottom-6 right-6 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300 opacity-100 ${type==='success'?'bg-[#1fa5a2]':'bg-red-500'} text-white`;
+    setTimeout(()=>{
+      t.classList.add('opacity-0');
+      setTimeout(()=> t.classList.add('hidden'), 300);
+    },3000);
+  }
 </script>
+
 
 
 

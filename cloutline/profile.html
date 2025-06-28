@@ -45,7 +45,6 @@
 	
 	<p id="connectedDisplay" class="text-sm text-green-400 mt-2 hidden">
   ✅ Connected: <span id="walletShort"></span>
-   <button id="disconnectBtn" class="ml-4 text-sm text-red-400 hover:text-red-500">Disconnect</button>
 </p>
 	
   </div>
@@ -325,21 +324,6 @@
       console.warn("🔌 Wallet detection failed:", err);
     }
   });
-  
-  document.getElementById("disconnectBtn")?.addEventListener("click", () => {
-  // Reset state
-  connectedWalletAddress = null;
-
-  // Hide connected UI
-  document.getElementById("connectedDisplay")?.classList.add("hidden");
-  document.getElementById("profileBtn")?.classList.add("hidden");
-
-  // Show connect button
-  document.getElementById("connectWalletBtn")?.classList.remove("hidden");
-
-  // Show disconnect toast
-  showToast("🔌 Wallet disconnected", "error");
-});
 </script>
 
 

@@ -62,30 +62,7 @@
     <main class="px-6 py-10 max-w-7xl mx-auto">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Profile Card -->
-        <div class="bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col justify-between">
-          <div class="flex items-center space-x-4 mb-4">
-            <img src="https://i.pravatar.cc/100" alt="Avatar" class="w-14 h-14 rounded-full" />
-            <div>
-              <h2 class="font-bold text-lg">CZ 🔶</h2>
-              <p class="text-sm text-gray-400">@cz_binance</p>
-              <p class="text-sm text-gray-500">👥 10.1M followers</p>
-            </div>
-            <span class="ml-auto bg-green-600 text-white text-xs px-2 py-1 rounded-full">Verified</span>
-          </div>
 
-          <div class="text-sm space-y-1 mb-4">
-            <p><strong>Price per message:</strong> 1 TARA</p>
-            <p><strong>Response rate:</strong> 64%</p>
-            <p><strong>Messages sent:</strong> 315</p>
-          </div>
-
-          <div class="flex flex-wrap gap-2 text-xs text-white mb-4">
-            <span class="bg-blue-600 px-2 py-1 rounded-full">#Blockchain</span>
-            <span class="bg-purple-600 px-2 py-1 rounded-full">#KOL</span>
-          </div>
-
-          <button class="bg-[#1fa5a2] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[#15938d] transition">View Profile</button>
-        </div>
         <!-- Duplicate card structure for more profiles -->
       </div>
 	  
@@ -231,7 +208,59 @@
   }
 </script>
 
+<script>
+  async function loadProfileCards() {
+    try {
+      const res = await fetch("https://cloutline-production.up.railway.app/all-profiles");
+      const data = await res.json();
+      if (!data.success || !data.profiles) throw new Error("No profiles.");
 
+      const container = document.querySelector(".grid");
+      container.innerHTML = ""; // Clear static card
+
+      data.profiles.forEach(profile => {
+        const card = document.createElement("div");
+        card.className = "bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col justify-between";
+
+        card.innerHTML = `
+          <div class="flex items-center space-x-4 mb-4">
+            <img src="${profile.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${profile.wallet}`}" alt="Avatar" class="w-14 h-14 rounded-full" />
+            <div>
+              <h2 class="font-bold text-lg">${profile.twitter?.split("@")[1] || "Unknown"}</h2>
+              <p class="text-sm text-gray-400">${profile.twitter || "@unknown"}</p>
+              <p class="text-sm text-gray-500">👥 ${Intl.NumberFormat('en', { notation: "compact" }).format(profile.followers)} followers</p>
+            </div>
+            <span class="ml-auto ${profile.verified ? "bg-green-600" : "bg-yellow-600"} text-white text-xs px-2 py-1 rounded-full">
+              ${profile.verified ? "Verified" : "Unverified"}
+            </span>
+          </div>
+
+          <div class="text-sm space-y-1 mb-4">
+            <p><strong>Price per message:</strong> ${profile.price} TARA</p>
+            <p><strong>Response rate:</strong> ${profile.response_rate || "-"}%</p>
+            <p><strong>Messages sent:</strong> ${profile.messages_sent || "0"}</p>
+          </div>
+
+          <div class="flex flex-wrap gap-2 text-xs text-white mb-4">
+            <span class="bg-blue-600 px-2 py-1 rounded-full">#Blockchain</span>
+            <span class="bg-purple-600 px-2 py-1 rounded-full">#KOL</span>
+          </div>
+
+          <button onclick="window.location.href='/cloutline/profile.html?wallet=${profile.wallet}'"
+            class="bg-[#1fa5a2] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[#15938d] transition">
+            View Profile
+          </button>
+        `;
+
+        container.appendChild(card);
+      });
+    } catch (err) {
+      console.error("❌ Failed to load profiles:", err);
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", loadProfileCards);
+</script>
 
  <div id="toast" class="fixed bottom-6 right-6 bg-[#1fa5a2] text-white px-4 py-2 rounded-lg shadow-lg hidden z-50 transition-opacity duration-300"></div>
 

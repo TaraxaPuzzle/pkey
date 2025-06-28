@@ -171,6 +171,9 @@
     if (window.enkrypt?.providers?.ethereum) {
       try {
         const provider = window.enkrypt.providers.ethereum;
+        const manuallyDisconnected = localStorage.getItem("manualDisconnect") === "true";
+
+        if (!manuallyDisconnected) {
         const accounts = await provider.request({ method: "eth_accounts" });
         if (accounts.length > 0) {
           connectedWallet = accounts[0].toLowerCase();
@@ -280,6 +283,7 @@
       const accounts = await provider.request({ method: "eth_requestAccounts" });
       const address = accounts[0];
       connectedWalletAddress = address;
+	  localStorage.removeItem("manualDisconnect");
 
       document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
       document.getElementById("connectedDisplay")?.classList.remove("hidden");
@@ -307,37 +311,36 @@
     window.location.href = `/cloutline/profile.html?wallet=${connectedWalletAddress.toLowerCase()}`;
   });
 
-  window.addEventListener("DOMContentLoaded", async () => {
-    if (!provider) return;
+window.addEventListener("DOMContentLoaded", async () => {
+  if (!provider) return;
 
-    try {
-      const accounts = await provider.request({ method: "eth_accounts" });
-      if (accounts.length > 0) {
-        const address = accounts[0];
-        connectedWalletAddress = address;
+  const manuallyDisconnected = localStorage.getItem("manualDisconnect") === "true";
+  if (manuallyDisconnected) return; // ⛔ Don't auto-connect if user disconnected
 
-        document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
-        document.getElementById("connectedDisplay")?.classList.remove("hidden");
-        document.getElementById("connectWalletBtn")?.classList.add("hidden");
-        document.getElementById("profileBtn")?.classList.remove("hidden");
-      }
-    } catch (err) {
-      console.warn("🔌 Wallet detection failed:", err);
+  try {
+    const accounts = await provider.request({ method: "eth_accounts" });
+    if (accounts.length > 0) {
+      const address = accounts[0];
+      connectedWalletAddress = address;
+
+      document.getElementById("walletShort").textContent = address.slice(0, 6) + "..." + address.slice(-4);
+      document.getElementById("connectedDisplay")?.classList.remove("hidden");
+      document.getElementById("connectWalletBtn")?.classList.add("hidden");
+      document.getElementById("profileBtn")?.classList.remove("hidden");
     }
-  });
+  } catch (err) {
+    console.warn("🔌 Wallet detection failed:", err);
+  }
+});
   
-  document.getElementById("disconnectBtn")?.addEventListener("click", () => {
-  // Reset state
+document.getElementById("disconnectBtn")?.addEventListener("click", () => {
   connectedWalletAddress = null;
+  localStorage.setItem("manualDisconnect", "true");
 
-  // Hide connected UI
   document.getElementById("connectedDisplay")?.classList.add("hidden");
   document.getElementById("profileBtn")?.classList.add("hidden");
-
-  // Show connect button
   document.getElementById("connectWalletBtn")?.classList.remove("hidden");
 
-  // Show disconnect toast
   showToast("🔌 Wallet disconnected", "error");
 });
 </script>

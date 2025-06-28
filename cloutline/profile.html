@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KOL Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+      body { font-family: 'Manrope', sans-serif; }
+    </style>
+  </head>
+  <body class="bg-[#0f1115] text-white min-h-screen">
+    <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+      <!-- KOL Identity & Stats -->
+      <div class="bg-[#16191f] p-6 rounded-3xl border border-[#222] shadow-lg">
+        <div class="flex items-center gap-4">
+          <img id="kolAvatar" src="/avatar_placeholder.png" alt="Avatar" class="w-20 h-20 rounded-full" />
+          <div>
+            <h1 id="kolName" class="text-2xl font-bold">KOL Name</h1>
+            <p id="kolTwitter" class="text-sm text-gray-400">@username</p>
+            <span class="inline-block mt-1 text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">Blockchain</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-4 text-center mt-6 bg-[#1a1d24] rounded-xl py-4">
+          <div>
+            <p class="text-xl font-bold" id="statFollowers">-</p>
+            <p class="text-xs text-gray-400">Followers</p>
+          </div>
+          <div>
+            <p class="text-xl font-bold" id="statFollowing">-</p>
+            <p class="text-xs text-gray-400">Following</p>
+          </div>
+          <div>
+            <p class="text-xl font-bold" id="statPrice">-</p>
+            <p class="text-xs text-gray-400">TARA Price</p>
+          </div>
+          <div>
+            <p class="text-xl font-bold" id="statResponse">-</p>
+            <p class="text-xs text-gray-400">Response Rate</p>
+          </div>
+        </div>
+
+        <div class="mt-6 text-sm text-gray-300 space-y-2">
+          <h2 class="font-semibold text-white">About</h2>
+          <p id="kolAbout">No bio set.</p>
+        </div>
+
+        <div class="mt-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-sm rounded-lg p-3">
+          ⚠️ To avoid scams, always verify the profile at <span id="kolTwitterHandle">@username</span>
+        </div>
+      </div>
+
+      <!-- Messaging Panel -->
+      <div class="bg-[#16191f] p-6 rounded-3xl border border-[#222] shadow-lg flex flex-col gap-6">
+        <div>
+          <h2 class="text-xl font-bold">Send Message to <span id="kolNameInline">KOL</span></h2>
+          <div class="mt-4 bg-[#1a1d24] p-4 rounded-lg">
+            <p class="text-sm text-gray-400 mb-2">Your message will be sent directly to the KOL.</p>
+            <textarea id="userMessage" class="w-full bg-transparent border border-[#333] rounded-lg p-3 text-white resize-none" rows="6" maxlength="2000" placeholder="Type your message here..."></textarea>
+            <p class="text-xs text-gray-500 mt-1 text-right"><span id="charCount">0</span>/2000</p>
+            <button id="sendBtn" disabled class="mt-4 w-full bg-[#1fa5a2]/50 text-white py-2 rounded-lg cursor-not-allowed">Send Message & Pay <span id="kolPrice">-</span> TARA</button>
+          </div>
+        </div>
+
+        <div class="bg-[#1a1d24] p-4 rounded-lg text-sm text-gray-400">
+          <h3 class="font-semibold text-white mb-2">Important Information</h3>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>You will be charged <strong><span id="infoPrice">-</span> TARA</strong> to send a message.</li>
+            <li>If no response in <strong>5 days</strong>, you'll receive a partial refund automatically.</li>
+            <li>Max message length: <strong>2,000 characters</strong>.</li>
+            <li>No attachments or images are allowed.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const wallet = urlParams.get("wallet");
+      const charCount = document.getElementById("charCount");
+      const messageInput = document.getElementById("userMessage");
+
+      messageInput.addEventListener("input", () => {
+        charCount.textContent = messageInput.value.length;
+      });
+
+      async function loadKOLProfile(wallet) {
+        try {
+          const res = await fetch(`https://cloutline-production.up.railway.app/profile/${wallet}`);
+          const data = await res.json();
+
+          if (!data.success || !data.profile) {
+            alert("❌ No profile found.");
+            return;
+          }
+
+          const profile = data.profile;
+          document.getElementById("kolName").textContent = profile.twitter?.split("@")[1] || "KOL";
+          document.getElementById("kolNameInline").textContent = profile.twitter?.split("@")[1] || "KOL";
+          document.getElementById("kolTwitter").textContent = profile.twitter || "N/A";
+          document.getElementById("kolTwitterHandle").textContent = profile.twitter || "@handle";
+          document.getElementById("kolAbout").textContent = profile.bio || "No bio set.";
+          document.getElementById("statFollowers").textContent = profile.followers || "-";
+          document.getElementById("statFollowing").textContent = profile.following || "-";
+          document.getElementById("statPrice").textContent = profile.price || "-";
+          document.getElementById("statResponse").textContent = profile.response_rate || "-";
+          document.getElementById("kolPrice").textContent = profile.price || "-";
+          document.getElementById("infoPrice").textContent = profile.price || "-";
+        } catch (err) {
+          console.error("Error loading profile:", err);
+          alert("⚠️ Failed to load profile.");
+        }
+      }
+
+      if (wallet) {
+        loadKOLProfile(wallet);
+      } else {
+        alert("⚠️ No wallet address provided in URL.");
+      }
+    </script>
+  </body>
+</html>

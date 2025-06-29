@@ -62,15 +62,22 @@
 </header>
 	
 <nav class="w-full bg-white/80 dark:bg-white/5 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
-  <div class="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center text-sm font-medium">
-    <div class="flex gap-4">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 text-sm font-medium">
+
+    <!-- Navigation links -->
+    <div class="flex flex-wrap justify-start gap-4 sm:gap-6">
       <a href="index.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">Home</a>
       <a href="wallet_extractor.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">Wallet Extractor</a>
       <a href="currency_converter.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">TARA Converter</a>
       <a href="qr_code_generator.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">QR Code Generator</a>
-	  <a href="taralien.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">TARAlien</a>
+      <a href="taralien.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">TARAlien</a>
     </div>
-    <div id="tara-price" class="text-[#1fa5a2] font-mono"></div>
+
+    <!-- TARA price -->
+    <div id="tara-price" class="text-[#1fa5a2] font-mono truncate sm:text-right sm:min-w-[100px]">
+      <!-- JS-inserted price -->
+    </div>
+
   </div>
 </nav>
 

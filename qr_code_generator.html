@@ -41,36 +41,6 @@
     scroll-behavior: smooth;
     overflow-y: scroll;
   }
-  
-    @media (max-width: 640px) {
-    /* Fix the squeezed mushroom effect */
-    main {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-
-    #qrcode {
-      min-height: 180px !important;
-      height: auto !important;
-      padding: 1rem;
-    }
-
-    #qrcode canvas {
-      max-width: 100%;
-      height: auto;
-    }
-
-    .qr-card {
-      width: 100%;
-      max-width: 100%;
-      margin: 0 auto;
-    }
-
-    input,
-    button {
-      font-size: 1rem;
-    }
-  }
   </style>
 </head>
  <body class="flex flex-col min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#eef2f6] to-[#e4e9f0] dark:from-[#0f1117] dark:via-[#0b0d12] dark:to-[#06070a] text-gray-900 dark:text-white">
@@ -107,7 +77,10 @@
 </nav>
 
 <main class="flex-grow flex justify-center items-center px-4 py-12 w-full">
-  <div class="qr-card w-full max-w-md p-6 rounded-2xl shadow-lg border border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl space-y-6 text-center"data-aos="fade-up">
+<div 
+  class="w-full max-w-md p-6 rounded-2xl shadow-lg border border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl space-y-6 text-center transition-all duration-300"
+  data-aos="fade-up"
+>
   <h3 class="text-xl font-bold flex gap-2">
     <img src="qr-icon1.png" class="h-6 light-only" alt="QR Icon" />
     <img src="qr-icon.png" class="h-6 dark-only" alt="QR Icon" />
@@ -123,7 +96,7 @@
 
 <div 
   id="qrcode" 
-  class="flex items-center justify-center text-sm text-gray-400 dark:text-gray-500 border-2 border-dashed border-[#1fa5a2]/30 rounded-lg min-h-[220px] h-[220px] transition-all"
+  class="flex items-center text-sm text-gray-400 dark:text-gray-500 border-2 border-dashed border-[#1fa5a2]/30 rounded-lg min-h-[220px] h-[220px] transition-all"
 >
   QR Code will appear here
 </div>

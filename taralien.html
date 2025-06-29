@@ -74,18 +74,42 @@
 ></div>
 
 <main class="flex-grow flex justify-center items-center px-4 py-12 w-full">
- <div class="bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg p-6 md:p-8 w-full max-w-md text-center transition-all duration-300" data-aos="fade-up">
-    <h1 class="text-2xl md:text-3xl font-extrabold text-green-400 mb-6">🛸 TARAlien Generator</h1>
-    <input id="walletInput" type="text" placeholder="Enter Taraxa Wallet Address (starts with 0x)" class="mb-4 px-4 py-2 rounded-lg text-black w-full focus:outline-none focus:ring-2 focus:ring-green-400" />
-    <button onclick="generateFromWallet()" class="bg-green-500 hover:bg-green-600 px-6 py-2 rounded-lg text-white w-full mb-4">Generate TARAlien</button>
-    <button id="rerollBtn" onclick="rerollTraits()" class="bg-green-700 hover:bg-green-800 px-6 py-2 rounded-lg text-white w-full mb-4">🔁 Reroll Traits</button>
- <canvas
-  id="alienCanvas"
-  width="180"
-  height="180"
-  class="mx-auto mt-6 mb-4 border border-green-400 rounded-xl bg-white/70 dark:bg-[#0f0f0f] backdrop-blur-md shadow-md"
-/>
-    <div id="traitOutput" class="text-sm text-gray-300 grid grid-cols-2 gap-x-2 gap-y-1 text-left mt-6"></div>
+  <div class="bg-white/80 dark:bg-[#121417] backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-md text-center transition-all duration-300" data-aos="fade-up">
+    
+    <h1 class="text-2xl md:text-3xl font-extrabold text-[#16c79a] dark:text-[#32ffc0] mb-6">
+      🛸 TARAlien Generator
+    </h1>
+
+    <input 
+      id="walletInput" 
+      type="text" 
+      placeholder="Enter Taraxa Wallet Address (starts with 0x)" 
+      class="mb-4 px-4 py-2 rounded-lg w-full text-gray-800 dark:text-white bg-gray-100 dark:bg-[#1a1d24] border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#32ffc0]" 
+    />
+
+    <button 
+      onclick="generateFromWallet()" 
+      class="bg-[#16c79a] hover:bg-[#1dd4a0] px-6 py-2 rounded-lg text-white font-semibold w-full mb-4 transition"
+    >
+      Generate TARAlien
+    </button>
+
+    <button 
+      id="rerollBtn" 
+      onclick="rerollTraits()" 
+      class="bg-[#0ea472] hover:bg-[#11966d] px-6 py-2 rounded-lg text-white font-semibold w-full mb-4 transition"
+    >
+      🔁 Reroll Traits
+    </button>
+
+    <canvas
+      id="alienCanvas"
+      width="180"
+      height="180"
+      class="mx-auto mt-6 mb-4 border border-[#16c79a]/40 dark:border-[#32ffc0]/30 rounded-xl bg-white/90 dark:bg-[#0e1117] backdrop-blur-md shadow-md"
+    ></canvas>
+
+    <div id="traitOutput" class="text-sm text-gray-700 dark:text-gray-300 grid grid-cols-2 gap-x-2 gap-y-1 text-left mt-6"></div>
   </div>
   
   <!-- Floating KuroAI Widget -->

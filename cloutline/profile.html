@@ -228,7 +228,7 @@ input.addEventListener('blur', async () => {
       charCount.textContent = messageInput.value.length;
     });
 
-    async function loadKOLProfile(wallet) {
+   async function loadKOLProfile(wallet) {
   try {
     const res = await fetch(`https://cloutline-production.up.railway.app/profile/${wallet}`);
 
@@ -247,59 +247,69 @@ input.addEventListener('blur', async () => {
       return;
     }
 
-        const profile = data.profile;
-		const priceValue = typeof profile.price === "number" ? profile.price : 0;
-		document.getElementById("kolAvatar").src = profile.avatar;
-        document.getElementById("kolName").textContent = profile.twitter?.split("@")[1] || "KOL";
-        document.getElementById("kolNameInline").textContent = profile.twitter?.split("@")[1] || "KOL";
-        document.getElementById("kolTwitter").textContent = profile.twitter || "N/A";
-        document.getElementById("kolTwitterHandle").textContent = profile.twitter || "@handle";
-        document.getElementById("kolAbout").textContent = profile.bio || "No bio set.";
-        document.getElementById("statFollowers").textContent = profile.followers || "-";
-        document.getElementById("statFollowing").textContent = profile.following || "-";
-        document.getElementById("statResponse").textContent = profile.response_rate || "-";
-		document.getElementById("statPrice").textContent = priceValue;
-        document.getElementById("kolPrice").textContent = `$${priceValue.toFixed(2)}`;
-        document.getElementById("infoPrice").textContent = priceValue;
+    const profile = data.profile;
+    const priceValue = typeof profile.price === "number" ? profile.price : 0;
 
-            // ✅ Place it RIGHT HERE
-        const badge = document.getElementById("verificationBadge");
-        if (badge) {
-          if (profile.verified === true) {
-            badge.textContent = "Verified";
-            badge.classList.remove("bg-yellow-800", "text-yellow-300");
-            badge.classList.add("bg-green-700", "text-green-200");
-          } else {
-            badge.textContent = "Unverified";
-            badge.classList.remove("bg-green-700", "text-green-200");
-            badge.classList.add("bg-yellow-800", "text-yellow-300");
-          }
-		  }
-        } catch (err) {
-        console.error("Error loading profile:", err);
-        alert("⚠️ Failed to load profile.");
+    document.getElementById("kolAvatar").src = profile.avatar;
+    document.getElementById("kolName").textContent = profile.twitter?.split("@")[1] || "KOL";
+    document.getElementById("kolNameInline").textContent = profile.twitter?.split("@")[1] || "KOL";
+    document.getElementById("kolTwitter").textContent = profile.twitter || "N/A";
+    document.getElementById("kolTwitterHandle").textContent = profile.twitter || "@handle";
+    document.getElementById("kolAbout").textContent = profile.bio || "No bio set.";
+    document.getElementById("statFollowers").textContent = profile.followers || "-";
+    document.getElementById("statFollowing").textContent = profile.following || "-";
+    document.getElementById("statResponse").textContent = profile.response_rate || "-";
+    document.getElementById("statPrice").textContent = priceValue;
+    document.getElementById("kolPrice").textContent = `$${priceValue.toFixed(2)}`;
+    document.getElementById("infoPrice").textContent = priceValue;
+
+    // ✅ Show/hide input or static price
+    const isOwner = connectedWallet === wallet.toLowerCase();
+    if (isOwner) {
+      document.getElementById("priceInputSection").classList.remove("hidden");
+      document.getElementById("priceStaticSection").classList.add("hidden");
+      document.getElementById("messagePanel").classList.add("hidden");
+      document.getElementById("myMessages").classList.remove("hidden");
+      await loadMyMessages(wallet);
+    } else {
+      document.getElementById("priceStaticSection").classList.remove("hidden");
+      document.getElementById("priceInputSection").classList.add("hidden");
+    }
+
+    // ✅ Verification badge logic
+    const badge = document.getElementById("verificationBadge");
+    if (badge) {
+      if (profile.verified === true) {
+        badge.textContent = "Verified";
+        badge.classList.remove("bg-yellow-800", "text-yellow-300");
+        badge.classList.add("bg-green-700", "text-green-200");
+      } else {
+        badge.textContent = "Unverified";
+        badge.classList.remove("bg-green-700", "text-green-200");
+        badge.classList.add("bg-yellow-800", "text-yellow-300");
       }
     }
 
-if (wallet) {
-  await loadKOLProfile(wallet);
+    // ✅ Buzzword list display
+    const buzzwordList = document.getElementById("buzzwordList");
+    buzzwordList.innerHTML = "";
 
-  const isOwner = connectedWallet === wallet.toLowerCase();
+    if (Array.isArray(profile.buzzwords) && profile.buzzwords.length > 0) {
+      profile.buzzwords.forEach(word => {
+        const tag = document.createElement("span");
+        tag.textContent = word;
+        tag.className = "bg-white/10 text-white text-xs px-2 py-1 rounded-full border border-white/20";
+        buzzwordList.appendChild(tag);
+      });
+    } else {
+      buzzwordList.innerHTML = `<p class="text-xs text-gray-500">No tags set.</p>`;
+    }
 
-  if (isOwner) {
-    // Show editable input and hide public view
-    document.getElementById("priceInputSection").classList.remove("hidden");
-    document.getElementById("priceStaticSection").classList.add("hidden");
-    document.getElementById("messagePanel").classList.add("hidden");
-    document.getElementById("myMessages").classList.remove("hidden");
-    await loadMyMessages(wallet);
-  } else {
-    // Show static price for public viewers
-    document.getElementById("priceStaticSection").classList.remove("hidden");
-    document.getElementById("priceInputSection").classList.add("hidden");
+  } catch (err) {
+    console.error("Error loading profile:", err);
+    alert("⚠️ Failed to load profile.");
   }
 }
-  })();
   
   async function loadMyMessages(wallet) {
   try {

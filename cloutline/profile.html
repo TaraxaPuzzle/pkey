@@ -82,12 +82,19 @@
             <p class="text-xl font-bold" id="statFollowing">-</p>
             <p class="text-xs text-gray-400">Following</p>
           </div>
-          <div id="priceInputSection" class="hidden">
-            <label class="block text-sm font-medium text-gray-300 mb-1">TARA Message Price</label>
-<input id="taraPriceInput" type="number" min="0" max="100" step="1" value="1"
-  class="w-full bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#1fa5a2]"/>
-<p class="text-xs text-gray-400 mt-1">Set how much TARA someone must pay to message you.</p>
-          </div>
+         <div id="priceInputSection" class="hidden flex flex-col items-center">
+  <label class="text-xs font-medium text-gray-300 mb-1 text-center">TARA Message Price</label>
+  <input id="taraPriceInput"
+         type="number"
+         min="0"
+         max="100"
+         step="1"
+         value="1"
+         class="w-20 text-center bg-gray-800 text-white px-2 py-1 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#1fa5a2]" />
+  <p class="text-[10px] text-gray-400 mt-1 text-center leading-snug">
+    Set how much TARA<br />someone must pay.
+  </p>
+</div>
 	      <div id="priceStaticSection" class="hidden">	  
             <p class="text-xl font-bold" id="statPrice">-</p>
             <p class="text-xs text-gray-400">TARA Price</p>
@@ -178,13 +185,30 @@ if (input && stat) {
     stat.textContent = input.value || "-";
   });
 }
+
+input.addEventListener('blur', async () => {
+  const newPrice = parseInt(input.value, 10);
+  if (!isNaN(newPrice)) {
+    try {
+      await fetch(`https://cloutline-production.up.railway.app/profile/update-price`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wallet: connectedWallet, price: newPrice })
+      });
+      showToast("✅ Price updated!");
+    } catch (err) {
+      console.error("❌ Failed to update price:", err);
+      showToast("❌ Update failed", "error");
+    }
+  }
+});
 </script>
 
 <script>
+let connectedWallet = null;
   (async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const wallet = urlParams.get("wallet");
-    let connectedWallet = null;
 
     // Get connected wallet
     if (window.enkrypt?.providers?.ethereum) {

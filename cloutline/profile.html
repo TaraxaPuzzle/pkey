@@ -69,6 +69,7 @@
             <h1 id="kolName" class="text-2xl font-bold">KOL Name</h1>
             <p id="kolTwitter" class="text-sm text-gray-400">@username</p>
 			<span id="verificationBadge" class="text-xs px-2 py-0.5 rounded-full bg-yellow-800 text-yellow-300">Unverified</span>
+            <span class="inline-block mt-1 text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">Blockchain</span>
           </div>
         </div>
 
@@ -81,20 +82,7 @@
             <p class="text-xl font-bold" id="statFollowing">-</p>
             <p class="text-xs text-gray-400">Following</p>
           </div>
-         <div id="priceInputSection" class="hidden flex flex-col items-center">
-  <label class="text-xs font-medium text-gray-300 mb-1 text-center">TARA Message Price</label>
-  <input id="taraPriceInput"
-         type="number"
-         min="0"
-         max="100"
-         step="1"
-         value="1"
-         class="w-20 text-center bg-gray-800 text-white px-2 py-1 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#1fa5a2]" />
-  <p class="text-[10px] text-gray-400 mt-1 text-center leading-snug">
-    Set how much TARA<br />someone must pay.
-  </p>
-</div>
-	      <div id="priceStaticSection" class="hidden">	  
+          <div>
             <p class="text-xl font-bold" id="statPrice">-</p>
             <p class="text-xs text-gray-400">TARA Price</p>
           </div>
@@ -174,39 +162,10 @@
 </footer>
 
 <script>
- const input = document.getElementById('taraPriceInput');
-const stat = document.getElementById('statPrice');
-
-if (input && stat) {
-  stat.textContent = input.value;
-
-  input.addEventListener('input', () => {
-    stat.textContent = input.value || "-";
-  });
-}
-
-input.addEventListener('blur', async () => {
-  const newPrice = parseInt(input.value, 10);
-  if (!isNaN(newPrice)) {
-    try {
-      await fetch(`https://cloutline-production.up.railway.app/profile/update-price`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wallet: connectedWallet, price: newPrice })
-      });
-      showToast("✅ Price updated!");
-    } catch (err) {
-      console.error("❌ Failed to update price:", err);
-      showToast("❌ Update failed", "error");
-    }
-  }
-});
-</script>
-
-<script>
   (async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const wallet = urlParams.get("wallet");
+    let connectedWallet = null;
 
     // Get connected wallet
     if (window.enkrypt?.providers?.ethereum) {
@@ -228,9 +187,10 @@ input.addEventListener('blur', async () => {
       charCount.textContent = messageInput.value.length;
     });
 
-   async function loadKOLProfile(wallet) {
+    async function loadKOLProfile(wallet) {
   try {
     const res = await fetch(`https://cloutline-production.up.railway.app/profile/${wallet}`);
+
     if (!res.ok) {
       const errorText = await res.text();
       console.error(`❌ Backend responded with ${res.status}:`, errorText);
@@ -239,59 +199,58 @@ input.addEventListener('blur', async () => {
     }
 
     const data = await res.json();
+
     if (!data.success || !data.profile) {
       console.warn("⚠️ No profile in response:", data);
       alert("❌ No profile found.");
       return;
     }
 
-    const profile = data.profile;
-    const priceValue = typeof profile.price === "number" ? profile.price : 0;
+        const profile = data.profile;
+		document.getElementById("kolAvatar").src = profile.avatar;
+        document.getElementById("kolName").textContent = profile.twitter?.split("@")[1] || "KOL";
+        document.getElementById("kolNameInline").textContent = profile.twitter?.split("@")[1] || "KOL";
+        document.getElementById("kolTwitter").textContent = profile.twitter || "N/A";
+        document.getElementById("kolTwitterHandle").textContent = profile.twitter || "@handle";
+        document.getElementById("kolAbout").textContent = profile.bio || "No bio set.";
+        document.getElementById("statFollowers").textContent = profile.followers || "-";
+        document.getElementById("statFollowing").textContent = profile.following || "-";
+        document.getElementById("statPrice").textContent = profile.price || "-";
+        document.getElementById("statResponse").textContent = profile.response_rate || "-";
+        document.getElementById("kolPrice").textContent = `$${profile.price.toFixed(2)}` || "-";
+        document.getElementById("infoPrice").textContent = profile.price || "-";
 
-    document.getElementById("kolAvatar").src = profile.avatar;
-    document.getElementById("kolName").textContent = profile.twitter?.split("@")[1] || "KOL";
-    document.getElementById("kolNameInline").textContent = profile.twitter?.split("@")[1] || "KOL";
-    document.getElementById("kolTwitter").textContent = profile.twitter || "N/A";
-    document.getElementById("kolTwitterHandle").textContent = profile.twitter || "@handle";
-    document.getElementById("kolAbout").textContent = profile.bio || "No bio set.";
-    document.getElementById("statFollowers").textContent = profile.followers || "-";
-    document.getElementById("statFollowing").textContent = profile.following || "-";
-    document.getElementById("statResponse").textContent = profile.response_rate || "-";
-    document.getElementById("statPrice").textContent = priceValue;
-    document.getElementById("kolPrice").textContent = `$${priceValue.toFixed(2)}`;
-    document.getElementById("infoPrice").textContent = priceValue;
-
-    const isOwner = connectedWallet === wallet.toLowerCase();
-    if (isOwner) {
-      document.getElementById("priceInputSection").classList.remove("hidden");
-      document.getElementById("priceStaticSection").classList.add("hidden");
-      document.getElementById("messagePanel").classList.add("hidden");
-      document.getElementById("myMessages").classList.remove("hidden");
-      await loadMyMessages(wallet);
-    } else {
-      document.getElementById("priceStaticSection").classList.remove("hidden");
-      document.getElementById("priceInputSection").classList.add("hidden");
-    }
-
-    const badge = document.getElementById("verificationBadge");
-    if (badge) {
-      if (profile.verified === true) {
-        badge.textContent = "Verified";
-        badge.classList.remove("bg-yellow-800", "text-yellow-300");
-        badge.classList.add("bg-green-700", "text-green-200");
-      } else {
-        badge.textContent = "Unverified";
-        badge.classList.remove("bg-green-700", "text-green-200");
-        badge.classList.add("bg-yellow-800", "text-yellow-300");
+            // ✅ Place it RIGHT HERE
+        const badge = document.getElementById("verificationBadge");
+        if (badge) {
+          if (profile.verified === true) {
+            badge.textContent = "Verified";
+            badge.classList.remove("bg-yellow-800", "text-yellow-300");
+            badge.classList.add("bg-green-700", "text-green-200");
+          } else {
+            badge.textContent = "Unverified";
+            badge.classList.remove("bg-green-700", "text-green-200");
+            badge.classList.add("bg-yellow-800", "text-yellow-300");
+          }
+		  }
+        } catch (err) {
+        console.error("Error loading profile:", err);
+        alert("⚠️ Failed to load profile.");
       }
     }
 
-  } catch (err) {
-    console.error("Error loading profile:", err);
-    alert("⚠️ Failed to load profile.");
-  }
-}
+    if (wallet) {
+      await loadKOLProfile(wallet);
 
+      if (connectedWallet === wallet.toLowerCase()) {
+        document.getElementById("messagePanel").classList.add("hidden");
+        document.getElementById("myMessages").classList.remove("hidden");
+		await loadMyMessages(wallet);
+      }
+    } else {
+      alert("⚠️ No wallet address provided in URL.");
+    }
+  })();
   
   async function loadMyMessages(wallet) {
   try {

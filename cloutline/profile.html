@@ -82,11 +82,15 @@
             <p class="text-xl font-bold" id="statFollowing">-</p>
             <p class="text-xs text-gray-400">Following</p>
           </div>
-          <div>
+          <div id="priceInputSection" class="hidden">
             <label class="block text-sm font-medium text-gray-300 mb-1">TARA Message Price</label>
 <input id="taraPriceInput" type="number" min="0" max="100" step="1" value="1"
   class="w-full bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#1fa5a2]"/>
 <p class="text-xs text-gray-400 mt-1">Set how much TARA someone must pay to message you.</p>
+          </div>
+	      <div id="priceStaticSection" class="hidden">	  
+            <p class="text-xl font-bold" id="statPrice">-</p>
+            <p class="text-xs text-gray-400">TARA Price</p>
           </div>
           <div>
             <p class="text-xl font-bold" id="statResponse">-</p>
@@ -164,15 +168,16 @@
 </footer>
 
 <script>
-  const input = document.getElementById('taraPriceInput');
-  const stat = document.getElementById('statPrice');
+ const input = document.getElementById('taraPriceInput');
+const stat = document.getElementById('statPrice');
 
-  // Set initial value
+if (input && stat) {
   stat.textContent = input.value;
 
   input.addEventListener('input', () => {
     stat.textContent = input.value || "-";
   });
+}
 </script>
 
 <script>
@@ -253,17 +258,24 @@
       }
     }
 
-    if (wallet) {
-      await loadKOLProfile(wallet);
+if (wallet) {
+  await loadKOLProfile(wallet);
 
-      if (connectedWallet === wallet.toLowerCase()) {
-        document.getElementById("messagePanel").classList.add("hidden");
-        document.getElementById("myMessages").classList.remove("hidden");
-		await loadMyMessages(wallet);
-      }
-    } else {
-      alert("⚠️ No wallet address provided in URL.");
-    }
+  const isOwner = connectedWallet === wallet.toLowerCase();
+
+  if (isOwner) {
+    // Show editable input and hide public view
+    document.getElementById("priceInputSection").classList.remove("hidden");
+    document.getElementById("priceStaticSection").classList.add("hidden");
+    document.getElementById("messagePanel").classList.add("hidden");
+    document.getElementById("myMessages").classList.remove("hidden");
+    await loadMyMessages(wallet);
+  } else {
+    // Show static price for public viewers
+    document.getElementById("priceStaticSection").classList.remove("hidden");
+    document.getElementById("priceInputSection").classList.add("hidden");
+  }
+}
   })();
   
   async function loadMyMessages(wallet) {

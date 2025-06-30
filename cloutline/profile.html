@@ -243,10 +243,42 @@
       await loadKOLProfile(wallet);
 
       if (connectedWallet === wallet.toLowerCase()) {
-        document.getElementById("messagePanel").classList.add("hidden");
-        document.getElementById("myMessages").classList.remove("hidden");
-		await loadMyMessages(wallet);
-      }
+  document.getElementById("priceInputSection").classList.remove("hidden");
+  document.getElementById("messagePanel").classList.add("hidden");
+  document.getElementById("myMessages").classList.remove("hidden");
+  await loadMyMessages(wallet);
+
+  const priceInput = document.getElementById("priceInput");
+  priceInput.value = document.getElementById("statPrice").textContent || 1;
+
+  document.getElementById("savePriceBtn").addEventListener("click", async () => {
+    const newPrice = parseFloat(priceInput.value);
+    if (isNaN(newPrice) || newPrice < 0) {
+      showToast("❌ Invalid price", "error");
+      return;
+    }
+
+    try {
+      await fetch("https://cloutline-production.up.railway.app/profile/update-price", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wallet: wallet.toLowerCase(),
+          price: newPrice
+        })
+      });
+
+      document.getElementById("statPrice").textContent = newPrice;
+      document.getElementById("kolPrice").textContent = `$${newPrice.toFixed(2)}`;
+      document.getElementById("infoPrice").textContent = newPrice;
+      showToast("✅ Price updated!");
+    } catch (err) {
+      console.error("❌ Failed to update price:", err);
+      showToast("❌ Update failed", "error");
+    }
+  });
+}
+
     } else {
       alert("⚠️ No wallet address provided in URL.");
     }

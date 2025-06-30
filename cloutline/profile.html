@@ -83,8 +83,10 @@
             <p class="text-xs text-gray-400">Following</p>
           </div>
           <div>
-            <p class="text-xl font-bold" id="statPrice">-</p>
-            <p class="text-xs text-gray-400">TARA Price</p>
+            <label class="block text-sm font-medium text-gray-300 mb-1">TARA Message Price</label>
+<input id="taraPriceInput" type="number" min="0" max="100" step="1" value="1"
+  class="w-full bg-gray-800 text-white px-4 py-2 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#1fa5a2]"/>
+<p class="text-xs text-gray-400 mt-1">Set how much TARA someone must pay to message you.</p>
           </div>
           <div>
             <p class="text-xl font-bold" id="statResponse">-</p>
@@ -160,6 +162,18 @@
 
   </div>
 </footer>
+
+<script>
+  const input = document.getElementById('taraPriceInput');
+  const stat = document.getElementById('statPrice');
+
+  // Set initial value
+  stat.textContent = input.value;
+
+  input.addEventListener('input', () => {
+    stat.textContent = input.value || "-";
+  });
+</script>
 
 <script>
   (async () => {

@@ -248,6 +248,7 @@ input.addEventListener('blur', async () => {
     }
 
         const profile = data.profile;
+		const priceValue = typeof profile.price === "number" ? profile.price : 0;
 		document.getElementById("kolAvatar").src = profile.avatar;
         document.getElementById("kolName").textContent = profile.twitter?.split("@")[1] || "KOL";
         document.getElementById("kolNameInline").textContent = profile.twitter?.split("@")[1] || "KOL";
@@ -256,10 +257,10 @@ input.addEventListener('blur', async () => {
         document.getElementById("kolAbout").textContent = profile.bio || "No bio set.";
         document.getElementById("statFollowers").textContent = profile.followers || "-";
         document.getElementById("statFollowing").textContent = profile.following || "-";
-        document.getElementById("statPrice").textContent = profile.price || "-";
         document.getElementById("statResponse").textContent = profile.response_rate || "-";
-        document.getElementById("kolPrice").textContent = `$${profile.price.toFixed(2)}` || "-";
-        document.getElementById("infoPrice").textContent = profile.price || "-";
+		document.getElementById("statPrice").textContent = priceValue;
+        document.getElementById("kolPrice").textContent = `$${priceValue.toFixed(2)}`;
+        document.getElementById("infoPrice").textContent = priceValue;
 
             // ✅ Place it RIGHT HERE
         const badge = document.getElementById("verificationBadge");

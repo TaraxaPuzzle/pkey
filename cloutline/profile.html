@@ -190,17 +190,6 @@
 </footer>
 
 <script>
-const buzzwordOptions = [
-  "Blockchain", "Web3", "Crypto", "NFT", "KOL", "DAO", "DeFi", "Degen",
-  "Alpha", "Airdrop", "GM", "WAGMI", "Diamond Hands", "Whale", "On-chain",
-  "Layer 1", "Staking", "Yield Farming", "Rugproof", "Moonshot", "Gas Saver",
-  "Liquidity", "Cross-chain", "HODL", "Pump", "Scam Radar", "Bridge Builder",
-  "Validator", "Dust Hunter", "ZK Tech"
-];
-
-</script>
-
-<script>
  const input = document.getElementById('taraPriceInput');
 const stat = document.getElementById('statPrice');
 
@@ -249,12 +238,14 @@ let connectedWallet = null;
       }
     }
 
-    // Count characters
     const charCount = document.getElementById("charCount");
-    const messageInput = document.getElementById("userMessage");
-    messageInput.addEventListener("input", () => {
-      charCount.textContent = messageInput.value.length;
-    });
+const messageInput = document.getElementById("userMessage");
+
+if (charCount && messageInput) {
+  messageInput.addEventListener("input", () => {
+    charCount.textContent = messageInput.value.length;
+  });
+}
 
     async function loadKOLProfile(wallet) {
   try {
@@ -276,6 +267,71 @@ let connectedWallet = null;
     }
 
         const profile = data.profile;
+		
+		const isOwner = connectedWallet === wallet.toLowerCase();
+
+if (isOwner) {
+  // Show editable input and hide public view
+  document.getElementById("priceInputSection").classList.remove("hidden");
+  document.getElementById("priceStaticSection").classList.add("hidden");
+  document.getElementById("messagePanel").classList.add("hidden");
+  document.getElementById("myMessages").classList.remove("hidden");
+  await loadMyMessages(wallet);
+
+  const picker = document.getElementById("buzzwordPicker");
+  const selected = new Set(profile.buzzwords || []);
+
+  picker.innerHTML = "";
+
+  buzzwordOptions.forEach(word => {
+    const tag = document.createElement("button");
+    tag.textContent = word;
+    tag.className = `px-2 py-1 text-xs rounded-full border border-white/20 ${
+      selected.has(word) ? "bg-[#1fa5a2]" : "bg-white/5"
+    } text-white hover:bg-white/10`;
+    tag.addEventListener("click", () => {
+      if (selected.has(word)) {
+        selected.delete(word);
+        tag.classList.remove("bg-[#1fa5a2]");
+        tag.classList.add("bg-white/5");
+      } else if (selected.size < 3) {
+        selected.add(word);
+        tag.classList.remove("bg-white/5");
+        tag.classList.add("bg-[#1fa5a2]");
+      } else {
+        showToast("❌ Max 3 buzzwords", "error");
+      }
+    });
+    picker.appendChild(tag);
+  });
+
+  document.getElementById("buzzwordPickerSection")?.classList.remove("hidden");
+
+  document.getElementById("saveBuzzwordsBtn")?.addEventListener("click", async () => {
+    try {
+      await fetch(`https://cloutline-production.up.railway.app/profile/update-buzzwords`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wallet: connectedWallet,
+          buzzwords: Array.from(selected)
+        })
+      });
+      showToast("✅ Buzzwords updated!");
+    } catch (err) {
+      console.error("❌ Failed to update buzzwords:", err);
+      showToast("❌ Update failed", "error");
+    }
+  });
+
+} else {
+  // Not the owner: show public-only info
+  document.getElementById("priceStaticSection").classList.remove("hidden");
+  document.getElementById("priceInputSection").classList.add("hidden");
+}
+
+		
+		
 		document.getElementById("kolAvatar").src = profile.avatar;
         document.getElementById("kolName").textContent = profile.twitter?.split("@")[1] || "KOL";
         document.getElementById("kolNameInline").textContent = profile.twitter?.split("@")[1] || "KOL";
@@ -321,73 +377,18 @@ if (Array.isArray(profile.buzzwords) && profile.buzzwords.length > 0) {
         alert("⚠️ Failed to load profile.");
       }
     }
-
+	
+const buzzwordOptions = [
+  "Blockchain", "Web3", "Crypto", "NFT", "KOL", "DAO", "DeFi", "Degen",
+  "Alpha", "Airdrop", "GM", "WAGMI", "Diamond Hands", "Whale", "On-chain",
+  "Layer 1", "Staking", "Yield Farming", "Rugproof", "Moonshot", "Gas Saver",
+  "Liquidity", "Cross-chain", "HODL", "Pump", "Scam Radar", "Bridge Builder",
+  "Validator", "Dust Hunter", "ZK Tech"
+];	
+	
 if (wallet) {
   await loadKOLProfile(wallet);
-
-  const isOwner = connectedWallet === wallet.toLowerCase();
-
-  if (isOwner) {
-    // Show editable input and hide public view
-    document.getElementById("priceInputSection").classList.remove("hidden");
-    document.getElementById("priceStaticSection").classList.add("hidden");
-    document.getElementById("messagePanel").classList.add("hidden");
-    document.getElementById("myMessages").classList.remove("hidden");
-    await loadMyMessages(wallet);
-
-  const picker = document.getElementById("buzzwordPicker");
-  const selected = new Set(profile.buzzwords || []);
-
-  picker.innerHTML = ""; // Prevent duplicates
-
-  buzzwordOptions.forEach(word => {
-    const tag = document.createElement("button");
-    tag.textContent = word;
-    tag.className = `px-2 py-1 text-xs rounded-full border border-white/20 ${
-      selected.has(word) ? "bg-[#1fa5a2]" : "bg-white/5"
-    } text-white hover:bg-white/10`;
-    tag.addEventListener("click", () => {
-      if (selected.has(word)) {
-        selected.delete(word);
-        tag.classList.remove("bg-[#1fa5a2]");
-        tag.classList.add("bg-white/5");
-      } else if (selected.size < 3) {
-        selected.add(word);
-        tag.classList.remove("bg-white/5");
-        tag.classList.add("bg-[#1fa5a2]");
-      } else {
-        showToast("❌ Max 3 buzzwords", "error");
-      }
-    });
-    picker.appendChild(tag);
-  });
-  
-  document.getElementById("buzzwordPickerSection")?.classList.remove("hidden");
-
-  document.getElementById("saveBuzzwordsBtn")?.addEventListener("click", async () => {
-    try {
-      await fetch(`https://cloutline-production.up.railway.app/profile/update-buzzwords`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          wallet: connectedWallet,
-          buzzwords: Array.from(selected)
-        })
-      });
-      showToast("✅ Buzzwords updated!");
-    } catch (err) {
-      console.error("❌ Failed to update buzzwords:", err);
-      showToast("❌ Update failed", "error");
-    }
-  });
 }
-  } else {
-    // Show static price for public viewers
-    document.getElementById("priceStaticSection").classList.remove("hidden");
-    document.getElementById("priceInputSection").classList.add("hidden");
-  }
-}
-  })();
   
   async function loadMyMessages(wallet) {
   try {

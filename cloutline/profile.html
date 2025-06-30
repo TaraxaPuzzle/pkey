@@ -231,7 +231,6 @@ input.addEventListener('blur', async () => {
    async function loadKOLProfile(wallet) {
   try {
     const res = await fetch(`https://cloutline-production.up.railway.app/profile/${wallet}`);
-
     if (!res.ok) {
       const errorText = await res.text();
       console.error(`❌ Backend responded with ${res.status}:`, errorText);
@@ -240,7 +239,6 @@ input.addEventListener('blur', async () => {
     }
 
     const data = await res.json();
-
     if (!data.success || !data.profile) {
       console.warn("⚠️ No profile in response:", data);
       alert("❌ No profile found.");
@@ -263,7 +261,6 @@ input.addEventListener('blur', async () => {
     document.getElementById("kolPrice").textContent = `$${priceValue.toFixed(2)}`;
     document.getElementById("infoPrice").textContent = priceValue;
 
-    // ✅ Show/hide input or static price
     const isOwner = connectedWallet === wallet.toLowerCase();
     if (isOwner) {
       document.getElementById("priceInputSection").classList.remove("hidden");
@@ -276,7 +273,6 @@ input.addEventListener('blur', async () => {
       document.getElementById("priceInputSection").classList.add("hidden");
     }
 
-    // ✅ Verification badge logic
     const badge = document.getElementById("verificationBadge");
     if (badge) {
       if (profile.verified === true) {
@@ -290,26 +286,12 @@ input.addEventListener('blur', async () => {
       }
     }
 
-    // ✅ Buzzword list display
-    const buzzwordList = document.getElementById("buzzwordList");
-    buzzwordList.innerHTML = "";
-
-    if (Array.isArray(profile.buzzwords) && profile.buzzwords.length > 0) {
-      profile.buzzwords.forEach(word => {
-        const tag = document.createElement("span");
-        tag.textContent = word;
-        tag.className = "bg-white/10 text-white text-xs px-2 py-1 rounded-full border border-white/20";
-        buzzwordList.appendChild(tag);
-      });
-    } else {
-      buzzwordList.innerHTML = `<p class="text-xs text-gray-500">No tags set.</p>`;
-    }
-
   } catch (err) {
     console.error("Error loading profile:", err);
     alert("⚠️ Failed to load profile.");
   }
 }
+
   
   async function loadMyMessages(wallet) {
   try {

@@ -659,7 +659,7 @@ window.addEventListener('DOMContentLoaded', () => {
 <script>
   async function updateLiveStats() {
     try {
-      const res = await fetch("https://taraxa-wallet-tracker.up.railway.app/stats");
+      const res = await fetch("https://statss.up.railway.app/stats");
       const data = await res.json();
 
       document.getElementById("live-users").textContent = data.groups_count.toLocaleString();

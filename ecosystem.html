@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pkey.quest</title>
+	<link rel="icon" type="image/png" href="favicon.png.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://unpkg.com/lucide@latest"></script>
+	<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+    <style>
+      body {
+        font-family: 'Manrope', sans-serif;
+      }
+	  
+	.typewriter {
+        overflow: hidden;
+        white-space: nowrap;
+        border-right: 3px solid transparent;
+        animation: typing 1s steps(40, end), blink-caret 0.75s step-end infinite;
+        display: inline-block;
+      }
+      .typewriter-2 {
+        overflow: hidden;
+        white-space: nowrap;
+        width: 0;
+        border-right: 3px solid transparent;
+        animation: typing2 1s steps(40, end) 1s forwards, blink-caret 0.75s step-end infinite 1s;
+        display: inline-block;
+      }
+      .hide-caret {
+        border-right: none !important;
+        animation: none !important;
+      }
+      @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+      }
+      @keyframes typing2 {
+        from { width: 0 }
+        to { width: 100% }
+      }
+      @keyframes blink-caret {
+        from, to { border-color: transparent }
+        50% { border-color: rgba(31, 165, 162, 0.75); }
+      }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+[x-cloak] { display: none !important; }
+
+    </style>
+  </head>
+<body class="flex flex-col min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#eef2f6] to-[#e4e9f0] dark:from-[#0f1117] dark:via-[#0b0d12] dark:to-[#06070a] text-gray-900 dark:text-white">
+
+    <!-- HEADER -->
+      <header class="w-full px-6 pt-6 pb-6 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+      <div class="max-w-7xl mx-auto flex flex-col items-start sm:flex-row sm:items-center sm:justify-between gap-4">
+        <!-- Brand Section -->
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-[#1fa5a2]">pkey.quest</h1>
+          <div class="text-gray-600 dark:text-gray-300 mt-1">
+            <p class="text-base sm:text-lg font-medium typewriter" id="line1">Infrastructure for the community.</p>
+            <p class="text-base sm:text-lg font-medium opacity-90 typewriter-2 block" id="line2">Building tools on the Taraxa network.</p>
+          </div>
+        </div>
+        <!-- Theme Toggle -->
+        <div class="sm:mt-0">
+          <button id="theme-toggle" class="transition duration-300 ease-in-out bg-white/80 dark:bg-white/10 hover:bg-white hover:dark:bg-white/20 border border-gray-300 dark:border-white/20 shadow-md dark:shadow-none rounded-xl p-2 flex items-center justify-center w-10 h-10 backdrop-blur-sm">
+            <i id="theme-icon" data-lucide="moon" class="w-5 h-5 text-gray-700 dark:text-white"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+	
+<nav class="w-full bg-white/80 dark:bg-white/5 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 text-sm font-medium">
+
+    <!-- Navigation links -->
+    <div class="flex flex-wrap justify-start gap-4 sm:gap-6">
+      <a href="index.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">Home</a>
+      <a href="wallet_extractor.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">Wallet Extractor</a>
+      <a href="currency_converter.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">TARA Converter</a>
+      <a href="qr_code_generator.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">QR Code Generator</a>
+      <a href="taralien.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">TARAlien</a>
+	  <a href="ecosystem.html" class="text-gray-600 dark:text-gray-300 hover:text-[#1fa5a2] dark:hover:text-[#2dccc8] transition-colors">Ecosystem</a>
+    </div>
+
+    <!-- TARA price -->
+    <div id="tara-price" class="text-[#1fa5a2] font-mono truncate sm:text-right sm:min-w-[100px]">
+      <!-- JS-inserted price -->
+    </div>
+
+  </div>
+</nav>
+
+<main class="flex-grow">
+
+<section class="max-w-7xl mx-auto px-6 pt-12">
+  <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+    Ecosystem & Friends
+  </h2>
+  <p class="text-gray-600 dark:text-gray-300 mb-8 max-w-xl">
+    We’re not building alone. These are tools, tokens, and people moving alongside us in the Taraxa space. 
+  </p>
+</section>
+
+<section class="max-w-7xl mx-auto px-6 py-16 grid gap-12 md:grid-cols-3">
+
+<!-- card 1 -->
+<div class="bg-white dark:bg-[#101215] rounded-2xl shadow-xl p-6 flex flex-col items-center gap-4 transition-transform hover:scale-[1.02]">
+  <img src="fomobiz.png" alt="Fomo.biz" class="w-20 h-20 object-cover rounded-full border-4 border-[#1fa5a2] shadow-md" />
+  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Fomo.biz</h2>
+  <p class="text-sm text-gray-700 dark:text-gray-300 text-center leading-relaxed">
+    Taraxa’s meme factory. Launch a token. Be a degen. Blame the chart later.
+  </p>
+  <a href="https://fomo.biz/" target="_blank" class="mt-auto px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#1fa5a2] hover:bg-[#2dccc8] transition">Launch Something</a>
+</div>
+
+<!-- card 3 -->
+<div class="bg-white dark:bg-[#101215] rounded-2xl shadow-xl p-6 flex flex-col items-center gap-4 transition-transform hover:scale-[1.02]">
+  <img src="taragods.jpg" alt="Taragods NFT" class="w-20 h-20 object-cover rounded-full border-4 border-[#1fa5a2] shadow-md" />
+  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Taragods NFT</h2>
+  <p class="text-sm text-gray-700 dark:text-gray-300 text-center leading-relaxed">
+    Taraxa-based NFT project exploring unique art and ideas on-chain. 🪐
+  </p>
+  <a href="https://x.com/taragodsnft" target="_blank" class="mt-auto px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#1fa5a2] hover:bg-[#2dccc8] transition">Visit</a>
+</div>
+
+  <!-- card 3 -->
+<div class="bg-white dark:bg-[#101215] rounded-2xl shadow-xl p-6 flex flex-col items-center gap-4 transition-transform hover:scale-[1.02]">
+  <img src="grumpy.jpg" alt="Grumpy Token" class="w-20 h-20 object-cover rounded-full border-4 border-[#1fa5a2] shadow-md" />
+  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">GRUMPY</h2>
+  <p class="text-sm text-gray-700 dark:text-gray-300 text-center leading-relaxed">
+    Taraxa’s meme token. Barking at charts. Sleeping on rugs. Vibing with whales. 🐶
+  </p>
+  <a href="https://x.com/GRUMPY_ON_TARA" target="_blank" class="mt-auto px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#1fa5a2] hover:bg-[#2dccc8] transition">Join the Chaos</a>
+</div>
+
+</section>
+
+
+<div id="tarawhale-widget" class="fixed bottom-6 right-6 z-50" x-data="{ open: false }">
+  <div class="relative group flex flex-col items-end space-y-2" @click.away="open = false">
+
+    <div x-show="open" x-transition x-cloak class="bg-white dark:bg-[#101215] rounded-2xl shadow-xl p-4 flex flex-col items-start gap-3 w-64">
+      <h2 class="text-base font-semibold text-gray-900 dark:text-white">Join our Telegram Group</h2>
+      <p class="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
+        Stay connected with the community and never miss important updates.
+      </p>
+      <a href="https://t.me/TaraWhales" target="_blank"
+         class="mt-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#1fa5a2] hover:bg-[#2dccc8] transition w-full text-center">
+        Join Now
+      </a>
+    </div>
+
+    <button @click="open = !open" class="relative">
+      <img src="tara-whale.png" alt="Join our Group"
+           class="w-14 h-14 rounded-full shadow-lg hover:scale-110 transition duration-300 bg-white dark:bg-[#1a1d24] p-2" />
+    </button>
+  </div>
+</div>
+
+
+</main>
+
+
+<footer class="w-full px-4 py-4 border-t border-gray-800 mt-24 text-sm text-gray-400">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+
+    <!-- Left: Logo & Reference -->
+    <div class="flex items-center gap-2">
+        <img src="logo.png" alt="PuzzleKey Logo" class="w-9 h-9" />
+      <span><span class="font-medium text-black dark:text-white">pkey.quest</span> © 2025 · 
+        <a href="https://taraxa.io/" target="_blank" class="text-[#1fa5a2] hover:text-[#2dccc8] font-semibold">TARAXA</a>
+      </span>
+    </div>
+
+    <!-- Right: Socials and Tools -->
+    <div class="flex flex-col md:flex-row items-center gap-6">
+
+      <!-- Socials -->
+      <div class="flex items-center gap-4">
+        <!-- X -->
+        <a href="https://x.com/pkeyquest" target="_blank" aria-label="X" class="text-[#1fa5a2] hover:text-[#2dccc8] transition">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19.18 0.21H22.66L14.69 10.28L24 23.78H16.62L10.77 15.10L4.10 23.78H0.62L9.08 12.80L0 0H7.59L12.82 7.63L19.18 0.21Z M18 20.57H20.10L11.07 11.37L17.21 20.57H18Z" />
+          </svg>
+        </a>
+
+        <!-- Telegram -->
+        <a href="https://t.me/pkeyquest" target="_blank" aria-label="Telegram" class="text-[#1fa5a2] hover:text-[#2dccc8] transition">
+          <svg class="w-5 h-5" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="120" cy="120" r="120" fill="currentColor" />
+            <path d="M180.7 70.6 61.1 115.8c-4.6 1.7-4.6 6.5.6 8.1l29.2 9.1 11.2 34c1.4 4.2 2.4 5.8 5 5.8 2.6 0 3.7-1.1 5.1-4.1l14.1-28.1 29.4 21.8c5.4 3 9.3 1.4 10.6-5.1l17.2-80.5c2-8.4-3.2-12.3-8.8-10z" fill="#fff" />
+          </svg>
+        </a>
+      </div>
+
+      <!-- Divider (optional for clarity) -->
+      <div class="hidden md:block w-px h-5 bg-gray-700"></div>
+
+      <!-- Tools (3 PNG Icons with Links) -->
+      <div class="flex items-center gap-4">
+        <a href="https://fomo.biz/token/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A" target="_blank">
+          <img src="fomobiz.png" alt="fomo.biz" class="w-6 h-6" />
+        </a>
+        <a href="https://www.geckoterminal.com/taraxa/pools/0x35b29982d582b8e6727453aeb06557ea08205da9" target="_blank">
+          <img src="geckoterminal.png" alt="geckoterminal" class="w-6 h-6" />
+        </a>
+        <a href="https://www.defined.fi/taraxa/0x35b29982d582b8e6727453aeb06557ea08205da9?quoteToken=token1" target="_blank">
+          <img src="defined.png" alt="defined.fi" class="w-6 h-6" />
+        </a>
+      </div>
+
+    </div>
+  </div>
+</footer>
+
+<script>
+  const toggle = document.getElementById('theme-toggle');
+  const iconContainer = document.getElementById('theme-icon').parentElement;
+  const html = document.documentElement;
+
+  function renderIcon(theme) {
+    const newIcon = document.createElement('i');
+    newIcon.setAttribute('data-lucide', theme === 'dark' ? 'moon' : 'sun');
+    newIcon.className = 'w-5 h-5 text-gray-700 dark:text-white';
+    iconContainer.innerHTML = '';
+    iconContainer.appendChild(newIcon);
+    lucide.createIcons();
+  }
+
+  function applyTheme(theme) {
+    html.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('theme', theme);
+    renderIcon(theme);
+  }
+
+  const saved = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const current = saved || (prefersDark ? 'dark' : 'light');
+  applyTheme(current);
+
+  toggle.addEventListener('click', () => {
+    const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
+    applyTheme(newTheme);
+  });
+</script>
+
+
+
+<script>
+  tailwind.config = {
+    darkMode: 'class', 
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Manrope', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+
+<!-- AOS Script -->
+<script>
+  AOS.init({
+    once: true, // animation only happens once
+    duration: 700, // animation speed in ms
+    easing: 'ease-out-cubic', // smooth curve
+  });
+</script>
+
+   <script>
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const line1 = document.getElementById('line1');
+    line1.style.width = line1.scrollWidth + 'px';
+    line1.classList.add('hide-caret');
+  }, 1000);
+
+  setTimeout(() => {
+    const line2 = document.getElementById('line2');
+    line2.style.width = line2.scrollWidth + 'px';
+    line2.classList.add('hide-caret');
+  }, 2000);
+});
+    </script>
+
+<script>
+  async function fetchTaraPrice() {
+    try {
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=taraxa&vs_currencies=usd');
+      const data = await response.json();
+      const price = data.taraxa.usd;
+      document.getElementById("tara-price").innerText = `$${price.toFixed(5)} / TARA`;
+    } catch (error) {
+      document.getElementById("tara-price").innerText = 'Price unavailable';
+    }
+  }
+
+  fetchTaraPrice();
+  setInterval(fetchTaraPrice, 60000); // refresh every 60 seconds
+</script>
+
+  </body>
+</html>

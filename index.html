@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 	<script src="https://unpkg.com/lucide@latest"></script>
 	<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
 
@@ -70,6 +71,9 @@
     top: 48%;
   }
 }
+
+[x-cloak] { display: none !important; }
+
     </style>
   </head>
 <body class="flex flex-col min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#eef2f6] to-[#e4e9f0] dark:from-[#0f1117] dark:via-[#0b0d12] dark:to-[#06070a] text-gray-900 dark:text-white">
@@ -158,7 +162,7 @@
     </div>
   </div>
 
-  <!-- Community Group -->
+  <!-- TaraTokenBot -->
   <div data-aos="fade-up">
     <div class="bg-white dark:bg-[#101215] rounded-2xl shadow-xl p-6 flex flex-col items-start gap-4 transition-transform ease-in-out duration-300 will-change-transform hover:scale-[1.02]">
       <img src="taratokenbot.png" alt="TaraTokenBot" class="w-full rounded-lg object-cover shadow-md" />
@@ -172,25 +176,6 @@
     </div>
   </div>
 
-</section>
-
-
-<!-- Separate Row for TaraTokenBot -->
-<section class="w-full max-w-7xl mx-auto px-6 py-10 grid gap-12 justify-center">
-  <div data-aos="fade-up" class="max-w-sm mx-auto">
-    <div class="bg-white dark:bg-[#101215] rounded-2xl shadow-xl p-6 flex flex-col items-start gap-4 transition-transform ease-in-out duration-300 will-change-transform hover:scale-[1.02]">
-      <img src="tara-whale.png" alt="Tara Whale Group" class="w-full rounded-lg object-cover shadow-md" />
-      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">📡 Tara Whales Group</h2>
-      <p class="text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed tracking-tight" style="word-spacing: 0.1em;">
-        <span class="font-semibold text-[#1fa5a2] tracking-wide drop-shadow-sm">Tara Whales</span><br><br>
-        Get a feel for our multiple Telegram bots in action. Watch TARA wallets being tracked live.<br>
-        See transfers, activity, and alerts in real-time.<br>
-        The dev is inside too — ask questions, share ideas, give feedback.<br><br>
-        This is our public demo group.
-      </p>
-      <a href="https://t.me/TaraWhales" target="_blank" class="mt-auto px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#1fa5a2] hover:bg-[#2dccc8] transition">Join Now</a>
-    </div>
-  </div>
 </section>
 
 
@@ -464,12 +449,25 @@
   </div>
 </section>
 
-<!-- Floating KuroAI Widget -->
-<div id="kuro-widget" class="fixed bottom-6 right-6 z-50">
-  <a href="https://t.me/kuro_vibe_bot" target="_blank" class="relative group">
-    <!-- Owl Icon -->
-    <img src="kuro_ai_bot.png" alt="Chat with KuroAI" class="w-14 h-14 rounded-full shadow-lg hover:scale-110 transition duration-300 bg-white dark:bg-[#1a1d24] p-2" />
-  </a>
+<div id="tarawhale-widget" class="fixed bottom-6 right-6 z-50" x-data="{ open: false }">
+  <div class="relative group flex flex-col items-end space-y-2" @click.away="open = false">
+
+    <div x-show="open" x-transition x-cloak class="bg-white dark:bg-[#101215] rounded-2xl shadow-xl p-4 flex flex-col items-start gap-3 w-64">
+      <h2 class="text-base font-semibold text-gray-900 dark:text-white">Join our Telegram Group</h2>
+      <p class="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
+        Stay connected with the community and never miss important updates.
+      </p>
+      <a href="https://t.me/TaraWhales" target="_blank"
+         class="mt-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#1fa5a2] hover:bg-[#2dccc8] transition w-full text-center">
+        Join Now
+      </a>
+    </div>
+
+    <button @click="open = !open" class="relative">
+      <img src="tara-whale.png" alt="Join our Group"
+           class="w-14 h-14 rounded-full shadow-lg hover:scale-110 transition duration-300 bg-white dark:bg-[#1a1d24] p-2" />
+    </button>
+  </div>
 </div>
 
 

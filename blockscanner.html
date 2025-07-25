@@ -17,6 +17,16 @@
       <button onclick="updateSummary('7d')" class="range-btn px-4 py-2 font-medium bg-gray-200 text-gray-800 rounded">7d</button>
       <button onclick="updateSummary('30d')" class="range-btn px-4 py-2 font-medium bg-gray-200 text-gray-800 rounded">30d</button>
     </div>
+	
+	<!-- Latest Block Info -->
+<div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4">Latest Block</h2>
+  <p><strong>Block Number:</strong> <span id="latestBlockNumber">--</span></p>
+  <p><strong>Transactions:</strong> <span id="latestBlockTxs">--</span></p>
+  <p><strong>Timestamp:</strong> <span id="latestBlockTimestamp">--</span></p>
+  <p><strong>Time Ago:</strong> <span id="latestBlockTimeAgo">--</span></p>
+</div>
+
 
     <!-- Summary Section -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">

@@ -237,7 +237,7 @@ function renderTxHistory() {
         updateSummary('24h');
         renderTxHistory();
         loadLatestBlock();
-        setInterval(loadLatestBlock, 2000);
+        setInterval(loadLatestBlock, 1500);
       } catch (err) {
         console.error("Initialization failed:", err);
       }

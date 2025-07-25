@@ -172,7 +172,7 @@
       });
     }
 
-    function renderTxHistory() {
+function renderTxHistory() {
   if (!Array.isArray(txHistory) || txHistory.length === 0) return;
   const table = document.getElementById("txHistoryTable");
   table.innerHTML = "";
@@ -195,13 +195,14 @@
         <a href="https://tara.to/address/${tx.to}" class="text-green-400 hover:underline" title="${tx.to}" target="_blank">${toShort}</a>
       </td>
       <td class="pr-4 py-2 break-all">
-        <a href="https://tara.to/tx/${tx.tx_hash}" class="text-yellow-300 hover:underline" title="${tx.tx_hash}" target="_blank">${hashShort}</a>
+        <a href="https://tara.to/tx/0x${tx.tx_hash}" class="text-yellow-300 hover:underline" title="0x${tx.tx_hash}" target="_blank">${hashShort}</a>
       </td>
     `;
 
     table.appendChild(row);
   });
 }
+
 
     function loadLatestBlock() {
       fetch('https://tarablockscanner-production.up.railway.app/latest_block')

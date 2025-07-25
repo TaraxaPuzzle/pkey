@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Taraxa Block Scanner Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white">
   <div class="max-w-6xl mx-auto p-6">
@@ -46,141 +47,171 @@
       <canvas id="activityChart" class="w-full h-96"></canvas>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      const chartData = {
-        labels: ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"],
-        datasets: {
-          uaw: {
-            label: 'Unique Active Wallets',
-            data: [120, 150, 200, 180, 220, 190],
-            backgroundColor: '#3b82f6'
-          },
-          txcount: {
-            label: 'Transaction Count',
-            data: [800, 1200, 1500, 1400, 1600, 1350],
-            backgroundColor: '#10b981'
-          }
-        }
-      };
+    <!-- Latest Transactions Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow mb-10">
+      <h2 class="text-xl font-semibold mb-4">Latest Transactions</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-left text-gray-300">
+          <thead>
+            <tr class="border-b border-gray-600 text-gray-400">
+              <th class="pr-4 py-2">Time</th>
+              <th class="pr-4 py-2">From</th>
+              <th class="pr-4 py-2">To</th>
+              <th class="pr-4 py-2">TX Hash</th>
+            </tr>
+          </thead>
+          <tbody id="txHistoryTable">
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-      let summaryStats = {}; // Will be loaded from JSON
+  <script>
+    let txHistory = [];
+    let summaryStats = {};
+    let currentRange = '24h';
+    let currentDataset = 'uaw';
 
-fetch('https://tarablockscanner-production.up.railway.app/stats')
-  .then(res => res.json())
-  .then(data => {
-    summaryStats = data;
-    updateSummary('24h'); // Initialize with 24h data
-  })
-  .catch(err => {
-    console.error("Failed to load daily_activity.json", err);
-  });
+    const chartData = {
+  labels: [],
+  datasets: {
+    uaw: {
+      label: 'Unique Active Wallets',
+      data: [],
+      backgroundColor: '#3b82f6'
+    },
+    txcount: {
+      label: 'Transaction Count',
+      data: [],
+      backgroundColor: '#10b981'
+    }
+  }
+};
 
-      let currentDataset = 'uaw';
-      let currentRange = '24h';
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    const activityChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: chartData.labels,
+        datasets: [chartData.datasets[currentDataset]]
+      },
+      options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+      }
+    });
 
-      const ctx = document.getElementById('activityChart').getContext('2d');
-      let activityChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: chartData.labels,
-          datasets: [chartData.datasets[currentDataset]]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: { beginAtZero: true }
-          }
+    function showDataset(key) {
+      currentDataset = key;
+      activityChart.data.datasets = [chartData.datasets[key]];
+      activityChart.update();
+
+      ['uaw', 'txcount'].forEach(type => {
+        const btn = document.getElementById(`btn-${type}`);
+        if (type === key) {
+          btn.classList.add("bg-blue-500", "text-white");
+          btn.classList.remove("bg-gray-200", "text-gray-800");
+        } else {
+          btn.classList.add("bg-gray-200", "text-gray-800");
+          btn.classList.remove("bg-blue-500", "text-white");
         }
       });
+    }
 
-      function showDataset(key) {
-        activityChart.data.datasets = [chartData.datasets[key]];
-        activityChart.update();
-        const buttons = ['uaw', 'txcount'];
-        buttons.forEach(type => {
-          const btn = document.getElementById(`btn-${type}`);
-          if (type === key) {
-            btn.classList.remove("bg-gray-200", "text-gray-800");
-            btn.classList.add("bg-blue-500", "text-white");
-          } else {
-            btn.classList.remove("bg-blue-500", "text-white");
-            btn.classList.add("bg-gray-200", "text-gray-800");
-          }
-        });
-      }
-
-      function updateSummary(range) {
-        currentRange = range;
-        document.getElementById("uawTotal").textContent = summaryStats[range].uaw.toLocaleString();
-        document.getElementById("tpsTotal").textContent = summaryStats[range].tps.toFixed(2);
-        document.getElementById("txcountTotal").textContent = summaryStats[range].txcount.toLocaleString();
-        document.getElementById("uawRange").textContent = `Last ${range}`;
-        document.getElementById("tpsRange").textContent = `Last ${range}`;
-        document.getElementById("txcountRange").textContent = `Last ${range}`;
-        document.getElementById("chartTitle").textContent = `Activity Chart - Last ${range}`;
-
-        document.querySelectorAll(".range-btn").forEach(btn => {
-          if (btn.textContent === range) {
-            btn.classList.add("bg-blue-500", "text-white");
-            btn.classList.remove("bg-gray-200", "text-gray-800");
-          } else {
-            btn.classList.remove("bg-blue-500", "text-white");
-            btn.classList.add("bg-gray-200", "text-gray-800");
-          }
-        });
-      }
-
-      updateSummary('24h');
-	  
-	  
-	  function loadLatestBlock() {
-  fetch('https://tarablockscanner-production.up.railway.app/latest_block')
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("latestBlockNumber").textContent = data.block_number || '--';
-      document.getElementById("latestBlockTxs").textContent = data.tx_count || '--';
-
-      const date = new Date(data.timestamp * 1000);
-      document.getElementById("latestBlockTimestamp").textContent = date.toLocaleString();
-
-      const seconds = data.time_ago || 0;
-      let timeStr = seconds < 60
-        ? `${seconds}s ago`
-        : seconds < 3600
-          ? `${Math.floor(seconds / 60)}m ago`
-          : `${Math.floor(seconds / 3600)}h ago`;
-      document.getElementById("latestBlockTimeAgo").textContent = timeStr;
-    })
-    .catch(err => console.error("Block fetch error", err));
+    function updateSummary(range) {
+      currentRange = range;
+      const stats = summaryStats[range];
+	  if (!stats) return;
+	  if (stats.chart) {
+  chartData.labels = stats.chart.labels;
+  chartData.datasets.uaw.data = stats.chart.uaw;
+  chartData.datasets.txcount.data = stats.chart.txcount;
+  activityChart.data.labels = chartData.labels;
+  activityChart.data.datasets = [chartData.datasets[currentDataset]];
+  activityChart.update();
 }
 
-setInterval(loadLatestBlock, 10000); // Every 10 seconds
-loadLatestBlock(); // Initial
-    </script>
+      document.getElementById("uawTotal").textContent = stats.uaw.toLocaleString();
+      document.getElementById("tpsTotal").textContent = stats.tps.toFixed(2);
+      document.getElementById("txcountTotal").textContent = stats.txcount.toLocaleString();
 
-   <!-- Latest Block Info Section -->
-<div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow">
-  <h2 class="text-xl font-semibold mb-4">Latest Block</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <p class="text-sm text-gray-500">Block Number</p>
-      <p id="latestBlockNumber" class="text-lg font-bold">--</p>
-    </div>
-    <div>
-      <p class="text-sm text-gray-500">Time Since Last Block</p>
-      <p id="latestBlockTimeAgo" class="text-lg font-bold">--</p>
-    </div>
-    <div>
-      <p class="text-sm text-gray-500">Transactions in Block</p>
-      <p id="latestBlockTxs" class="text-lg font-bold">--</p>
-    </div>
-    <div>
-      <p class="text-sm text-gray-500">Block Timestamp</p>
-      <p id="latestBlockTimestamp" class="text-lg font-bold">--</p>
-    </div>
-  </div>
-</div>
-  </div>
+      document.getElementById("uawRange").textContent = `Last ${range}`;
+      document.getElementById("tpsRange").textContent = `Last ${range}`;
+      document.getElementById("txcountRange").textContent = `Last ${range}`;
+      document.getElementById("chartTitle").textContent = `Activity Chart - Last ${range}`;
+
+      document.querySelectorAll(".range-btn").forEach(btn => {
+        if (btn.textContent === range) {
+          btn.classList.add("bg-blue-500", "text-white");
+          btn.classList.remove("bg-gray-200", "text-gray-800");
+        } else {
+          btn.classList.add("bg-gray-200", "text-gray-800");
+          btn.classList.remove("bg-blue-500", "text-white");
+        }
+      });
+    }
+
+    function renderTxHistory() {
+      if (!Array.isArray(txHistory) || txHistory.length === 0) return;
+      const table = document.getElementById("txHistoryTable");
+      table.innerHTML = "";
+
+      txHistory.slice(-10).reverse().forEach(tx => {
+        const time = new Date(tx.timestamp * 1000).toLocaleTimeString();
+        const row = document.createElement("tr");
+        row.className = "border-b border-gray-700 hover:bg-gray-700/20";
+        row.innerHTML = `
+          <td class="pr-4 py-1 whitespace-nowrap">${time}</td>
+          <td class="pr-4 py-1 break-all text-blue-400">${tx.from.slice(0, 6)}...${tx.from.slice(-4)}</td>
+          <td class="pr-4 py-1 break-all text-green-400">${tx.to.slice(0, 6)}...${tx.to.slice(-4)}</td>
+          <td class="pr-4 py-1 break-all">${tx.tx_hash.slice(0, 10)}...</td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function loadLatestBlock() {
+      fetch('https://tarablockscanner-production.up.railway.app/latest_block')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("latestBlockNumber").textContent = data.block_number || '--';
+          document.getElementById("latestBlockTxs").textContent = data.tx_count || '--';
+
+          const date = new Date(data.timestamp * 1000);
+          document.getElementById("latestBlockTimestamp").textContent = date.toLocaleString();
+
+          const seconds = data.time_ago || 0;
+          let timeStr = seconds < 60
+            ? `${seconds}s ago`
+            : seconds < 3600
+              ? `${Math.floor(seconds / 60)}m ago`
+              : `${Math.floor(seconds / 3600)}h ago`;
+          document.getElementById("latestBlockTimeAgo").textContent = timeStr;
+        })
+        .catch(err => console.error("Block fetch error", err));
+    }
+
+    async function initializeDashboard() {
+      try {
+        const [statsRes, txRes] = await Promise.all([
+          fetch('https://tarablockscanner-production.up.railway.app/daily_activity.json'),
+          fetch('https://tarablockscanner-production.up.railway.app/tx_history.json')
+        ]);
+        summaryStats = await statsRes.json();
+        txHistory = await txRes.json();
+
+        updateSummary('24h');
+        renderTxHistory();
+        loadLatestBlock();
+        setInterval(loadLatestBlock, 10000);
+      } catch (err) {
+        console.error("Initialization failed:", err);
+      }
+    }
+
+    initializeDashboard();
+  </script>
 </body>
 </html>

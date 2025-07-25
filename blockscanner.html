@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taraxa Block Scanner Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white">
+  <div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Taraxa Block Scanner</h1>
+
+    <!-- Range Selector -->
+    <div class="flex space-x-2 mb-6">
+      <button onclick="updateSummary('24h')" class="range-btn px-4 py-2 font-medium bg-blue-500 text-white rounded">24h</button>
+      <button onclick="updateSummary('7d')" class="range-btn px-4 py-2 font-medium bg-gray-200 text-gray-800 rounded">7d</button>
+      <button onclick="updateSummary('30d')" class="range-btn px-4 py-2 font-medium bg-gray-200 text-gray-800 rounded">30d</button>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
+        <h2 class="text-lg font-semibold mb-2">Unique Active Wallets</h2>
+        <p id="uawTotal" class="text-2xl font-bold">--</p>
+        <span id="uawRange" class="text-sm text-gray-500">Last 24h</span>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
+        <h2 class="text-lg font-semibold mb-2">TPS</h2>
+        <p id="tpsTotal" class="text-2xl font-bold">--</p>
+        <span id="tpsRange" class="text-sm text-gray-500">Last 24h</span>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
+        <h2 class="text-lg font-semibold mb-2">Transaction Count</h2>
+        <p id="txcountTotal" class="text-2xl font-bold">--</p>
+        <span id="txcountRange" class="text-sm text-gray-500">Last 24h</span>
+      </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow mb-10">
+      <h2 id="chartTitle" class="text-xl font-semibold mb-4">Activity Chart - Last 24h</h2>
+      <div class="mb-4 flex">
+        <button id="btn-uaw" onclick="showDataset('uaw')" class="px-4 py-2 font-medium rounded-l bg-blue-500 text-white">UAW</button>
+        <button id="btn-txcount" onclick="showDataset('txcount')" class="px-4 py-2 font-medium rounded-r bg-gray-200 text-gray-800">TX Count</button>
+      </div>
+      <canvas id="activityChart" class="w-full h-96"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const chartData = {
+        labels: ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"],
+        datasets: {
+          uaw: {
+            label: 'Unique Active Wallets',
+            data: [120, 150, 200, 180, 220, 190],
+            backgroundColor: '#3b82f6'
+          },
+          txcount: {
+            label: 'Transaction Count',
+            data: [800, 1200, 1500, 1400, 1600, 1350],
+            backgroundColor: '#10b981'
+          }
+        }
+      };
+
+      let summaryStats = {}; // Will be loaded from JSON
+
+fetch('daily_activity.json')
+  .then(res => res.json())
+  .then(data => {
+    summaryStats = data;
+    updateSummary('24h'); // Initialize with 24h data
+  })
+  .catch(err => {
+    console.error("Failed to load daily_activity.json", err);
+  });
+
+      let currentDataset = 'uaw';
+      let currentRange = '24h';
+
+      const ctx = document.getElementById('activityChart').getContext('2d');
+      let activityChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: chartData.labels,
+          datasets: [chartData.datasets[currentDataset]]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      function showDataset(key) {
+        activityChart.data.datasets = [chartData.datasets[key]];
+        activityChart.update();
+        const buttons = ['uaw', 'txcount'];
+        buttons.forEach(type => {
+          const btn = document.getElementById(`btn-${type}`);
+          if (type === key) {
+            btn.classList.remove("bg-gray-200", "text-gray-800");
+            btn.classList.add("bg-blue-500", "text-white");
+          } else {
+            btn.classList.remove("bg-blue-500", "text-white");
+            btn.classList.add("bg-gray-200", "text-gray-800");
+          }
+        });
+      }
+
+      function updateSummary(range) {
+        currentRange = range;
+        document.getElementById("uawTotal").textContent = summaryStats[range].uaw.toLocaleString();
+        document.getElementById("tpsTotal").textContent = summaryStats[range].tps.toFixed(2);
+        document.getElementById("txcountTotal").textContent = summaryStats[range].txcount.toLocaleString();
+        document.getElementById("uawRange").textContent = `Last ${range}`;
+        document.getElementById("tpsRange").textContent = `Last ${range}`;
+        document.getElementById("txcountRange").textContent = `Last ${range}`;
+        document.getElementById("chartTitle").textContent = `Activity Chart - Last ${range}`;
+
+        document.querySelectorAll(".range-btn").forEach(btn => {
+          if (btn.textContent === range) {
+            btn.classList.add("bg-blue-500", "text-white");
+            btn.classList.remove("bg-gray-200", "text-gray-800");
+          } else {
+            btn.classList.remove("bg-blue-500", "text-white");
+            btn.classList.add("bg-gray-200", "text-gray-800");
+          }
+        });
+      }
+
+      updateSummary('24h');
+	  
+	  
+	  function loadLatestBlock() {
+  fetch('https://your-railway-url/localhost/latest_block') // replace later after deploy
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("latestBlockNumber").textContent = data.block_number || '--';
+      document.getElementById("latestBlockTxs").textContent = data.tx_count || '--';
+
+      const date = new Date(data.timestamp * 1000);
+      document.getElementById("latestBlockTimestamp").textContent = date.toLocaleString();
+
+      const seconds = data.time_ago || 0;
+      let timeStr = seconds < 60
+        ? `${seconds}s ago`
+        : seconds < 3600
+          ? `${Math.floor(seconds / 60)}m ago`
+          : `${Math.floor(seconds / 3600)}h ago`;
+      document.getElementById("latestBlockTimeAgo").textContent = timeStr;
+    })
+    .catch(err => console.error("Block fetch error", err));
+}
+
+setInterval(loadLatestBlock, 10000); // Every 10 seconds
+loadLatestBlock(); // Initial
+    </script>
+
+   <!-- Latest Block Info Section -->
+<div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow">
+  <h2 class="text-xl font-semibold mb-4">Latest Block</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <p class="text-sm text-gray-500">Block Number</p>
+      <p id="latestBlockNumber" class="text-lg font-bold">--</p>
+    </div>
+    <div>
+      <p class="text-sm text-gray-500">Time Since Last Block</p>
+      <p id="latestBlockTimeAgo" class="text-lg font-bold">--</p>
+    </div>
+    <div>
+      <p class="text-sm text-gray-500">Transactions in Block</p>
+      <p id="latestBlockTxs" class="text-lg font-bold">--</p>
+    </div>
+    <div>
+      <p class="text-sm text-gray-500">Block Timestamp</p>
+      <p id="latestBlockTimestamp" class="text-lg font-bold">--</p>
+    </div>
+  </div>
+</div>
+  </div>
+</body>
+</html>

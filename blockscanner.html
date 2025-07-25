@@ -173,23 +173,35 @@
     }
 
     function renderTxHistory() {
-      if (!Array.isArray(txHistory) || txHistory.length === 0) return;
-      const table = document.getElementById("txHistoryTable");
-      table.innerHTML = "";
+  if (!Array.isArray(txHistory) || txHistory.length === 0) return;
+  const table = document.getElementById("txHistoryTable");
+  table.innerHTML = "";
 
-      txHistory.slice(-10).reverse().forEach(tx => {
-        const time = new Date(tx.timestamp * 1000).toLocaleTimeString();
-        const row = document.createElement("tr");
-        row.className = "border-b border-gray-700 hover:bg-gray-700/20";
-        row.innerHTML = `
-          <td class="pr-4 py-1 whitespace-nowrap">${time}</td>
-          <td class="pr-4 py-1 break-all text-blue-400">${tx.from.slice(0, 6)}...${tx.from.slice(-4)}</td>
-          <td class="pr-4 py-1 break-all text-green-400">${tx.to.slice(0, 6)}...${tx.to.slice(-4)}</td>
-          <td class="pr-4 py-1 break-all">${tx.tx_hash.slice(0, 10)}...</td>
-        `;
-        table.appendChild(row);
-      });
-    }
+  txHistory.slice(-10).reverse().forEach(tx => {
+    const time = new Date(tx.timestamp * 1000).toLocaleTimeString();
+    const fromShort = `${tx.from.slice(0, 6)}...${tx.from.slice(-4)}`;
+    const toShort = `${tx.to.slice(0, 6)}...${tx.to.slice(-4)}`;
+    const hashShort = `${tx.tx_hash.slice(0, 10)}...`;
+
+    const row = document.createElement("tr");
+    row.className = "border-b border-gray-700 hover:bg-gray-700/10 transition";
+
+    row.innerHTML = `
+      <td class="pr-4 py-2 whitespace-nowrap text-gray-300">${time}</td>
+      <td class="pr-4 py-2 break-all">
+        <a href="https://tara.to/address/${tx.from}" class="text-blue-400 hover:underline" title="${tx.from}" target="_blank">${fromShort}</a>
+      </td>
+      <td class="pr-4 py-2 break-all">
+        <a href="https://tara.to/address/${tx.to}" class="text-green-400 hover:underline" title="${tx.to}" target="_blank">${toShort}</a>
+      </td>
+      <td class="pr-4 py-2 break-all">
+        <a href="https://tara.to/tx/${tx.tx_hash}" class="text-yellow-300 hover:underline" title="${tx.tx_hash}" target="_blank">${hashShort}</a>
+      </td>
+    `;
+
+    table.appendChild(row);
+  });
+}
 
     function loadLatestBlock() {
       fetch('https://tarablockscanner-production.up.railway.app/latest_block')

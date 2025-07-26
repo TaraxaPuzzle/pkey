@@ -279,7 +279,7 @@ async function initializeDashboard() {
          loadLatestBlock();
          updateSummary(currentRange);
          renderTxHistory();
-    }, 2000);
+    }, 500);
       } catch (err) {
         console.error("Initialization failed:", err);
       }

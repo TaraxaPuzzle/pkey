@@ -194,17 +194,18 @@ async function renderTxHistory() {
     const res = await fetch('https://tarablockscanner-production.up.railway.app/tx_history.json');
     const newHistory = await res.json();
 
-    // If the content didn't change, skip re-rendering
     const latestTxHash = txHistory.length > 0 ? txHistory[txHistory.length - 1].tx_hash : null;
     const newLatestTxHash = newHistory.length > 0 ? newHistory[newHistory.length - 1].tx_hash : null;
 
-    if (latestTxHash === newLatestTxHash) return;
+    if (latestTxHash === newLatestTxHash) return; // No update needed
 
-    // Update the cached txHistory
+    // Update only if something changed
     txHistory = newHistory;
 
-    const table = document.getElementById("txHistoryTable");
-    table.innerHTML = "";
+    const tableBody = document.getElementById("txHistoryTable");
+
+    // Create a DocumentFragment to minimize reflows
+    const frag = document.createDocumentFragment();
 
     txHistory.slice(-10).reverse().forEach(tx => {
       const time = new Date(tx.timestamp * 1000).toLocaleTimeString();
@@ -228,8 +229,11 @@ async function renderTxHistory() {
         </td>
       `;
 
-      table.appendChild(row);
+      frag.appendChild(row);
     });
+
+    // Replace rows in one go without flicker
+    tableBody.replaceChildren(frag);
   } catch (err) {
     console.error("Failed to load TX history:", err);
   }

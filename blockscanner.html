@@ -209,7 +209,7 @@ async function renderTxHistory() {
     const frag = document.createDocumentFragment();
 
     txHistory.slice(-10).reverse().forEach(tx => {
-      const time = new Date(tx.timestamp * 1000).toLocaleTimeString();
+      const time = new Date(tx.timestamp * 1000).toISOString().split("T")[1].slice(0, 8) + ' UTC';
       const fromShort = `${tx.from.slice(0, 6)}...${tx.from.slice(-4)}`;
       const toShort = `${tx.to.slice(0, 6)}...${tx.to.slice(-4)}`;
       const hashShort = `${tx.tx_hash.slice(0, 10)}...`;
@@ -248,7 +248,7 @@ function loadLatestBlock() {
       document.getElementById("latestBlockTxs").textContent = data.tx_count || '--';
 
       const date = new Date(data.timestamp * 1000);
-      document.getElementById("latestBlockTimestamp").textContent = date.toLocaleString();
+      document.getElementById("latestBlockTimestamp").textContent = date.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
 
       const seconds = data.time_ago || 0;
       let timeStr = seconds < 60

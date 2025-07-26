@@ -98,6 +98,7 @@
     let summaryStats = {};
     let currentRange = '24h';
     let currentDataset = 'uaw';
+	let cachedTxHistory = [];
 
     const chartData = {
   labels: [],
@@ -177,6 +178,8 @@ async function updateSummary(range) {
 }
 
 
+let cachedTxHistory = [];
+
 async function renderTxHistory() {
   try {
     const res = await fetch('https://tarablockscanner-production.up.railway.app/tx_history.json');
@@ -187,44 +190,50 @@ async function renderTxHistory() {
 
     if (latestTxHash === newLatestTxHash) return; // No update needed
 
-    // Update only if something changed
     txHistory = newHistory;
+    cachedTxHistory = [...newHistory]; // Cache successful fetch
 
-    const tableBody = document.getElementById("txHistoryTable");
-
-    // Create a DocumentFragment to minimize reflows
-    const frag = document.createDocumentFragment();
-
-    txHistory.slice(-10).reverse().forEach(tx => {
-      const time = new Date(tx.timestamp * 1000).toISOString().split("T")[1].slice(0, 8) + ' UTC';
-      const fromShort = `${tx.from.slice(0, 6)}...${tx.from.slice(-4)}`;
-      const toShort = `${tx.to.slice(0, 6)}...${tx.to.slice(-4)}`;
-      const hashShort = `${tx.tx_hash.slice(0, 10)}...`;
-
-      const row = document.createElement("tr");
-      row.className = "border-b border-gray-700 hover:bg-gray-700/10 transition";
-
-      row.innerHTML = `
-        <td class="pr-4 py-2 whitespace-nowrap text-gray-300">${time}</td>
-        <td class="pr-4 py-2 break-all">
-          <a href="https://tara.to/address/${tx.from}" class="text-blue-400 hover:underline" title="${tx.from}" target="_blank">${fromShort}</a>
-        </td>
-        <td class="pr-4 py-2 break-all">
-          <a href="https://tara.to/address/${tx.to}" class="text-green-400 hover:underline" title="${tx.to}" target="_blank">${toShort}</a>
-        </td>
-        <td class="pr-4 py-2 break-all">
-          <a href="https://tara.to/tx/0x${tx.tx_hash}" class="text-yellow-300 hover:underline" title="0x${tx.tx_hash}" target="_blank">${hashShort}</a>
-        </td>
-      `;
-
-      frag.appendChild(row);
-    });
-
-    // Replace rows in one go without flicker
-    tableBody.replaceChildren(frag);
   } catch (err) {
-    console.error("Failed to load TX history:", err);
+    console.warn("⚠️ Failed to fetch latest tx history. Using cached data.");
+    if (cachedTxHistory.length === 0) return; // No cache available
+    txHistory = [...cachedTxHistory];
   }
+
+  const tableBody = document.getElementById("txHistoryTable");
+  if (!tableBody) {
+    console.warn("⚠️ txHistoryTable element not found.");
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+
+  txHistory.slice(-10).reverse().forEach(tx => {
+    const time = new Date(tx.timestamp * 1000).toISOString().split("T")[1].slice(0, 8) + ' UTC';
+    const fromShort = `${tx.from.slice(0, 6)}...${tx.from.slice(-4)}`;
+    const toShort = `${tx.to.slice(0, 6)}...${tx.to.slice(-4)}`;
+    const hashShort = `${tx.tx_hash.slice(0, 10)}...`;
+
+    const row = document.createElement("tr");
+    row.className = "border-b border-gray-700 hover:bg-gray-700/10 transition";
+
+    row.innerHTML = `
+      <td class="pr-4 py-2 whitespace-nowrap text-gray-300">${time}</td>
+      <td class="pr-4 py-2 break-all">
+        <a href="https://tara.to/address/${tx.from}" class="text-blue-400 hover:underline" title="${tx.from}" target="_blank">${fromShort}</a>
+      </td>
+      <td class="pr-4 py-2 break-all">
+        <a href="https://tara.to/address/${tx.to}" class="text-green-400 hover:underline" title="${tx.to}" target="_blank">${toShort}</a>
+      </td>
+      <td class="pr-4 py-2 break-all">
+        <a href="https://tara.to/tx/0x${tx.tx_hash}" class="text-yellow-300 hover:underline" title="0x${tx.tx_hash}" target="_blank">${hashShort}</a>
+      </td>
+    `;
+
+    frag.appendChild(row);
+  });
+
+  tableBody.innerHTML = ""; // Clear previous content
+  tableBody.appendChild(frag);
 }
 
 function loadLatestBlock() {

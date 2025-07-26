@@ -84,9 +84,14 @@
                 <th class="py-2 text-left">Hash</th>
               </tr>
             </thead>
-            <tbody id="txHistoryTable" class="divide-y divide-gray-800">
-              <!-- Dynamically filled -->
-            </tbody>
+			<tbody id="txHistoryTable" class="divide-y divide-gray-800">
+            <tr id="loadingRow">
+  <td colspan="4" class="py-4 text-center text-gray-500 flex justify-center items-center gap-2">
+    <div class="h-2 w-2 rounded-full bg-blue-400 animate-ping"></div>
+    Loading latest transactions...
+  </td>
+</tr>
+           </tbody>
           </table>
         </div>
       </section>
@@ -204,6 +209,10 @@ async function renderTxHistory() {
     console.warn("⚠️ txHistoryTable element not found.");
     return;
   }
+
+  // Remove loading row if still present
+const loadingRow = document.getElementById("loadingRow");
+if (loadingRow) loadingRow.remove();
 
   const frag = document.createDocumentFragment();
 

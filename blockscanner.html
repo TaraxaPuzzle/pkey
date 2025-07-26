@@ -1,91 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Taraxa Block Scanner Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white">
-  <div class="max-w-6xl mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6">Taraxa Block Scanner</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Taraxa Scanner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(to right, #0f172a, #1e293b);
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    </style>
+  </head>
+  <body class="text-white">
+    <div class="max-w-7xl mx-auto px-6 py-10">
+      <h1 class="text-4xl font-bold mb-10 text-center tracking-tight">Taraxa Block Scanner</h1>
 
-    <!-- Range Selector -->
-    <div class="flex space-x-2 mb-6">
-      <button onclick="updateSummary('24h')" class="range-btn px-4 py-2 font-medium bg-blue-500 text-white rounded">24h</button>
-      <button onclick="updateSummary('7d')" class="range-btn px-4 py-2 font-medium bg-gray-200 text-gray-800 rounded">7d</button>
-      <button onclick="updateSummary('30d')" class="range-btn px-4 py-2 font-medium bg-gray-200 text-gray-800 rounded">30d</button>
+      <!-- Range Selector -->
+      <div class="flex justify-center space-x-3 mb-8">
+        <button onclick="updateSummary('24h')" class="range-btn px-4 py-2 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 transition shadow-md">24h</button>
+        <button onclick="updateSummary('7d')" class="range-btn px-4 py-2 rounded-lg font-medium bg-gray-700 hover:bg-gray-600 transition shadow-md">7d</button>
+        <button onclick="updateSummary('30d')" class="range-btn px-4 py-2 rounded-lg font-medium bg-gray-700 hover:bg-gray-600 transition shadow-md">30d</button>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="glass p-6 rounded-xl shadow-xl">
+          <h2 class="text-lg font-semibold text-gray-300 mb-1">Unique Wallets</h2>
+          <p id="uawTotal" class="text-3xl font-bold text-blue-400">--</p>
+          <p id="uawRange" class="text-sm text-gray-400 mt-1">Last 24h</p>
+        </div>
+        <div class="glass p-6 rounded-xl shadow-xl">
+          <h2 class="text-lg font-semibold text-gray-300 mb-1">TPS</h2>
+          <p id="tpsTotal" class="text-3xl font-bold text-green-400">--</p>
+          <p id="tpsRange" class="text-sm text-gray-400 mt-1">Last 24h</p>
+        </div>
+        <div class="glass p-6 rounded-xl shadow-xl">
+          <h2 class="text-lg font-semibold text-gray-300 mb-1">Transactions</h2>
+          <p id="txcountTotal" class="text-3xl font-bold text-yellow-300">--</p>
+          <p id="txcountRange" class="text-sm text-gray-400 mt-1">Last 24h</p>
+        </div>
+      </div>
+
+      <!-- LIVE Block Info -->
+      <div class="glass px-6 py-5 rounded-xl shadow-lg flex flex-wrap justify-between items-center border-l-4 border-red-500 mb-10 relative">
+        <div class="absolute top-3 left-5 flex items-center gap-2">
+          <div class="h-2.5 w-2.5 rounded-full bg-red-500 animate-ping"></div>
+          <span class="text-xs font-semibold text-red-400">LIVE</span>
+        </div>
+        <div class="pl-24 grid grid-cols-2 sm:grid-cols-4 gap-6 w-full text-sm">
+          <div><span class="text-gray-400">Block:</span> <span id="latestBlockNumber">--</span></div>
+          <div><span class="text-gray-400">TXs:</span> <span id="latestBlockTxs">--</span></div>
+          <div><span class="text-gray-400">Timestamp:</span> <span id="latestBlockTimestamp">--</span></div>
+          <div><span class="text-gray-400">⏱️ Ago:</span> <span id="latestBlockTimeAgo">--</span></div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="glass p-6 rounded-xl shadow-lg mb-10">
+        <div class="flex justify-between items-center mb-4">
+          <h2 id="chartTitle" class="text-xl font-semibold text-white">Activity Chart - Last 24h</h2>
+          <div class="flex">
+            <button id="btn-uaw" onclick="showDataset('uaw')" class="px-4 py-1.5 rounded-l bg-blue-600 text-white hover:bg-blue-700">UAW</button>
+            <button id="btn-txcount" onclick="showDataset('txcount')" class="px-4 py-1.5 rounded-r bg-gray-700 text-white hover:bg-gray-600">TX Count</button>
+          </div>
+        </div>
+        <canvas id="activityChart" class="w-full h-80"></canvas>
+      </div>
+
+      <!-- Transactions Table -->
+      <div class="glass p-6 rounded-xl shadow-lg">
+        <h2 class="text-xl font-semibold text-white mb-4">Latest Transactions</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr class="text-left text-gray-400 border-b border-gray-700">
+                <th class="py-2">Time</th>
+                <th class="py-2">From</th>
+                <th class="py-2">To</th>
+                <th class="py-2">Hash</th>
+              </tr>
+            </thead>
+            <tbody id="txHistoryTable">
+              <!-- Dynamically filled -->
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-
-    <!-- Summary Section -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-      <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
-        <h2 class="text-lg font-semibold mb-2">Unique Active Wallets</h2>
-        <p id="uawTotal" class="text-2xl font-bold">--</p>
-        <span id="uawRange" class="text-sm text-gray-500">Last 24h</span>
-      </div>
-      <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
-        <h2 class="text-lg font-semibold mb-2">TPS</h2>
-        <p id="tpsTotal" class="text-2xl font-bold">--</p>
-        <span id="tpsRange" class="text-sm text-gray-500">Last 24h</span>
-      </div>
-      <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
-        <h2 class="text-lg font-semibold mb-2">Transaction Count</h2>
-        <p id="txcountTotal" class="text-2xl font-bold">--</p>
-        <span id="txcountRange" class="text-sm text-gray-500">Last 24h</span>
-      </div>
-    </div>
-	
-	<!-- Compact Latest Block Display with LIVE Indicator -->
-<div class="bg-white dark:bg-gray-800 rounded-xl px-6 py-4 shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-l-4 border-red-500 relative">
-
-  <!-- LIVE Dot -->
-  <div class="absolute top-3 left-4 flex items-center gap-2">
-    <div class="h-2.5 w-2.5 rounded-full bg-red-500 animate-ping"></div>
-    <span class="text-xs font-semibold text-red-500">LIVE</span>
-  </div>
-
-  <!-- Block Info -->
-  <div class="pl-20 sm:pl-24 flex flex-wrap gap-6 sm:gap-10 text-sm text-gray-800 dark:text-gray-100">
-    <div><strong>Block:</strong> <span id="latestBlockNumber">--</span></div>
-    <div><strong>TXs:</strong> <span id="latestBlockTxs">--</span></div>
-    <div><strong>Timestamp:</strong> <span id="latestBlockTimestamp">--</span></div>
-    <div><strong>⏱️ Ago:</strong> <span id="latestBlockTimeAgo">--</span></div>
-  </div>
-
-</div>
-
-    <!-- Chart Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow mb-10">
-      <h2 id="chartTitle" class="text-xl font-semibold mb-4">Activity Chart - Last 24h</h2>
-      <div class="mb-4 flex">
-        <button id="btn-uaw" onclick="showDataset('uaw')" class="px-4 py-2 font-medium rounded-l bg-blue-500 text-white">UAW</button>
-        <button id="btn-txcount" onclick="showDataset('txcount')" class="px-4 py-2 font-medium rounded-r bg-gray-200 text-gray-800">TX Count</button>
-      </div>
-      <canvas id="activityChart" class="w-full h-96"></canvas>
-    </div>
-
-    <!-- Latest Transactions Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow mb-10">
-      <h2 class="text-xl font-semibold mb-4">Latest Transactions</h2>
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm text-left text-gray-300">
-          <thead>
-            <tr class="border-b border-gray-600 text-gray-400">
-              <th class="pr-4 py-2">Time</th>
-              <th class="pr-4 py-2">From</th>
-              <th class="pr-4 py-2">To</th>
-              <th class="pr-4 py-2">TX Hash</th>
-            </tr>
-          </thead>
-          <tbody id="txHistoryTable">
-            <!-- Filled dynamically -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
 
   <script>
     let txHistory = [];
@@ -122,7 +130,7 @@
       }
     });
 
-    function showDataset(key) {
+function showDataset(key) {
       currentDataset = key;
       activityChart.data.datasets = [chartData.datasets[key]];
       activityChart.update();
@@ -139,7 +147,7 @@
       });
     }
 
-    async function updateSummary(range) {
+async function updateSummary(range) {
   currentRange = range;
 
   try {
@@ -227,7 +235,7 @@ async function renderTxHistory() {
   }
 }
 
-    function loadLatestBlock() {
+function loadLatestBlock() {
       fetch('https://tarablockscanner-production.up.railway.app/latest_block')
         .then(res => res.json())
         .then(data => {
@@ -248,7 +256,7 @@ async function renderTxHistory() {
         .catch(err => console.error("Block fetch error", err));
     }
 
-    async function initializeDashboard() {
+async function initializeDashboard() {
       try {
         const [statsRes, txRes] = await Promise.all([
           fetch('https://tarablockscanner-production.up.railway.app/daily_activity.json'),
@@ -271,6 +279,8 @@ async function renderTxHistory() {
     }
 
     initializeDashboard();
+	
   </script>
+  
 </body>
 </html>

@@ -25,8 +25,6 @@
       <!-- Range Selector -->
       <div class="flex justify-center space-x-3 mb-8">
         <button onclick="updateSummary('24h')" class="range-btn px-4 py-2 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 transition shadow-md">24h</button>
-        <button onclick="updateSummary('7d')" class="range-btn px-4 py-2 rounded-lg font-medium bg-gray-700 hover:bg-gray-600 transition shadow-md">7d</button>
-        <button onclick="updateSummary('30d')" class="range-btn px-4 py-2 rounded-lg font-medium bg-gray-700 hover:bg-gray-600 transition shadow-md">30d</button>
       </div>
 
       <!-- Summary Cards -->
@@ -170,20 +168,10 @@ async function updateSummary(range) {
     document.getElementById("tpsTotal").textContent = stats.tps.toFixed(2);
     document.getElementById("txcountTotal").textContent = stats.txcount.toLocaleString();
 
-    document.getElementById("uawRange").textContent = `Last ${range}`;
-    document.getElementById("tpsRange").textContent = `Last ${range}`;
-    document.getElementById("txcountRange").textContent = `Last ${range}`;
-    document.getElementById("chartTitle").textContent = `Activity Chart - Last ${range}`;
-
-    document.querySelectorAll(".range-btn").forEach(btn => {
-      if (btn.textContent === range) {
-        btn.classList.add("bg-blue-500", "text-white");
-        btn.classList.remove("bg-gray-200", "text-gray-800");
-      } else {
-        btn.classList.add("bg-gray-200", "text-gray-800");
-        btn.classList.remove("bg-blue-500", "text-white");
-      }
-    });
+    document.getElementById("uawRange").textContent = "Last 24h";
+    document.getElementById("tpsRange").textContent = "Last 24h";
+    document.getElementById("txcountRange").textContent = "Last 24h";
+    document.getElementById("chartTitle").textContent = "Activity Chart - Last 24h";
   } catch (err) {
     console.error("Failed to update summary:", err);
   }

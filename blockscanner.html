@@ -184,7 +184,16 @@
 async function renderTxHistory() {
   try {
     const res = await fetch('https://tarablockscanner-production.up.railway.app/tx_history.json');
-    txHistory = await res.json();
+    const newHistory = await res.json();
+
+    // If the content didn't change, skip re-rendering
+    const latestTxHash = txHistory.length > 0 ? txHistory[txHistory.length - 1].tx_hash : null;
+    const newLatestTxHash = newHistory.length > 0 ? newHistory[newHistory.length - 1].tx_hash : null;
+
+    if (latestTxHash === newLatestTxHash) return;
+
+    // Update the cached txHistory
+    txHistory = newHistory;
 
     const table = document.getElementById("txHistoryTable");
     table.innerHTML = "";
@@ -217,8 +226,6 @@ async function renderTxHistory() {
     console.error("Failed to load TX history:", err);
   }
 }
-
-
 
     function loadLatestBlock() {
       fetch('https://tarablockscanner-production.up.railway.app/latest_block')

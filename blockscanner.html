@@ -178,9 +178,6 @@ async function updateSummary(range) {
   }
 }
 
-
-let cachedTxHistory = [];
-
 async function renderTxHistory() {
   try {
     const res = await fetch('https://tarablockscanner-production.up.railway.app/tx_history.json');

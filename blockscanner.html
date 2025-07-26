@@ -44,7 +44,18 @@
         </div>
       </section>
 
-<!-- LIVE Status Panel (Top-Right Layout Block) -->
+      <section class="glass p-6 rounded-2xl shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+          <h2 id="chartTitle" class="text-lg font-semibold">Activity Chart - Last 24h</h2>
+          <div class="flex rounded overflow-hidden border border-white/10">
+            <button id="btn-uaw" onclick="showDataset('uaw')" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 transition">UAW</button>
+            <button id="btn-txcount" onclick="showDataset('txcount')" class="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 transition">TX Count</button>
+          </div>
+        </div>
+        <canvas id="activityChart" class="w-full h-80"></canvas>
+      </section>
+	  
+	  <!-- LIVE Status Panel (Top-Right Layout Block) -->
 <div class="flex justify-end">
   <div class="space-y-1 text-xs sm:text-sm w-[260px]">
     <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-400 backdrop-blur-md border border-red-500/20 shadow-sm">
@@ -60,17 +71,6 @@
     </div>
   </div>
 </div>
-
-      <section class="glass p-6 rounded-2xl shadow-xl">
-        <div class="flex justify-between items-center mb-4">
-          <h2 id="chartTitle" class="text-lg font-semibold">Activity Chart - Last 24h</h2>
-          <div class="flex rounded overflow-hidden border border-white/10">
-            <button id="btn-uaw" onclick="showDataset('uaw')" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 transition">UAW</button>
-            <button id="btn-txcount" onclick="showDataset('txcount')" class="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 transition">TX Count</button>
-          </div>
-        </div>
-        <canvas id="activityChart" class="w-full h-80"></canvas>
-      </section>
 
       <section class="glass p-6 rounded-2xl shadow-xl">
         <h2 class="text-lg font-semibold mb-4">Latest Transactions</h2>

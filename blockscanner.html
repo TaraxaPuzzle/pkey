@@ -139,69 +139,85 @@
       });
     }
 
-    function updateSummary(range) {
-      currentRange = range;
-      const stats = summaryStats[range];
-	  if (!stats) return;
-	  if (stats.chart) {
-  chartData.labels = stats.chart.labels;
-  chartData.datasets.uaw.data = stats.chart.uaw;
-  chartData.datasets.txcount.data = stats.chart.txcount;
-  activityChart.data.labels = chartData.labels;
-  activityChart.data.datasets = [chartData.datasets[currentDataset]];
-  activityChart.update();
-}
+    async function updateSummary(range) {
+  currentRange = range;
 
-      document.getElementById("uawTotal").textContent = stats.uaw.toLocaleString();
-      document.getElementById("tpsTotal").textContent = stats.tps.toFixed(2);
-      document.getElementById("txcountTotal").textContent = stats.txcount.toLocaleString();
+  try {
+    const res = await fetch('https://tarablockscanner-production.up.railway.app/daily_activity.json');
+    summaryStats = await res.json();
+    const stats = summaryStats[range];
+    if (!stats) return;
 
-      document.getElementById("uawRange").textContent = `Last ${range}`;
-      document.getElementById("tpsRange").textContent = `Last ${range}`;
-      document.getElementById("txcountRange").textContent = `Last ${range}`;
-      document.getElementById("chartTitle").textContent = `Activity Chart - Last ${range}`;
-
-      document.querySelectorAll(".range-btn").forEach(btn => {
-        if (btn.textContent === range) {
-          btn.classList.add("bg-blue-500", "text-white");
-          btn.classList.remove("bg-gray-200", "text-gray-800");
-        } else {
-          btn.classList.add("bg-gray-200", "text-gray-800");
-          btn.classList.remove("bg-blue-500", "text-white");
-        }
-      });
+    if (stats.chart) {
+      chartData.labels = stats.chart.labels;
+      chartData.datasets.uaw.data = stats.chart.uaw;
+      chartData.datasets.txcount.data = stats.chart.txcount;
+      activityChart.data.labels = chartData.labels;
+      activityChart.data.datasets = [chartData.datasets[currentDataset]];
+      activityChart.update();
     }
 
-function renderTxHistory() {
-  if (!Array.isArray(txHistory) || txHistory.length === 0) return;
-  const table = document.getElementById("txHistoryTable");
-  table.innerHTML = "";
+    document.getElementById("uawTotal").textContent = stats.uaw.toLocaleString();
+    document.getElementById("tpsTotal").textContent = stats.tps.toFixed(2);
+    document.getElementById("txcountTotal").textContent = stats.txcount.toLocaleString();
 
-  txHistory.slice(-10).reverse().forEach(tx => {
-    const time = new Date(tx.timestamp * 1000).toLocaleTimeString();
-    const fromShort = `${tx.from.slice(0, 6)}...${tx.from.slice(-4)}`;
-    const toShort = `${tx.to.slice(0, 6)}...${tx.to.slice(-4)}`;
-    const hashShort = `${tx.tx_hash.slice(0, 10)}...`;
+    document.getElementById("uawRange").textContent = `Last ${range}`;
+    document.getElementById("tpsRange").textContent = `Last ${range}`;
+    document.getElementById("txcountRange").textContent = `Last ${range}`;
+    document.getElementById("chartTitle").textContent = `Activity Chart - Last ${range}`;
 
-    const row = document.createElement("tr");
-    row.className = "border-b border-gray-700 hover:bg-gray-700/10 transition";
-
-    row.innerHTML = `
-      <td class="pr-4 py-2 whitespace-nowrap text-gray-300">${time}</td>
-      <td class="pr-4 py-2 break-all">
-        <a href="https://tara.to/address/${tx.from}" class="text-blue-400 hover:underline" title="${tx.from}" target="_blank">${fromShort}</a>
-      </td>
-      <td class="pr-4 py-2 break-all">
-        <a href="https://tara.to/address/${tx.to}" class="text-green-400 hover:underline" title="${tx.to}" target="_blank">${toShort}</a>
-      </td>
-      <td class="pr-4 py-2 break-all">
-        <a href="https://tara.to/tx/0x${tx.tx_hash}" class="text-yellow-300 hover:underline" title="0x${tx.tx_hash}" target="_blank">${hashShort}</a>
-      </td>
-    `;
-
-    table.appendChild(row);
-  });
+    document.querySelectorAll(".range-btn").forEach(btn => {
+      if (btn.textContent === range) {
+        btn.classList.add("bg-blue-500", "text-white");
+        btn.classList.remove("bg-gray-200", "text-gray-800");
+      } else {
+        btn.classList.add("bg-gray-200", "text-gray-800");
+        btn.classList.remove("bg-blue-500", "text-white");
+      }
+    });
+  } catch (err) {
+    console.error("Failed to update summary:", err);
+  }
 }
+
+
+async function renderTxHistory() {
+  try {
+    const res = await fetch('https://tarablockscanner-production.up.railway.app/tx_history.json');
+    txHistory = await res.json();
+
+    const table = document.getElementById("txHistoryTable");
+    table.innerHTML = "";
+
+    txHistory.slice(-10).reverse().forEach(tx => {
+      const time = new Date(tx.timestamp * 1000).toLocaleTimeString();
+      const fromShort = `${tx.from.slice(0, 6)}...${tx.from.slice(-4)}`;
+      const toShort = `${tx.to.slice(0, 6)}...${tx.to.slice(-4)}`;
+      const hashShort = `${tx.tx_hash.slice(0, 10)}...`;
+
+      const row = document.createElement("tr");
+      row.className = "border-b border-gray-700 hover:bg-gray-700/10 transition";
+
+      row.innerHTML = `
+        <td class="pr-4 py-2 whitespace-nowrap text-gray-300">${time}</td>
+        <td class="pr-4 py-2 break-all">
+          <a href="https://tara.to/address/${tx.from}" class="text-blue-400 hover:underline" title="${tx.from}" target="_blank">${fromShort}</a>
+        </td>
+        <td class="pr-4 py-2 break-all">
+          <a href="https://tara.to/address/${tx.to}" class="text-green-400 hover:underline" title="${tx.to}" target="_blank">${toShort}</a>
+        </td>
+        <td class="pr-4 py-2 break-all">
+          <a href="https://tara.to/tx/0x${tx.tx_hash}" class="text-yellow-300 hover:underline" title="0x${tx.tx_hash}" target="_blank">${hashShort}</a>
+        </td>
+      `;
+
+      table.appendChild(row);
+    });
+  } catch (err) {
+    console.error("Failed to load TX history:", err);
+  }
+}
+
 
 
     function loadLatestBlock() {
@@ -237,7 +253,11 @@ function renderTxHistory() {
         updateSummary('24h');
         renderTxHistory();
         loadLatestBlock();
-        setInterval(loadLatestBlock, 1500);
+        setInterval(() => {
+         loadLatestBlock();
+         updateSummary(currentRange);
+         renderTxHistory();
+    }, 2000);
       } catch (err) {
         console.error("Initialization failed:", err);
       }

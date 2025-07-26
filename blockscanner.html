@@ -26,20 +26,21 @@
         <p class="text-gray-400 mt-2">By <span class="font-semibold text-white">pkey.quest</span></p>
       </header>
 	  
-	      <!-- Embedded LIVE Panel -->
-    <div class="space-y-2">
-      <div class="flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-red-500/10 text-red-400 backdrop-blur-sm border border-red-500/20 shadow-sm">
-        <div class="h-2 w-2 rounded-full bg-red-500 animate-ping"></div>
-        LIVE
-      </div>
-      <div class="glass p-4 rounded-xl shadow-lg grid grid-cols-2 gap-3 text-xs sm:text-sm w-[280px]">
-        <div><span class="text-gray-400">Block:</span> <span id="latestBlockNumber">--</span></div>
-        <div><span class="text-gray-400">TXs:</span> <span id="latestBlockTxs">--</span></div>
-        <div><span class="text-gray-400">Timestamp:</span> <span id="latestBlockTimestamp">--</span></div>
-        <div><span class="text-gray-400">Ago:</span> <span id="latestBlockTimeAgo">--</span></div>
-        <div class="col-span-2"><span class="text-gray-400">Real-Time TPS:</span> <span id="liveTPS">--</span></div>
-      </div>
+  <!-- Right: LIVE Panel -->
+  <div class="space-y-2 text-right">
+    <div class="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-red-500/10 text-red-400 backdrop-blur-sm border border-red-500/20 shadow-sm">
+      <div class="h-2 w-2 rounded-full bg-red-500 animate-ping"></div>
+      LIVE
     </div>
+    <div class="glass p-4 rounded-xl shadow-lg grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:text-sm w-[280px]">
+      <div><span class="text-gray-400">Block:</span> <span id="latestBlockNumber">--</span></div>
+      <div><span class="text-gray-400">TXs:</span> <span id="latestBlockTxs">--</span></div>
+      <div class="col-span-2"><span class="text-gray-400">Timestamp:</span> <span id="latestBlockTimestamp">--</span></div>
+      <div><span class="text-gray-400">Ago:</span> <span id="latestBlockTimeAgo">--</span></div>
+      <div><span class="text-gray-400">Real-Time TPS:</span> <span id="liveTPS">--</span></div>
+    </div>
+  </div>
+</div>
 
       <section class="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div class="glass p-6 rounded-2xl shadow-lg">

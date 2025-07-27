@@ -4,25 +4,59 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Puzzle #10 - pkey.quest</title>
-	<link rel="icon" type="image/png" href="favicon.png.png" />
+    <link rel="icon" type="image/png" href="favicon.png.png" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="/favicon.png" />
   </head>
   <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
-    <div class="text-center space-y-6">
+    <div class="text-center space-y-6 max-w-2xl mx-auto">
       <h1 class="text-4xl font-bold text-green-400">Congratulations</h1>
       <p class="text-xl text-gray-300">You have found <span class="text-white font-semibold">Puzzle #10</span>.</p>
       <p class="text-md text-gray-400">Continue to solve the key...</p>
       <p class="text-lg font-medium text-blue-300">Good luck 🧠🔑</p>
-	  
-<div class="mt-8">
-  <label for="clueBox" class="block text-sm text-gray-400 mb-2">Key Sequence:</label>
-  <textarea id="clueBox" readonly rows="3"
-    class="w-full max-w-xl mx-auto p-3 text-green-400 bg-gray-800 rounded border border-gray-700 text-sm resize-none focus:outline-none focus:ring-0">
-060706070407070620560706070707060504062007000606070
-  </textarea>
-</div>
-	  
+
+      <div class="mt-8 space-y-4">
+        <label for="clueBox" class="block text-sm text-gray-400">Key Sequence:</label>
+        <textarea id="clueBox" readonly rows="3"
+          class="w-full p-3 text-green-400 bg-gray-800 rounded border border-gray-700 text-sm resize-none focus:outline-none focus:ring-0">
+20557848303115759349087061362901622605204662110277159319921736465844270561688
+        </textarea>
+
+        <div class="flex items-center justify-center gap-4">
+          <button onclick="obfuscate()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 text-sm">Obfuscate</button>
+          <button onclick="decode()" class="bg-yellow-600 px-4 py-2 rounded hover:bg-yellow-700 text-sm">Decode</button>
+        </div>
+
+        <textarea id="resultBox" readonly rows="3"
+          class="w-full p-3 text-purple-300 bg-gray-800 rounded border border-gray-700 text-sm resize-none focus:outline-none focus:ring-0"
+          placeholder="Result appears here..."></textarea>
+      </div>
     </div>
+
+    <script>
+      const original = document.getElementById("clueBox").value.trim();
+      const resultBox = document.getElementById("resultBox");
+
+      const asciiNonDigits = [...Array(127).keys()]
+        .map(i => String.fromCharCode(i))
+        .filter(c => !/\d/.test(c) && c.trim().length > 0);
+
+      function obfuscate() {
+        let obfuscated = '';
+        for (let char of original) {
+          const noise = asciiNonDigits[Math.floor(Math.random() * asciiNonDigits.length)];
+          obfuscated += char + noise;
+        }
+        resultBox.value = obfuscated;
+      }
+
+      function decode() {
+        const input = resultBox.value;
+        let digitsOnly = '';
+        for (let i = 0; i < input.length; i += 2) {
+          digitsOnly += input[i];
+        }
+        resultBox.value = digitsOnly;
+      }
+    </script>
   </body>
 </html>

@@ -160,42 +160,25 @@ function showDataset(key) {
 
 async function updateSummary(range) {
   currentRange = range;
+
   try {
-    // Fetch both
-    const [liveData, prunedData] = await Promise.all([
-      fetchJSON('https://tarablockscanner-production.up.railway.app/daily_activity.json'),
-      fetchJSON('https://tarablockscanner-production.up.railway.app/pruned_buckets.json')
-    ]);
-    summaryStats = liveData;
+    const res = await fetch('https://tarablockscanner-production.up.railway.app/daily_activity.json');
+    summaryStats = await res.json();
     const stats = summaryStats[range];
     if (!stats) return;
 
-    // Get pruned chart data if available
-    const prunedChart = prunedData[range]?.chart || {};
-    const liveChart = stats.chart || {};
+    if (stats.chart) {
+      chartData.labels = stats.chart.labels;
+      chartData.datasets.uaw.data = stats.chart.uaw;
+      chartData.datasets.txcount.data = stats.chart.txcount;
+      activityChart.data.labels = chartData.labels;
+      activityChart.data.datasets = [chartData.datasets[currentDataset]];
+      activityChart.update();
+    }
 
-    // Combine buckets
-    const labels = liveChart.labels || prunedChart.labels || [];
-    const liveUAW = liveChart.uaw || Array(labels.length).fill(0);
-    const prunedUAW = prunedChart.uaw || Array(labels.length).fill(0);
-    const liveTX = liveChart.txcount || Array(labels.length).fill(0);
-    const prunedTX = prunedChart.txcount || Array(labels.length).fill(0);
-
-    // Combined
-    const totalUAW = sumArrays(liveUAW, prunedUAW);
-    const totalTX = sumArrays(liveTX, prunedTX);
-
-    chartData.labels = labels;
-    chartData.datasets.uaw.data = totalUAW;
-    chartData.datasets.txcount.data = totalTX;
-    activityChart.data.labels = chartData.labels;
-    activityChart.data.datasets = [chartData.datasets[currentDataset]];
-    activityChart.update();
-
-    // Sum up totals for card display (total = sum of all buckets)
-    document.getElementById("uawTotal").textContent = totalUAW.reduce((a, b) => a + b, 0).toLocaleString();
-    document.getElementById("tpsTotal").textContent = stats.tps.toFixed(2); // (Keep live TPS)
-    document.getElementById("txcountTotal").textContent = totalTX.reduce((a, b) => a + b, 0).toLocaleString();
+    document.getElementById("uawTotal").textContent = stats.uaw.toLocaleString();
+    document.getElementById("tpsTotal").textContent = stats.tps.toFixed(2);
+    document.getElementById("txcountTotal").textContent = stats.txcount.toLocaleString();
 
     document.getElementById("uawRange").textContent = "Last 24h";
     document.getElementById("tpsRange").textContent = "Last 24h";
@@ -205,7 +188,6 @@ async function updateSummary(range) {
     console.error("Failed to update summary:", err);
   }
 }
-
 
 async function renderTxHistory() {
   try {

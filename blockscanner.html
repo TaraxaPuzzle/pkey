@@ -109,6 +109,7 @@
     let currentRange = '24h';
     let currentDataset = 'uaw';
 	let cachedTxHistory = [];
+	let lastLiveTPS = null;
 
     const chartData = {
   labels: [],
@@ -266,7 +267,14 @@ function loadLatestBlock() {
           : `${Math.floor(seconds / 3600)}h ago`;
       document.getElementById("latestBlockTimeAgo").textContent = timeStr;
 
-      document.getElementById("liveTPS").textContent = data.realtime_tps?.toFixed(2) || '--';
+     const rawTPS = data.realtime_tps;
+if (typeof rawTPS === 'number') {
+  const currentTPS = rawTPS.toFixed(2);
+  if (currentTPS !== lastLiveTPS) {
+    document.getElementById("liveTPS").textContent = currentTPS;
+    lastLiveTPS = currentTPS;
+  }
+}
     })
     .catch(err => console.error("Block fetch error", err));
 }

@@ -52,7 +52,7 @@
             <div><span class="text-gray-500">Txs:</span> <span id="latestBlockTxs">--</span></div>
             <div class="col-span-2"><span class="text-gray-500">Time:</span> <span id="latestBlockTimestamp">--</span></div>
             <div><span class="text-gray-500">Ago:</span> <span id="latestBlockTimeAgo">--</span></div>
-            <div><span class="text-gray-500">TPS:</span> <span id="liveTPS">--</span></div>
+            <div><span class="text-gray-500">Real Time TPS:</span> <span id="liveTPS">--</span></div>
           </div>
         </div>
       </section>
@@ -249,7 +249,7 @@ if (loadingRow) loadingRow.remove();
 }
 
 function loadLatestBlock() {
-  fetch('https://tarablockscanner-production.up.railway.app/latest_block')
+  fetch('https://tarablockscanner-production.up.railway.app/live_ticker.json')
     .then(res => res.json())
     .then(data => {
       document.getElementById("latestBlockNumber").textContent = data.block_number || '--';
@@ -265,10 +265,11 @@ function loadLatestBlock() {
           ? `${Math.floor(seconds / 60)}m ago`
           : `${Math.floor(seconds / 3600)}h ago`;
       document.getElementById("latestBlockTimeAgo").textContent = timeStr;
+
+      document.getElementById("liveTPS").textContent = data.realtime_tps?.toFixed(2) || '--';
     })
     .catch(err => console.error("Block fetch error", err));
 }
-
 
 async function initializeDashboard() {
   try {

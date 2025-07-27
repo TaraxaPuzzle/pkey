@@ -178,7 +178,6 @@ async function updateSummary(range) {
     document.getElementById("uawTotal").textContent = stats.uaw.toLocaleString();
     document.getElementById("tpsTotal").textContent = stats.tps.toFixed(2);
     document.getElementById("txcountTotal").textContent = stats.txcount.toLocaleString();
-	document.getElementById("liveTPS").textContent = stats.realtime_tps?.toFixed(2) || '--';
 
     document.getElementById("uawRange").textContent = "Last 24h";
     document.getElementById("tpsRange").textContent = "Last 24h";

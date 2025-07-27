@@ -15,31 +15,26 @@
       <p class="text-lg font-medium text-blue-300">Good luck 🧠🔑</p>
 
       <div class="mt-8 space-y-4">
-        <label for="clueBox" class="block text-sm text-gray-400">Key Sequence:</label>
-        <textarea id="clueBox" readonly rows="9"
-  class="w-full p-4 text-green-400 bg-gray-800 rounded border border-gray-700 text-sm resize-none focus:outline-none focus:ring-0 font-mono tracking-wide"
-  placeholder="Generating..."></textarea>
+        <label for="outputBox" class="block text-sm text-gray-400">Key Sequence:</label>
+        <textarea id="outputBox" readonly rows="4"
+          class="w-full p-4 text-green-400 bg-gray-800 rounded border border-gray-700 text-sm resize-none focus:outline-none focus:ring-0"
+          placeholder="Generating..."></textarea>
       </div>
     </div>
 
     <script>
-      const raw = "20557848303115759349087061362901622605204662110277159319921736465844270561688";
+      const encoded = "MjA1NTc4NDgzMDMxMTU3NTkzNDkwODcwNjEzNjI5MDE2MjI2MDUyMDQ2NjIxMTAyNzcxNTkzMTk5MjE3MzY0NjU4NDQyNzA1NjE2ODg=";
+      const message = atob(encoded);
 
-      const asciiNonDigits = [...Array(127).keys()]
+      const maskChars = [...Array(127).keys()]
         .map(i => String.fromCharCode(i))
         .filter(c => !/\d/.test(c) && c.trim().length > 0);
 
-      function obfuscate(input) {
-        let obfuscated = '';
-        for (let char of input) {
-          const noise = asciiNonDigits[Math.floor(Math.random() * asciiNonDigits.length)];
-          obfuscated += char + noise;
-        }
-        return obfuscated;
+      function mix(input) {
+        return [...input].map(c => c + maskChars[Math.floor(Math.random() * maskChars.length)]).join('');
       }
 
-      document.getElementById("clueBox").value = obfuscate(raw);
+      document.getElementById("outputBox").value = mix(message);
     </script>
   </body>
 </html>
-

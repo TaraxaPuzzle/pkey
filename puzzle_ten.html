@@ -17,46 +17,28 @@
       <div class="mt-8 space-y-4">
         <label for="clueBox" class="block text-sm text-gray-400">Key Sequence:</label>
         <textarea id="clueBox" readonly rows="3"
-          class="w-full p-3 text-green-400 bg-gray-800 rounded border border-gray-700 text-sm resize-none focus:outline-none focus:ring-0">
-20557848303115759349087061362901622605204662110277159319921736465844270561688
-        </textarea>
-
-        <div class="flex items-center justify-center gap-4">
-          <button onclick="obfuscate()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 text-sm">Obfuscate</button>
-          <button onclick="decode()" class="bg-yellow-600 px-4 py-2 rounded hover:bg-yellow-700 text-sm">Decode</button>
-        </div>
-
-        <textarea id="resultBox" readonly rows="3"
-          class="w-full p-3 text-purple-300 bg-gray-800 rounded border border-gray-700 text-sm resize-none focus:outline-none focus:ring-0"
-          placeholder="Result appears here..."></textarea>
+          class="w-full p-3 text-green-400 bg-gray-800 rounded border border-gray-700 text-sm resize-none focus:outline-none focus:ring-0"
+          placeholder="Generating..."></textarea>
       </div>
     </div>
 
     <script>
-      const original = document.getElementById("clueBox").value.trim();
-      const resultBox = document.getElementById("resultBox");
+      const raw = "20557848303115759349087061362901622605204662110277159319921736465844270561688";
 
       const asciiNonDigits = [...Array(127).keys()]
         .map(i => String.fromCharCode(i))
         .filter(c => !/\d/.test(c) && c.trim().length > 0);
 
-      function obfuscate() {
+      function obfuscate(input) {
         let obfuscated = '';
-        for (let char of original) {
+        for (let char of input) {
           const noise = asciiNonDigits[Math.floor(Math.random() * asciiNonDigits.length)];
           obfuscated += char + noise;
         }
-        resultBox.value = obfuscated;
+        return obfuscated;
       }
 
-      function decode() {
-        const input = resultBox.value;
-        let digitsOnly = '';
-        for (let i = 0; i < input.length; i += 2) {
-          digitsOnly += input[i];
-        }
-        resultBox.value = digitsOnly;
-      }
+      document.getElementById("clueBox").value = obfuscate(raw);
     </script>
   </body>
 </html>

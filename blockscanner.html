@@ -177,6 +177,7 @@ async function updateSummary(range) {
     document.getElementById("uawTotal").textContent = stats.uaw.toLocaleString();
     document.getElementById("tpsTotal").textContent = stats.tps.toFixed(2);
     document.getElementById("txcountTotal").textContent = stats.txcount.toLocaleString();
+	document.getElementById("liveTPS").textContent = stats.realtime_tps?.toFixed(2) || '--';
 
     document.getElementById("uawRange").textContent = "Last 24h";
     document.getElementById("tpsRange").textContent = "Last 24h";
@@ -189,7 +190,7 @@ async function updateSummary(range) {
 
 async function renderTxHistory() {
   try {
-    const res = await fetch('https://tarablockscanner-production.up.railway.app/tx_history.json');
+    const res = await fetch('https://tarablockscanner-production.up.railway.app/tx_latest.json');
     const newHistory = await res.json();
 
     const latestTxHash = txHistory.length > 0 ? txHistory[txHistory.length - 1].tx_hash : null;
@@ -218,7 +219,7 @@ if (loadingRow) loadingRow.remove();
 
   const frag = document.createDocumentFragment();
 
-  txHistory.slice(-10).reverse().forEach(tx => {
+  txHistory.reverse().forEach(tx => {
     const time = new Date(tx.timestamp * 1000).toISOString().split("T")[1].slice(0, 8) + ' UTC';
     const fromShort = `${tx.from.slice(0, 6)}...${tx.from.slice(-4)}`;
     const toShort = `${tx.to.slice(0, 6)}...${tx.to.slice(-4)}`;
@@ -266,43 +267,22 @@ function loadLatestBlock() {
       document.getElementById("latestBlockTimeAgo").textContent = timeStr;
     })
     .catch(err => console.error("Block fetch error", err));
-
-  // ⏱️ Fetch Realtime TPS
-  fetch('https://tarablockscanner-production.up.railway.app/daily_activity.json')
-    .then(res => res.json())
-    .then(stats => {
-      const tps = stats.realtime_tps;
-      if (typeof tps !== 'undefined') {
-        document.getElementById("liveTPS").textContent = tps.toFixed(2);
-      } else {
-        document.getElementById("liveTPS").textContent = '--';
-      }
-    })
-    .catch(err => console.error("TPS fetch error", err));
 }
 
 
 async function initializeDashboard() {
-      try {
-        const [statsRes, txRes] = await Promise.all([
-          fetch('https://tarablockscanner-production.up.railway.app/daily_activity.json'),
-          fetch('https://tarablockscanner-production.up.railway.app/tx_history.json')
-        ]);
-        summaryStats = await statsRes.json();
-        txHistory = await txRes.json();
-
-        updateSummary('24h');
-        renderTxHistory();
-        loadLatestBlock();
-        setInterval(() => {
-         loadLatestBlock();
-         updateSummary(currentRange);
-         renderTxHistory();
+  try {
+    renderTxHistory();
+    loadLatestBlock();
+    setInterval(() => {
+      loadLatestBlock();
+      updateSummary(currentRange);
+      renderTxHistory();
     }, 500);
-      } catch (err) {
-        console.error("Initialization failed:", err);
-      }
-    }
+  } catch (err) {
+    console.error("Initialization failed:", err);
+  }
+}
 
     initializeDashboard();
 	

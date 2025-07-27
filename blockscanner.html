@@ -10,96 +10,96 @@
     <style>
       body {
         font-family: 'Segoe UI', sans-serif;
-        background: #0f172a;
-      }
-      .glass {
-        @apply bg-white/5 backdrop-blur-md border border-white/10;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
       }
     </style>
   </head>
-  <body class="text-white min-h-screen">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
-      <header class="text-center">
-        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400">
-          Taraxa Block Scanner
-        </h1>
-        <p class="text-gray-400 mt-2">By <span class="font-semibold text-white">pkey.quest</span></p>
-      </header>
+  <body class="text-white">
+    <!-- Top Nav -->
+    <header class="sticky top-0 z-20 backdrop-blur bg-white/5 border-b border-white/10 px-6 py-4 flex justify-between items-center">
+      <div class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Taraxa Scanner</div>
+      <div class="text-sm text-gray-300">by <a href="https://pkey.quest" class="underline hover:text-white">pkey.quest</a></div>
+    </header>
 
-      <section class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div class="glass p-6 rounded-2xl shadow-lg">
-          <h2 class="text-sm font-medium text-gray-400">Unique Wallets</h2>
-          <p id="uawTotal" class="text-3xl font-semibold text-blue-400">--</p>
-          <p id="uawRange" class="text-xs text-gray-500 mt-1">Last 24h</p>
-        </div>
-        <div class="glass p-6 rounded-2xl shadow-lg">
-          <h2 class="text-sm font-medium text-gray-400">TPS</h2>
-          <p id="tpsTotal" class="text-3xl font-semibold text-green-400">--</p>
-          <p id="tpsRange" class="text-xs text-gray-500 mt-1">Last 24h</p>
-        </div>
-        <div class="glass p-6 rounded-2xl shadow-lg">
-          <h2 class="text-sm font-medium text-gray-400">Transactions</h2>
-          <p id="txcountTotal" class="text-3xl font-semibold text-yellow-300">--</p>
-          <p id="txcountRange" class="text-xs text-gray-500 mt-1">Last 24h</p>
-        </div>
-      </section>
-
-      <section class="glass p-6 rounded-2xl shadow-xl">
-        <div class="flex justify-between items-center mb-4">
-          <h2 id="chartTitle" class="text-lg font-semibold">Activity Chart - Last 24h</h2>
-          <div class="flex rounded overflow-hidden border border-white/10">
-            <button id="btn-uaw" onclick="showDataset('uaw')" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 transition">UAW</button>
-            <button id="btn-txcount" onclick="showDataset('txcount')" class="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 transition">TX Count</button>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+      <!-- Metrics -->
+      <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white/5 hover:bg-white/10 p-5 rounded-xl border border-white/10 transition">
+            <div class="text-xs uppercase text-gray-400">Unique Wallets</div>
+            <div id="uawTotal" class="text-3xl font-bold text-blue-400 mt-1">--</div>
+            <div id="uawRange" class="text-xs text-gray-500 mt-1">Last 24h</div>
+          </div>
+          <div class="bg-white/5 hover:bg-white/10 p-5 rounded-xl border border-white/10 transition">
+            <div class="text-xs uppercase text-gray-400">TPS</div>
+            <div id="tpsTotal" class="text-3xl font-bold text-green-400 mt-1">--</div>
+            <div id="tpsRange" class="text-xs text-gray-500 mt-1">Last 24h</div>
+          </div>
+          <div class="bg-white/5 hover:bg-white/10 p-5 rounded-xl border border-white/10 transition">
+            <div class="text-xs uppercase text-gray-400">Transactions</div>
+            <div id="txcountTotal" class="text-3xl font-bold text-yellow-300 mt-1">--</div>
+            <div id="txcountRange" class="text-xs text-gray-500 mt-1">Last 24h</div>
           </div>
         </div>
-        <canvas id="activityChart" class="w-full h-80"></canvas>
-      </section>
-	  
-	  <!-- LIVE Status Panel (Top-Right Layout Block) -->
-<div class="flex justify-end">
-  <div class="space-y-1 text-xs sm:text-sm w-[260px]">
-    <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-400 backdrop-blur-md border border-red-500/20 shadow-sm">
-      <div class="h-2 w-2 rounded-full bg-red-500 animate-ping"></div>
-      LIVE
-    </div>
-    <div class="glass p-3 rounded-xl shadow-md grid grid-cols-2 gap-x-2 gap-y-1">
-      <div><span class="text-gray-400">Blk:</span> <span id="latestBlockNumber">--</span></div>
-      <div><span class="text-gray-400">Txs:</span> <span id="latestBlockTxs">--</span></div>
-      <div class="col-span-2"><span class="text-gray-400">Time:</span> <span id="latestBlockTimestamp">--</span></div>
-      <div><span class="text-gray-400">Ago:</span> <span id="latestBlockTimeAgo">--</span></div>
-      <div><span class="text-gray-400">TPS:</span> <span id="liveTPS">--</span></div>
-    </div>
-  </div>
-</div>
-
-      <section class="glass p-6 rounded-2xl shadow-xl">
-        <h2 class="text-lg font-semibold mb-4">Latest Transactions</h2>
-        <div class="overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead>
-              <tr class="text-gray-400 border-b border-gray-700">
-                <th class="py-2 text-left">Time</th>
-                <th class="py-2 text-left">From</th>
-                <th class="py-2 text-left">To</th>
-                <th class="py-2 text-left">Hash</th>
-              </tr>
-            </thead>
-			<tbody id="txHistoryTable" class="divide-y divide-gray-800">
-            <tr id="loadingRow">
-  <td colspan="4" class="py-4 text-center text-gray-500 flex justify-center items-center gap-2">
-    <div class="h-2 w-2 rounded-full bg-blue-400 animate-ping"></div>
-    Loading latest transactions...
-  </td>
-</tr>
-           </tbody>
-          </table>
+        <!-- Live Widget -->
+        <div class="bg-gradient-to-br from-red-500/10 via-white/5 to-white/5 p-4 rounded-xl border border-white/10 space-y-2 text-sm">
+          <div class="flex items-center gap-2 text-red-400 font-semibold">
+            <span class="h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
+            LIVE
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-gray-300">
+            <div><span class="text-gray-500">Block:</span> <span id="latestBlockNumber">--</span></div>
+            <div><span class="text-gray-500">Txs:</span> <span id="latestBlockTxs">--</span></div>
+            <div class="col-span-2"><span class="text-gray-500">Time:</span> <span id="latestBlockTimestamp">--</span></div>
+            <div><span class="text-gray-500">Ago:</span> <span id="latestBlockTimeAgo">--</span></div>
+            <div><span class="text-gray-500">TPS:</span> <span id="liveTPS">--</span></div>
+          </div>
         </div>
       </section>
 
-      <footer class="pt-10 text-center text-sm text-gray-500">
+      <!-- Chart + Table -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+          <div class="flex justify-between items-center mb-4">
+            <h2 id="chartTitle" class="text-lg font-semibold">Activity Chart</h2>
+            <div class="space-x-2">
+              <button id="btn-uaw" onclick="showDataset('uaw')" class="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 transition">UAW</button>
+              <button id="btn-txcount" onclick="showDataset('txcount')" class="px-3 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition">TX Count</button>
+            </div>
+          </div>
+          <canvas id="activityChart" class="w-full h-64"></canvas>
+        </div>
+
+        <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+          <h2 class="text-lg font-semibold mb-4">Latest Transactions</h2>
+          <div class="overflow-x-auto text-sm">
+            <table class="min-w-full">
+              <thead class="text-gray-400 border-b border-gray-700">
+                <tr>
+                  <th class="py-2 text-left">Time</th>
+                  <th class="py-2 text-left">From</th>
+                  <th class="py-2 text-left">To</th>
+                  <th class="py-2 text-left">Hash</th>
+                </tr>
+              </thead>
+              <tbody id="txHistoryTable" class="divide-y divide-gray-800">
+                <tr id="loadingRow">
+                  <td colspan="4" class="py-4 text-center text-gray-500 flex justify-center items-center gap-2">
+                    <div class="h-2 w-2 rounded-full bg-blue-400 animate-ping"></div>
+                    Loading latest transactions...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <footer class="text-center text-sm text-gray-500 mt-12">
         Made with 💙 by <a href="https://pkey.quest" class="underline hover:text-white">pkey.quest</a>
       </footer>
-    </div>
+    </main>
+
 
   <script>
     let txHistory = [];

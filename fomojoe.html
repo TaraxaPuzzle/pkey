@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fomo Joe Investigation Dashboard</title>
+  <link rel="icon" type="image/png" href="fomojoe_64.png" />
+ <style>
+  :root {
+    --font-family: 'Inter', sans-serif;
+    --bg: #f6f8fa;
+    --text: #1c1e21;
+    --accent: #f97316;
+    --card-bg: #ffffff;
+    --shadow: rgba(0,0,0,0.06);
+  }
+  [data-theme="dark"] {
+    --bg: #1c1e21;
+    --text: #f6f8fa;
+    --card-bg: #2a2d31;
+    --shadow: rgba(0,0,0,0.2);
+  }
+  
+  [data-theme="light"] {
+  --bg: #f6f8fa;
+  --text: #1c1e21;
+  --card-bg: #ffffff;
+  --shadow: rgba(0,0,0,0.06);
+}
+
+  /* Sticky layout */
+  body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: var(--font-family);
+    background: var(--bg);
+    color: var(--text);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  main {
+    flex: 1 0 auto;
+    padding: 1rem;
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	overflow: hidden;
+  }
+
+  .card {
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: background 0.3s, min-height 0.3s;
+    min-height: 200px;
+	max-height: 400px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* prevent content overflow */
+  }
+  
+ /* Holder Details table inside card */
+.card.holder-details table {
+  width: 100%;
+  border-collapse: collapse;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.card.holder-details thead {
+  flex: 0 0 auto;
+}
+
+.card.holder-details tbody {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  display: block;
+  max-height: 100%;
+}
+
+.card.holder-details tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+  .lookup-container-card {
+    flex-shrink: 0;
+    width: 90%;
+    max-width: 700px;
+    margin: 0 auto 0.5rem auto; /* push down a bit */
+  }
+
+  .lookup-container-card h3 {
+    margin-top: 0;
+    color: var(--accent);
+  }
+
+  .lookup {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .lookup input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: monospace;
+  }
+
+  .lookup button {
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .lookup button:hover {
+    background: rgba(249, 115, 22, 0.8);
+  }
+
+  .summary {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .summary .metric {
+    flex: 1 1 100px; /* allow proper shrink on small screens */
+    text-align: center;
+    min-width: 0; /* prevent flex overflow */
+  }
+
+  .summary .metric h2 {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--accent);
+    word-break: break-word; /* prevent number overflow */
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+  }
+
+  th {
+    background: #fff7f0;
+  }
+
+  td code {
+    word-break: break-all; /* fix wallet address overflow */
+  }
+
+  #lock-status, #curve-info {
+    margin: 0.5rem 1rem;
+    font-weight: 600;
+    font-size: 0.9em;
+    min-height: 1.2em;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  footer {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: #888;
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: var(--card-bg);
+    border-radius: 50%;
+    padding: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+</style>
+
+</head>
+<body>
+
+<div class="theme-toggle" id="theme-toggle">🌓</div>
+
+<div id="lock-status"></div>
+<div id="curve-info" style="margin: .5rem 1rem; font-weight:600; font-size:0.9em;"></div>
+<div id="creator-info" style="margin: .5rem 1rem; font-weight:600; font-size:0.9em;"></div>
+<main>
+  <section class="card summary">
+    <div class="metric">
+      <h2 id="total-holders">–</h2>
+      <p>Total Holders</p>
+    </div>
+    <div class="metric">
+      <h2 id="top-concentration">–%</h2>
+      <p>Top 3 Concentration</p>
+    </div>
+    <div class="metric">
+      <h2 id="connected-wallets"></h2>
+      <p>Connected Wallets:</p>
+    </div>
+  </section>
+  
+  <section class="card">
+    <h3>Holder Network Graph</h3>
+    <div id="graph" style="height:200px; background:#eee; display:flex; align-items:center; justify-content:center;">Holder Network Graph here (placeholder)</div>
+  </section>
+
+  <section class="card holder-details">
+    <h3>Holder Details</h3>
+    <table>
+      <thead><tr><th>Address</th><th>Balance</th><th>Flags</th></tr></thead>
+      <tbody id="holder-table"></tbody>
+    </table>
+  </section>
+</main>
+
+<section class="lookup-container-card">
+<h3><img src="fomojoe_64.png" alt="Fomo Joe" style="display: flex; align-items: center; gap: 0.5em;" />Contract Investigator</h3>
+  <div class="lookup">
+    <input id="wallet-input" type="text" placeholder="Enter wallet address (0x…)" />
+    <button id="lookup-btn">Lookup</button>
+  </div>
+</section>
+
+<footer>
+Fomo Joe Investigation Dashboard • Built with ❤️ by <a href="https://pkey.quest/" target="_blank">pkey.quest</a> • 2025
+</footer>
+
+<script>
+// Theme toggle logic
+const toggle = document.getElementById('theme-toggle');
+toggle.addEventListener('click', () => {
+  const currentTheme = document.body.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+});
+const savedTheme = localStorage.getItem('theme') || 'light';
+document.body.setAttribute('data-theme', savedTheme);
+
+// Config
+const CONFIG = {
+  explorerBase: 'https://api.fomo.biz',
+  tokenPriceUSD: 0.000001 // fallback until replaced by live pricing
+};
+
+// API Client
+class ExplorerAPI {
+  constructor(base) {
+    this.base = base.replace(/\/$/, '');
+  }
+
+  async fetchPage(token, params = {}) {
+    const u = new URL(`${this.base}/tokens/${token}/holders`);
+    Object.entries(params).forEach(([k, v]) => u.searchParams.set(k, v));
+    const res = await fetch(u);
+    if (!res.ok) throw new Error(res.status);
+    return res.json();
+  }
+
+  async fetchAllRaw(token) {
+    let raw = [], cursor = {};
+    do {
+      const { items, next_page_params } = await this.fetchPage(token, cursor);
+      raw.push(...items);
+      cursor = next_page_params || null;
+    } while (cursor);
+    return raw;
+  }
+}
+
+function stripAndNormalize(holdersRaw, excludeAddresses = []) {
+  const holders = [];
+  let curveAddress = '';
+  let curveBalance = 0;
+
+  holdersRaw.forEach(h => {
+    if (!h || !h.address || !h.address.hash) return;
+    const addr = h.address.hash.toLowerCase();
+    if (excludeAddresses.includes(addr)) return;
+
+    if (h.address.name && h.address.name.toLowerCase().includes('curve')) {
+      curveAddress = h.address.hash;
+      curveBalance = Number(h.value) / 1e18;
+    } else {
+      holders.push({
+        address: h.address.hash,
+        balance: Number(h.value) / 1e18,
+        created: h.timestamp || 'Unknown',
+        flags: h.address.is_scam ? ['⚠️ scam'] : [],
+        name: h.address.name || ''
+      });
+    }
+  });
+
+  return { holders, curveAddress, curveBalance };
+}
+
+// Lookup token info
+async function fetchTokenMetadata(token) {
+  const res = await fetch(`${CONFIG.explorerBase}/tokens/search?search=${token}`);
+  if (!res.ok) throw new Error(res.status);
+  const { result } = await res.json();
+  if (!result || !result.length) throw new Error('Token not found');
+  return result[0];
+}
+
+// Handler
+const lookupBtn = document.getElementById('lookup-btn');
+lookupBtn.addEventListener('click', async () => {
+  const token = document.getElementById('wallet-input').value.trim();
+  if (!/^0x[a-fA-F0-9]{40}$/.test(token)) {
+    return alert('Enter a valid 0x… address.');
+  }
+
+  // Reset UI
+  ['total-holders', 'top-concentration', 'connected-wallets']
+    .forEach(id => document.getElementById(id).textContent = '…');
+  document.getElementById('holder-table').innerHTML = '';
+  document.getElementById('curve-info').textContent = '';
+  document.getElementById('creator-info').textContent = '';
+  document.getElementById('graph').textContent = 'Holder Network Graph here (placeholder)';
+
+  try {
+    const metadata = await fetchTokenMetadata(token);
+    CONFIG.tokenPriceUSD = metadata.price || CONFIG.tokenPriceUSD;
+    document.getElementById('creator-info').textContent = `Creator: ${metadata.creator || 'Unknown'} | Locked: ${metadata.locked}`;
+
+    const api = new ExplorerAPI(CONFIG.explorerBase);
+    const rawPages = await api.fetchAllRaw(token);
+    const { holders: allHolders, curveAddress, curveBalance } = stripAndNormalize(rawPages);
+
+    document.getElementById('curve-info').textContent = curveAddress
+      ? `Bonding curve: ${curveAddress} → ${curveBalance.toLocaleString()} tokens`
+      : 'Curve not detected';
+
+    const EPSILON = 0.01 / CONFIG.tokenPriceUSD;
+    const visible = allHolders.filter(h => h.balance >= EPSILON);
+    const sorted = [...visible].sort((a, b) => b.balance - a.balance);
+    const top3Sum = sorted.slice(0, 3).reduce((sum, h) => sum + h.balance, 0);
+    const sumAll = allHolders.reduce((sum, h) => sum + h.balance, 0);
+    const totalSupply = sumAll + curveBalance;
+    const concentration = totalSupply ? ((top3Sum / (totalSupply - curveBalance)) * 100).toFixed(1) : '0.0';
+
+    document.getElementById('total-holders').textContent = visible.length;
+    document.getElementById('top-concentration').textContent = `${concentration}%`;
+    document.getElementById('connected-wallets').textContent = visible.length;
+
+    const tbody = document.getElementById('holder-table');
+    visible.forEach(h => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><code>${h.address}</code>${h.name ? `<br/><small>${h.name}</small>` : ''}</td>
+        <td>${h.balance.toLocaleString()}</td>
+        <td>${h.flags.join(', ')}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert('Fetch failed: ' + err.message);
+  }
+});
+</script>
+
+</body>
+</html>
+
+

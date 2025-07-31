@@ -262,7 +262,7 @@ document.body.setAttribute('data-theme', savedTheme);
 
 // Config
 const CONFIG = {
-  explorerBase: 'https://corsproxy.io/?https://api.fomo.biz',
+  explorerBase: 'https://api.fomo.biz',
   tokenPriceUSD: 0.000001
 };
 
@@ -320,7 +320,8 @@ function stripAndNormalize(holdersRaw, excludeAddresses = []) {
 
 // Lookup token info
 async function fetchTokenMetadata(token) {
-  const res = await fetch(`${CONFIG.explorerBase}/tokens/search?search=${token}`);
+  const url = `${CONFIG.explorerBase}/tokens/search?sortBy=Newly+Created&view=grid&page=1&search=${token}`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error(res.status);
   const { result } = await res.json();
   if (!result || !result.length) throw new Error('Token not found');

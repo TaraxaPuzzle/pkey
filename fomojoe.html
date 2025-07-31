@@ -320,7 +320,7 @@ function stripAndNormalize(holdersRaw, excludeAddresses = []) {
 
 // Lookup token info
 async function fetchTokenMetadata(token) {
-  const url = `${CONFIG.explorerBase}/tokens/search?sortBy=Newly+Created&view=grid&page=1&search=${token}`;
+  const url = `https://corsproxy.io/?https://api.fomo.biz/tokens/search?sortBy=Newly+Created&view=grid&page=1&search=${token}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(res.status);
   const { result } = await res.json();

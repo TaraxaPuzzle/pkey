@@ -122,7 +122,7 @@
       document.getElementById("networkStatus").style.display = "block";
       console.log("Connected:", address);
       // After connecting, update fee estimate live
-      updateEstimatedFee();
+      setTimeout(updateEstimatedFee, 100);
     } catch (err) {
       console.error("Connection error:", err);
       alert("Failed to connect wallet.");
@@ -202,7 +202,7 @@
       // Update decimals for amount parsing
       decimals = info.decimals;
       // Update fee estimate
-      updateEstimatedFee();
+      setTimeout(updateEstimatedFee, 200);
     }
   });
 
@@ -244,6 +244,11 @@
       const gasPrice = feeData.maxFeePerGas || feeData.gasPrice || ethers.parseUnits("20", "gwei");
       
       // Use BigInt multiplication for fee calculation
+	  
+	  console.log("Gas estimate:", gasEstimate.toString());
+console.log("Fee data:", feeData);
+console.log("Gas price used:", gasPrice.toString());
+	  
       const fee = BigInt(gasEstimate.toString()) * BigInt(gasPrice.toString());
 
       document.getElementById("estimatedFee").innerText = `Estimated Fee: ${ethers.formatEther(fee)} TARA`;
@@ -257,6 +262,10 @@
 
   // Update fee estimate live as user inputs
   async function updateEstimatedFee() {
+if (!provider || !signer || typeof signer.getAddress !== "function") {
+  console.warn("Signer not ready yet");
+  return;
+}
     const tokenAddress = document.getElementById("contractAddress").value.trim();
     const rawList = document.getElementById("recipientList").value.trim();
     const amountStr = document.getElementById("amount").value.trim();
@@ -280,7 +289,7 @@
     const multisendAbi = [
       "function multisend(address token, address[] calldata recipients, uint256[] calldata amounts) external"
     ];
-    const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, provider);
+    const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
 
     try {
       await estimateMultisendFee(multisendContract, tokenAddress, recipients, amounts);

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Multisend Tool with Web3Modal & Enkrypt</title>
+<title>Multisend Tool</title>
 
 <link rel="icon" type="image/png" href="favicon.png.png" />
 
@@ -111,35 +111,37 @@
       name: "Taraxa Mainnet",
       network: "taraxa",
       nativeCurrency: { decimals: 18, name: "Tara", symbol: "TARA" },
-      rpcUrls: { public: { http: ["https://rpc.mainnet.taraxa.io"] }, default: { http: ["https://rpc.mainnet.taraxa.io"] } },
-      blockExplorers: { default: { name: "Taraxa Explorer", url: "https://explorer.mainnet.taraxa.io" } }
+      rpcUrls: {
+        public: { http: ["https://rpc.mainnet.taraxa.io"] },
+        default: { http: ["https://rpc.mainnet.taraxa.io"] }
+      },
+      blockExplorers: {
+        default: { name: "Taraxa Explorer", url: "https://explorer.mainnet.taraxa.io" }
+      }
     }
   ];
 
   const projectId = "c3bca9309d970d96c70be0b04f661798";
 
-  // Wagmi provider and connectors
   const wagmiProvider = w3mProvider({ projectId, chains });
   const wagmiConnectors = w3mConnectors({ projectId, chains });
 
-  // Ethereum client for Web3Modal
   const ethereumClient = new EthereumClient(wagmiProvider, wagmiConnectors);
 
-  // Web3Modal instance
   const web3Modal = new Web3Modal({
     projectId,
     ethereumClient,
-    themeMode: "light",
+    themeMode: "light"
   });
 
   let provider, signer, decimals = 18;
+  let dryRun = true;
 
   async function setupTaraxaNetwork() {
-    const TARAXA_MAIN = chains[0];
     try {
       const currentChain = await provider.send("eth_chainId", []);
       if (currentChain !== "0x349") {
-        await provider.send("wallet_addEthereumChain", [TARAXA_MAIN]);
+        await provider.send("wallet_addEthereumChain", [chains[0]]);
         console.log("✅ Switched to Taraxa Mainnet");
       }
     } catch (err) {
@@ -253,21 +255,8 @@
     }
   });
 
-  async function estimateFee(contract, recipient, amount, count) {
-    try {
-      const tx = await contract.transfer(recipient, ethers.parseUnits(amount, decimals));
-      const feePerTx = tx.gasLimit * tx.maxFeePerGas;
-      document.getElementById("estimatedFee").innerText = `Estimated Fee (per tx): ${ethers.formatEther(feePerTx)} TARA`;
-      document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ~${ethers.formatEther(feePerTx * BigInt(count))} TARA`;
-    } catch (e) {
-      console.warn("Fee estimate failed:", e.message);
-    }
-  }
-
   document.getElementById("connectBtn").onclick = connectWallet;
   document.getElementById("sendBtn").onclick = sendBulkPKEY;
-
-  let dryRun = true; // Make sure dryRun is declared here, for usage in sendBulkPKEY
 
   window.onload = () => {
     if (dryRun) {

@@ -3,162 +3,251 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Multisend Tool - Working Example</title>
+<title>Multisend Tool with Enkrypt Wallet</title>
+
+<link rel="icon" type="image/png" href="favicon.png.png" />
 
 <!-- Ethers.js -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
-
-<!-- Web3Modal v2 -->
-<script src="https://unpkg.com/@web3modal/html@2.3.4/dist/index.min.js"></script>
-<script src="https://unpkg.com/@web3modal/ethereum@2.3.4/dist/index.min.js"></script>
-
-<!-- Wagmi Core -->
-<script src="https://unpkg.com/@wagmi/core@0.10.1/dist/index.min.js"></script>
 
 <style>
   body {
     max-width: 700px; margin: 40px auto; font-family: 'Segoe UI', sans-serif;
     background-color: #f8f9fa; padding: 30px; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);
   }
-  h2 { text-align: center; margin-bottom: 20px; color: #343a40; }
-  input, textarea, button { width: 100%; padding: 12px; margin: 10px 0; font-size: 1rem; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; }
-  button { background-color: #0d6efd; color: white; cursor: pointer; border: none; transition: background-color 0.2s; }
-  button:hover { background-color: #0b5ed7; }
-  textarea { height: 180px; resize: vertical; }
-  #status { margin-top: 20px; font-size: 0.95rem; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6; white-space: pre-wrap; }
+  h2 {
+    text-align: center; margin-bottom: 20px; color: #343a40;
+  }
+  input, textarea, button {
+    width: 100%; padding: 12px; margin: 10px 0; font-size: 1rem;
+    border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;
+  }
+  button {
+    background-color: #0d6efd; color: white; cursor: pointer; border: none;
+    transition: background-color 0.2s;
+  }
+  button:hover {
+    background-color: #0b5ed7;
+  }
+  textarea {
+    height: 180px; resize: vertical;
+  }
+  #status {
+    margin-top: 20px; font-size: 0.95rem; background: #fff; padding: 15px;
+    border-radius: 8px; border: 1px solid #dee2e6; white-space: pre-wrap;
+  }
+  #loadingRing {
+    display: none; margin: 20px auto; border: 6px solid #e9ecef;
+    border-top: 6px solid #0d6efd; border-radius: 50%; width: 40px; height: 40px;
+    animation: spin 1s linear infinite;
+  }
+  #delayWarning {
+    color: #dc3545; font-size: 0.9rem; display: none;
+  }
+  #walletAddress {
+    text-align: center; font-size: 0.95rem; margin-bottom: 10px;
+  }
+  #networkStatus {
+    text-align: center; font-size: 0.9rem; color: #198754; display: none;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+  }
+  #dryRunNotice {
+    position: fixed; bottom: 20px; right: 20px; background: #ffc107;
+    color: #212529; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15); z-index: 1000;
+  }
 </style>
 </head>
 <body>
+
+<div id="dryRunNotice" style="display:none;">🚧 Dry-run mode activated</div>
 
 <h2>🔁 Multisend Tool</h2>
 
 <button id="connectBtn">Connect Wallet</button>
 <div id="walletAddress"></div>
-<div id="networkStatus" style="color: green; display: none;">✅ Connected to Taraxa Mainnet</div>
+<div id="networkStatus">✅ Connected to Taraxa Mainnet</div>
 
 <input type="text" id="contractAddress" placeholder="ERC-20 Token Contract Address" />
+<label for="amount" style="font-size: 0.9rem; color: #495057;">
+  Amount to send per wallet (e.g. <b>1</b> = 1 token unit based on decimals)
+</label>
 <input type="number" id="amount" placeholder="Amount per address (token units)" value="1" />
+<label for="delayInput" style="font-size: 0.9rem; color: #495057;">
+  Delay between transactions in milliseconds (e.g. <b>300</b> = 0.3 seconds). Helps avoid rate limiting.
+</label>
+<input type="number" id="delayInput" placeholder="Delay between TXs (ms)" value="300" />
+<div id="delayWarning">Minimum delay is 300ms for network health. Using 300ms.</div>
+<label for="recipientList" style="font-size: 0.9rem; color: #495057;">
+  Wallet addresses to send to (one per line):
+</label>
 <textarea id="recipientList" placeholder="Paste wallet addresses, one per line"></textarea>
 
+<div id="durationEstimate"></div>
+<div id="estimatedFee">Estimated Fee (per tx): -</div>
+<div id="estimatedTotal">Estimated Total Fee: -</div>
 <button id="sendBtn">🚀 Send to All</button>
 
+<div id="loadingRing"></div>
 <div id="status"></div>
 
 <script>
-  // Required globals from loaded scripts
-  const { w3mConnectors, w3mProvider, EthereumClient } = window.WagmiCore;
-  const { Web3Modal } = window.Web3Modal;
+  let dryRun = true; // Change to false to send real transactions
 
-  const chains = [
-    {
-      id: 841,
-      name: "Taraxa Mainnet",
-      network: "taraxa",
-      nativeCurrency: { decimals: 18, name: "Tara", symbol: "TARA" },
-      rpcUrls: {
-        default: ["https://rpc.mainnet.taraxa.io"]
-      },
-      blockExplorers: {
-        default: { name: "Taraxa Explorer", url: "https://explorer.mainnet.taraxa.io" }
-      }
+  window.onload = () => {
+    if (dryRun) {
+      document.getElementById("dryRunNotice").style.display = "block";
     }
-  ];
+    document.getElementById("networkStatus").style.display = "none";
+  };
 
-  const projectId = "c3bca9309d970d96c70be0b04f661798";
-
-  // Wagmi provider and connectors
-  const wagmiProvider = w3mProvider({ projectId, chains });
-  const wagmiConnectors = w3mConnectors({ projectId, chains });
-
-  // Ethereum client bridge for Web3Modal
-  const ethereumClient = new EthereumClient(wagmiProvider, wagmiConnectors);
-
-  // Initialize Web3Modal with Ethereum client
-  const web3Modal = new Web3Modal({
-    projectId,
-    ethereumClient,
-    themeMode: "light"
-  });
+  // --- Enkrypt wallet connection per docs ---
 
   let provider, signer, decimals = 18;
 
-  // Connect wallet function
   async function connectWallet() {
     try {
-      await web3Modal.open();
-      // Use ethereumClient.getProvider() for ethers provider
-      provider = new ethers.BrowserProvider(ethereumClient.getProvider());
+      // Check if Enkrypt is injected
+      if (!window.enkrypt || !window.enkrypt.providers || !window.enkrypt.providers.ethereum) {
+        alert('Enkrypt wallet NOT detected. Please install & enable the Enkrypt extension.');
+        return;
+      }
+
+      // Use Enkrypt injected provider
+      provider = new ethers.BrowserProvider(window.enkrypt.providers.ethereum);
       await provider.send("eth_requestAccounts", []);
       signer = await provider.getSigner();
       const address = await signer.getAddress();
 
       document.getElementById("walletAddress").innerText = "Connected: " + address;
       document.getElementById("networkStatus").style.display = "block";
-      logStatus("Wallet connected: " + address);
+      console.log("Connected:", address);
     } catch (err) {
-      logStatus("Connection failed: " + err.message);
-      alert("Failed to connect wallet. See console for details.");
-      console.error(err);
+      console.error("Connection error:", err);
+      alert("Failed to connect wallet.");
     }
   }
 
-  // Simple function to update status box
-  function logStatus(msg) {
-    const statusBox = document.getElementById("status");
-    statusBox.innerText += msg + "\n";
+  // --- Multisend logic from your code ---
+
+  async function setupTaraxaNetwork() {
+    try {
+      const currentChain = await provider.send("eth_chainId", []);
+      if (currentChain !== "0x349") {
+        await provider.send("wallet_addEthereumChain", [{
+          chainId: "0x349",
+          chainName: "Taraxa Mainnet",
+          nativeCurrency: { name: "Tara", symbol: "TARA", decimals: 18 },
+          rpcUrls: ["https://rpc.mainnet.taraxa.io"],
+          blockExplorerUrls: ["https://explorer.mainnet.taraxa.io"]
+        }]);
+        console.log("✅ Switched to Taraxa Mainnet");
+      }
+    } catch (err) {
+      console.error("Failed to switch network:", err);
+      alert("Could not switch to Taraxa network. Please add it manually.");
+    }
   }
 
-  // Send tokens in bulk
   async function sendBulkPKEY() {
     const contractAddress = document.getElementById("contractAddress").value.trim();
     const amount = document.getElementById("amount").value.trim();
+    let delayMs = parseInt(document.getElementById("delayInput").value.trim());
+    const warning = document.getElementById("delayWarning");
+    const durationPreview = document.getElementById("durationEstimate");
     const rawList = document.getElementById("recipientList").value.trim();
     const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
-
-    if (!provider || !signer) {
-      alert("Please connect your wallet first.");
-      return;
+    const estimatedDurationSec = Math.ceil((recipients.length * (isNaN(delayMs) || delayMs < 300 ? 300 : delayMs)) / 1000);
+    durationPreview.innerText = recipients.length ? `⏱ Estimated duration: ${estimatedDurationSec} seconds` : "";
+    if (isNaN(delayMs) || delayMs < 300) {
+      delayMs = 300;
+      warning.style.display = "block";
+    } else {
+      warning.style.display = "none";
     }
+
+    const statusBox = document.getElementById("status");
+    const loader = document.getElementById("loadingRing");
 
     if (!contractAddress || !amount || recipients.length === 0) {
       alert("Please fill in all fields and provide recipient addresses.");
       return;
     }
 
-    if (!recipients.every(addr => ethers.isAddress(addr))) {
-      alert("One or more wallet addresses are invalid.");
+    const isValid = recipients.every(addr => ethers.isAddress(addr));
+    if (!isValid) {
+      alert("❌ One or more wallet addresses are invalid.");
       return;
     }
 
-    logStatus(`Sending ${amount} tokens to ${recipients.length} addresses...`);
+    if (dryRun) {
+      alert(`Dry-run mode enabled. Would send ${amount} tokens to ${recipients.length} addresses.`);
+      statusBox.innerText = `🚧 Dry-run complete. ${amount} tokens * ${recipients.length} addresses.`;
+      return;
+    }
 
-    const contract = new ethers.Contract(
-      contractAddress,
-      ["function transfer(address to, uint amount) public returns (bool)"],
-      signer
-    );
+    const contract = new ethers.Contract(contractAddress, ["function transfer(address to, uint amount) public returns (bool)"], signer);
+
+    await estimateFee(contract, recipients[0], amount, recipients.length);
+
+    loader.style.display = "block";
+    let statusText = `Starting multisend to ${recipients.length} addresses...\n`;
+    statusBox.innerText = statusText;
 
     for (let i = 0; i < recipients.length; i++) {
       const to = recipients[i];
       try {
         const tx = await contract.transfer(to, ethers.parseUnits(amount, decimals));
-        logStatus(`Tx sent to ${to}: ${tx.hash}`);
+        statusText += `⏳ [${i + 1}/${recipients.length}] Tx sent to ${to}: ${tx.hash}\n`;
+        statusBox.innerText = statusText;
         await tx.wait();
-        logStatus(`Tx confirmed: ${tx.hash}`);
+        statusText += `✅ Confirmed: ${tx.hash}\n`;
       } catch (e) {
-        logStatus(`Failed for ${to}: ${e.message}`);
+        statusText += `❌ Failed for ${to}: ${e.message}\n`;
       }
-      // Small delay between txs to avoid rate limits
-      await new Promise(r => setTimeout(r, 500));
+      statusBox.innerText = statusText;
+      await new Promise(resolve => setTimeout(resolve, delayMs));
     }
 
-    logStatus("Done sending tokens.");
+    loader.style.display = "none";
+    statusText += `\n🎉 Done sending to ${recipients.length} addresses.`;
+    statusBox.innerText = statusText;
   }
 
-  // Wire button clicks
+  async function getTokenInfo(address) {
+    const erc20Abi = [
+      "function name() view returns (string)",
+      "function symbol() view returns (string)",
+      "function decimals() view returns (uint8)"
+    ];
+    try {
+      const contract = new ethers.Contract(address, erc20Abi, provider);
+      const name = await contract.name();
+      const symbol = await contract.symbol();
+      decimals = await contract.decimals();
+      return { name, symbol, decimals };
+    } catch (err) {
+      console.error("Failed to fetch token info", err);
+      return null;
+    }
+  }
+
+  document.getElementById("contractAddress").addEventListener("blur", async () => {
+    const address = document.getElementById("contractAddress").value.trim();
+    if (!ethers.isAddress(address)) return;
+    if (!provider) return;
+    const info = await getTokenInfo(address);
+    if (info) {
+      document.getElementById("amount").placeholder = `Amount per address (${info.symbol})`;
+      document.title = `${info.name} Multisend Tool`;
+    }
+  });
+
   document.getElementById("connectBtn").onclick = connectWallet;
   document.getElementById("sendBtn").onclick = sendBulkPKEY;
-
 </script>
 
 </body>

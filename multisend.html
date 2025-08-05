@@ -225,17 +225,27 @@ async function sendBulkPKEY() {
 
 async function connectWallet() {
   await setupTaraxaNetwork();
-  if (!window.ethereum) return alert("No wallet found. Use Enkrypt or MetaMask.");
-  if (window.ethereum.isEnkrypt) {
+
+  let ethProvider;
+
+  if (window.enkrypt?.providers?.ethereum) {
+    ethProvider = window.enkrypt.providers.ethereum;
     console.log("✅ Enkrypt detected");
+  } else if (window.ethereum) {
+    ethProvider = window.ethereum;
+    console.warn("⚠️ Enkrypt not found. Falling back to MetaMask.");
   } else {
-    alert("⚠️ Warning: Enkrypt not detected. MetaMask fallback.");
+    alert("No compatible wallet found (Enkrypt or MetaMask).");
+    return;
   }
-  provider = new ethers.BrowserProvider(window.ethereum);
+
+  provider = new ethers.BrowserProvider(ethProvider);
   await provider.send("eth_requestAccounts", []);
   signer = await provider.getSigner();
-  document.getElementById("walletAddress").innerText = "Sender: " + signer.address;
-document.getElementById("networkStatus").style.display = "block";
+
+  const address = await signer.getAddress();
+  document.getElementById("walletAddress").innerText = "Sender: " + address;
+  document.getElementById("networkStatus").style.display = "block";
 }
 
 async function getTokenInfo(address) {

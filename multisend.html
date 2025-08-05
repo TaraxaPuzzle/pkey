@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PKEY Multisend</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 1rem;
+    }
+    textarea {
+      height: 200px;
+      resize: vertical;
+    }
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+      white-space: pre-wrap;
+    }
+    #loadingRing {
+      display: none;
+      margin: 10px auto;
+      border: 6px solid #ccc;
+      border-top: 6px solid #333;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    #delayWarning {
+      color: red;
+      font-size: 0.9rem;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <h2>🔑 PKEY Multisend Tool</h2>
+  <button onclick="connectWallet()">Connect Wallet</button>
+  <div id="walletAddress"></div>
+
+  <input type="text" id="contractAddress" placeholder="PKEY Token Contract Address">
+  <input type="number" id="amount" placeholder="Amount per address (PKEY)" value="1">
+  <input type="number" id="delayInput" placeholder="Delay between TXs (ms)" value="300">
+  <div id="delayWarning">Minimum delay is 300ms for network health. Using 300ms.</div>
+  $1
+  <div id="durationEstimate" style="font-size:0.95rem; color:#333; margin-top:5px;"></div>
+  <div id="estimatedFee">Estimated Fee (per tx): -</div>
+  <div id="estimatedTotal">Estimated Total Fee: -</div>
+  <button onclick="sendBulkPKEY()">🚀 Send to All</button>
+
+  <div id="loadingRing"></div>
+  <div id="status"></div>
+
+<script>
+let provider, signer;
+const decimals = 18;
+const abi = ["function transfer(address to, uint amount) public returns (bool)"];
+
+async function connectWallet() {
+  if (!window.ethereum) return alert("No wallet found. Use Enkrypt or MetaMask.");
+  if (window.ethereum.isEnkrypt) {
+    console.log("✅ Enkrypt detected");
+  } else {
+    alert("⚠️ Warning: Enkrypt not detected. MetaMask fallback.");
+  }
+  provider = new ethers.BrowserProvider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = await provider.getSigner();
+  document.getElementById("walletAddress").innerText = "Sender: " + signer.address;
+}
+
+async function estimateFee(contract, to, amount, count) {
+  try {
+    const tx = await contract.transfer.populateTransaction(to, ethers.parseUnits(amount, decimals));
+    const gas = await provider.estimateGas({ ...tx, from: signer.address });
+    const gasPrice = (await provider.getFeeData()).gasPrice;
+    const fee = gas * gasPrice;
+    const totalFee = fee * BigInt(count);
+    document.getElementById("estimatedFee").innerText = `Estimated Fee (per tx): ${ethers.formatEther(fee)} TARA`;
+    document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ${ethers.formatEther(totalFee)} TARA`;
+  } catch (e) {
+    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+    document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function sendBulkPKEY() {
+  const contractAddress = document.getElementById("contractAddress").value.trim();
+  const amount = document.getElementById("amount").value.trim();
+  let delayMs = parseInt(document.getElementById("delayInput").value.trim());
+  const warning = document.getElementById("delayWarning");
+  const durationPreview = document.getElementById("durationEstimate");
+  const rawList = document.getElementById("recipientList").value.trim();
+  const recipients = rawList.split("
+").map(a => a.trim()).filter(Boolean);
+  const estimatedDurationSec = Math.ceil((recipients.length * (isNaN(delayMs) || delayMs < 300 ? 300 : delayMs)) / 1000);
+  durationPreview.innerText = recipients.length ? `⏱ Estimated duration: ${estimatedDurationSec} seconds` : "";
+  const warning = document.getElementById("delayWarning");
+  if (isNaN(delayMs) || delayMs < 300) {
+    delayMs = 300;
+    warning.style.display = "block";
+  } else {
+    warning.style.display = "none";
+  }
+
+  const rawList = document.getElementById("recipientList").value.trim();
+  const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
+  const statusBox = document.getElementById("status");
+  const estimatedDurationSec = Math.ceil((recipients.length * delayMs) / 1000);
+  statusBox.innerText = `⌛ Estimated total duration: ${estimatedDurationSec} seconds
+`;
+  const loader = document.getElementById("loadingRing");
+
+  if (!contractAddress || !amount || recipients.length === 0) {
+    return alert("Please fill in all fields and provide recipient addresses.");
+  }
+
+  const contract = new ethers.Contract(contractAddress, abi, signer);
+  await estimateFee(contract, recipients[0], amount, recipients.length);
+
+  loader.style.display = "block";
+  let statusText = `Starting multisend to ${recipients.length} addresses...\n`;
+  statusBox.innerText = statusText;
+
+  for (let i = 0; i < recipients.length; i++) {
+    const to = recipients[i];
+    try {
+      const tx = await contract.transfer(to, ethers.parseUnits(amount, decimals));
+      statusText += `⏳ [${i + 1}/${recipients.length}] Tx sent to ${to}: ${tx.hash}\n`;
+      statusBox.innerText = statusText;
+      await tx.wait();
+      statusText += `✅ Confirmed: ${tx.hash}\n`;
+    } catch (e) {
+      statusText += `❌ Failed for ${to}: ${e.message}\n`;
+    }
+    statusBox.innerText = statusText;
+    await delay(delayMs);
+  }
+
+  loader.style.display = "none";
+  statusText += `\n🎉 Done sending to ${recipients.length} addresses.`;
+  statusBox.innerText = statusText;
+}
+</script>
+</body>
+</html>

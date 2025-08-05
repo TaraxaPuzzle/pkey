@@ -269,9 +269,6 @@ async function estimateMultisendFee(contract, tokenAddress, recipients, amounts)
     document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ~${ethers.formatEther(fee * BigInt(recipients.length))} TARA`;
   } catch (err) {
     console.error("🔍 Full gas estimate error:", err);
-document.getElementById("status").innerText += `\n⚠️ Estimation failed:\n${err.message}`;
-    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
-    document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
   }
 }
 

@@ -155,7 +155,7 @@
     const parsedAmount = ethers.parseUnits(amount, decimals);
     const amounts = new Array(recipients.length).fill(parsedAmount);
 
-    const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
+    const multisendAddress = ethers.getAddress("0x77c5f7f6e275f0dd30ce62be5a0afbf06a31f827");
     const multisendAbi = [
   {
     "inputs": [
@@ -242,7 +242,7 @@ console.log("Amounts:", amounts);
     ], signer);
 
     try {
-      const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
+      const multisendAddress = ethers.getAddress("0x77c5f7f6e275f0dd30ce62be5a0afbf06a31f827");
       const tx = await tokenContract.approve(multisendAddress, totalAmount);
       document.getElementById("status").innerText = `Approve transaction sent: ${tx.hash}\nWaiting for confirmation...`;
       await tx.wait();
@@ -302,7 +302,7 @@ if (!provider || !signer || typeof signer.getAddress !== "function") {
     const parsedAmount = ethers.parseUnits(amountStr, decimals);
     const amounts = new Array(recipients.length).fill(parsedAmount);
 
-    const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
+    const multisendAddress = ethers.getAddress("0x77c5f7f6e275f0dd30ce62be5a0afbf06a31f827");
     const multisendAbi = [
   {
     "inputs": [

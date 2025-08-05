@@ -116,9 +116,12 @@ async function setupTaraxaNetwork() {
 <div id="networkStatus" style="text-align:center; font-size:0.9rem; color:#198754; display:none;">✅ Connected to Taraxa Mainnet</div>
 
   <input type="text" id="contractAddress" placeholder="ERC-20 Token Contract Address">
+  <label for="amount" style="font-size: 0.9rem; color: #495057;">Amount to send per wallet (e.g. <b>1</b> = 1 token unit based on decimals)</label>
   <input type="number" id="amount" placeholder="Amount per address (token units)" value="1">
+  <label for="delayInput" style="font-size: 0.9rem; color: #495057;">Delay between transactions in milliseconds (e.g. <b>300</b> = 0.3 seconds). Helps avoid rate limiting.</label>
   <input type="number" id="delayInput" placeholder="Delay between TXs (ms)" value="300">
   <div id="delayWarning">Minimum delay is 300ms for network health. Using 300ms.</div>
+  <label for="recipientList" style="font-size: 0.9rem; color: #495057;">Wallet addresses to send to (one per line):</label>
   <textarea id="recipientList" placeholder="Paste wallet addresses, one per line"></textarea>
   <div id="durationEstimate"></div>
   <div id="estimatedFee">Estimated Fee (per tx): -</div>

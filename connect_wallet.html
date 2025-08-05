@@ -1,43 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8" /><title>Enkrypt Taraxa Connect</title></head>
+<head>
+<meta charset="UTF-8" />
+<title>Enkrypt Wallet Test</title>
+</head>
 <body>
-<button id="connectBtn">Connect Enkrypt + Add Taraxa</button>
-<div id="status"></div>
+<button id="connectBtn">Connect Enkrypt Wallet</button>
+<pre id="status"></pre>
+
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
 <script>
-  const btn = document.getElementById("connectBtn");
-  const status = document.getElementById("status");
+const btn = document.getElementById('connectBtn');
+const status = document.getElementById('status');
 
-  btn.onclick = async () => {
-    status.innerText = "Checking Enkrypt wallet...";
-    if (!window.enkrypt || !window.enkrypt.ethereum) {
-      status.innerText = "Enkrypt wallet not detected. Please install or enable it.";
-      return;
-    }
-    const provider = new ethers.BrowserProvider(window.enkrypt.ethereum);
-    try {
-      status.innerText = "Requesting account access...";
-      await provider.send("eth_requestAccounts", []);
-      const signer = await provider.getSigner();
-      const address = await signer.getAddress();
-      status.innerText = `Connected: ${address}\nAdding Taraxa network...`;
+btn.onclick = async () => {
+  status.textContent = 'Checking for Enkrypt...';
 
-      const taraxaChain = {
-        chainId: "0x349",
-        chainName: "Taraxa Mainnet",
-        nativeCurrency: { name: "Tara", symbol: "TARA", decimals: 18 },
-        rpcUrls: ["https://rpc.mainnet.taraxa.io"],
-        blockExplorerUrls: ["https://explorer.mainnet.taraxa.io"]
-      };
+  if (!window.enkrypt || !window.enkrypt.ethereum) {
+    status.textContent = 'Enkrypt not detected. Make sure extension is installed and enabled.';
+    return;
+  }
 
-      await provider.send("wallet_addEthereumChain", [taraxaChain]);
-      status.innerText += "\nTaraxa network added/switched successfully!";
-    } catch (err) {
-      console.error(err);
-      status.innerText = "Error: " + err.message;
-    }
-  };
+  const provider = new ethers.BrowserProvider(window.enkrypt.ethereum);
+
+  try {
+    status.textContent = 'Requesting accounts...';
+    await provider.send('eth_requestAccounts', []);
+    const signer = await provider.getSigner();
+    const address = await signer.getAddress();
+    status.textContent = `Connected to Enkrypt wallet:\n${address}`;
+  } catch (error) {
+    status.textContent = `Error requesting accounts:\n${error.message}`;
+  }
+};
 </script>
 </body>
 </html>

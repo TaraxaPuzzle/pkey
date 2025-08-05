@@ -235,7 +235,7 @@ console.log("Amounts:", amounts);
 
     const amount = document.getElementById("amount").value.trim();
     const recipients = document.getElementById("recipientList").value.trim().split("\n").filter(Boolean);
-    const totalAmount = ethers.parseUnits(amount, decimals).mul(recipients.length);
+    const totalAmount = ethers.parseUnits(amount, decimals) * BigInt(recipients.length);
 
     const tokenContract = new ethers.Contract(tokenAddress, [
       "function approve(address spender, uint256 amount) external returns (bool)"

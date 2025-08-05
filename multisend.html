@@ -254,35 +254,27 @@ console.log("Amounts:", amounts);
   document.getElementById("approveBtn").onclick = approveTokens;
 
   // Estimate multisend gas fee correctly using BigInt math
-  async function estimateMultisendFee(contract, tokenAddress, recipients, amounts) {
-    try {
-      const gasEstimate = await contract.estimateGas["multisend(address,address[],uint256[])"](
-  tokenAddress,
-  recipients,
-  amounts
-);
-      const feeData = await provider.getFeeData();
-      const gasPrice = feeData.maxFeePerGas || feeData.gasPrice || ethers.parseUnits("20", "gwei");
-      
-      // Use BigInt multiplication for fee calculation
-	  
-	  console.log("Gas estimate:", gasEstimate.toString());
-console.log("Fee data:", feeData);
-console.log("Gas price used:", gasPrice.toString());
-	  
-      const fee = BigInt(gasEstimate.toString()) * BigInt(gasPrice.toString());
+async function estimateMultisendFee(contract, tokenAddress, recipients, amounts) {
+  try {
+    const gasEstimate = await contract.estimateGas.multisend(
+      tokenAddress,
+      recipients,
+      amounts
+    );
 
-      document.getElementById("estimatedFee").innerText = `Estimated Fee: ${ethers.formatEther(fee)} TARA`;
-      document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ~${ethers.formatEther(fee * BigInt(recipients.length))} TARA`;
-    } catch (err) {
-  console.error("🔍 Full gas estimate error:", err);
-  document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
-  document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
-}
-      document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
-      document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
-    }
+    const feeData = await provider.getFeeData();
+    const gasPrice = feeData.maxFeePerGas || feeData.gasPrice || ethers.parseUnits("20", "gwei");
+
+    const fee = BigInt(gasEstimate.toString()) * BigInt(gasPrice.toString());
+
+    document.getElementById("estimatedFee").innerText = `Estimated Fee: ${ethers.formatEther(fee)} TARA`;
+    document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ~${ethers.formatEther(fee * BigInt(recipients.length))} TARA`;
+  } catch (err) {
+    console.error("🔍 Full gas estimate error:", err);
+    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+    document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
   }
+}
 
   // Update fee estimate live as user inputs
   async function updateEstimatedFee() {

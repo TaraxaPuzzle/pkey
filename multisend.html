@@ -99,6 +99,8 @@
 <script>
   let dryRun = false; // Change to false to send real transactions
 
+  let provider, signer, decimals = 18;
+
   window.onload = () => {
     if (dryRun) {
       document.getElementById("dryRunNotice").style.display = "block";
@@ -106,107 +108,70 @@
     document.getElementById("networkStatus").style.display = "none";
   };
 
-  // --- Enkrypt wallet connection per docs ---
-
-  let provider, signer, decimals = 18;
-
   async function connectWallet() {
     try {
-      // Check if Enkrypt is injected
       if (!window.enkrypt || !window.enkrypt.providers || !window.enkrypt.providers.ethereum) {
         alert('Enkrypt wallet NOT detected. Please install & enable the Enkrypt extension.');
         return;
       }
-
-      // Use Enkrypt injected provider
       provider = new ethers.BrowserProvider(window.enkrypt.providers.ethereum);
       await provider.send("eth_requestAccounts", []);
       signer = await provider.getSigner();
       const address = await signer.getAddress();
-
       document.getElementById("walletAddress").innerText = "Connected: " + address;
       document.getElementById("networkStatus").style.display = "block";
       console.log("Connected:", address);
+      // After connecting, update fee estimate live
+      updateEstimatedFee();
     } catch (err) {
       console.error("Connection error:", err);
       alert("Failed to connect wallet.");
     }
   }
 
-  // --- Multisend logic from your code ---
+  async function sendBulkPKEY() {
+    const tokenAddress = document.getElementById("contractAddress").value.trim();
+    const amount = document.getElementById("amount").value.trim();
+    const rawList = document.getElementById("recipientList").value.trim();
+    const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
 
-  async function setupTaraxaNetwork() {
+    if (!tokenAddress || !amount || recipients.length === 0) {
+      alert("Please fill in all fields and provide recipient addresses.");
+      return;
+    }
+
+    if (!recipients.every(addr => ethers.isAddress(addr))) {
+      alert("❌ One or more wallet addresses are invalid.");
+      return;
+    }
+
+    if (dryRun) {
+      alert(`Dry-run mode enabled. Would send ${amount} tokens to ${recipients.length} addresses in one tx.`);
+      document.getElementById("status").innerText = `🚧 Dry-run complete. ${amount} tokens * ${recipients.length} addresses.`;
+      return;
+    }
+
+    const parsedAmount = ethers.parseUnits(amount, decimals);
+    const amounts = new Array(recipients.length).fill(parsedAmount);
+
+    const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
+    const multisendAbi = [
+      "function multisend(address token, address[] calldata recipients, uint256[] calldata amounts) external"
+    ];
+    const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
+
     try {
-      const currentChain = await provider.send("eth_chainId", []);
-      if (currentChain !== "0x349") {
-        await provider.send("wallet_addEthereumChain", [{
-          chainId: "0x349",
-          chainName: "Taraxa Mainnet",
-          nativeCurrency: { name: "Tara", symbol: "TARA", decimals: 18 },
-          rpcUrls: ["https://rpc.mainnet.taraxa.io"],
-          blockExplorerUrls: ["https://explorer.mainnet.taraxa.io"]
-        }]);
-        console.log("✅ Switched to Taraxa Mainnet");
-      }
-    } catch (err) {
-      console.error("Failed to switch network:", err);
-      alert("Could not switch to Taraxa network. Please add it manually.");
+      document.getElementById("status").innerText = `Sending multisend transaction to ${recipients.length} addresses...`;
+      const tx = await multisendContract.multisend(tokenAddress, recipients, amounts);
+      document.getElementById("status").innerText += `\nTransaction sent: ${tx.hash}\nWaiting for confirmation...`;
+
+      await tx.wait();
+
+      document.getElementById("status").innerText += "\n✅ Transaction confirmed! All tokens sent in 1 transaction.";
+    } catch (error) {
+      document.getElementById("status").innerText += `\n❌ Transaction failed: ${error.message}`;
     }
   }
-
-  async function sendBulkPKEY() {
-  const tokenAddress = document.getElementById("contractAddress").value.trim();
-  const amount = document.getElementById("amount").value.trim();
-  const rawList = document.getElementById("recipientList").value.trim();
-  const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
-
-  const warning = document.getElementById("delayWarning");
-  const durationPreview = document.getElementById("durationEstimate");
-  durationPreview.innerText = '';
-
-  if (!tokenAddress || !amount || recipients.length === 0) {
-    alert("Please fill in all fields and provide recipient addresses.");
-    return;
-  }
-
-  if (!recipients.every(addr => ethers.isAddress(addr))) {
-    alert("❌ One or more wallet addresses are invalid.");
-    return;
-  }
-
-  if (dryRun) {
-    alert(`Dry-run mode enabled. Would send ${amount} tokens to ${recipients.length} addresses in one tx.`);
-    document.getElementById("status").innerText = `🚧 Dry-run complete. ${amount} tokens * ${recipients.length} addresses.`;
-    return;
-  }
-
-  // Prepare amounts array - same amount for each recipient
-  const decimals = 18; // or use your dynamic decimals if you want
-  const parsedAmount = ethers.parseUnits(amount, decimals);
-  const amounts = new Array(recipients.length).fill(parsedAmount);
-
-  // Multisend contract address (replace this with your actual multisend contract)
-  const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
-
-  // Multisend contract ABI (only the multisend function)
-  const multisendAbi = [
-    "function multisend(address token, address[] calldata recipients, uint256[] calldata amounts) external"
-  ];
-
-  const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
-
-  try {
-    document.getElementById("status").innerText = `Sending multisend transaction to ${recipients.length} addresses...`;
-    const tx = await multisendContract.multisend(tokenAddress, recipients, amounts);
-    document.getElementById("status").innerText += `\nTransaction sent: ${tx.hash}\nWaiting for confirmation...`;
-
-    await tx.wait();
-
-    document.getElementById("status").innerText += "\n✅ Transaction confirmed! All tokens sent in 1 transaction.";
-  } catch (error) {
-    document.getElementById("status").innerText += `\n❌ Transaction failed: ${error.message}`;
-  }
-}
 
   async function getTokenInfo(address) {
     const erc20Abi = [
@@ -234,112 +199,101 @@
     if (info) {
       document.getElementById("amount").placeholder = `Amount per address (${info.symbol})`;
       document.title = `${info.name} Multisend Tool`;
+      // Update decimals for amount parsing
+      decimals = info.decimals;
+      // Update fee estimate
+      updateEstimatedFee();
     }
   });
 
   document.getElementById("connectBtn").onclick = connectWallet;
   document.getElementById("sendBtn").onclick = sendBulkPKEY;
-  
-async function estimateFee(contract, recipient, amount, count) {
-  try {
-    // Create a transaction to estimate gas and fees
-    const gasEstimate = await contract.estimateGas.transfer(recipient, ethers.parseUnits(amount, decimals));
 
-    // Fetch current gas price or maxFeePerGas (EIP-1559)
-    const feeData = await provider.getFeeData();
+  async function approveTokens() {
+    const tokenAddress = document.getElementById("contractAddress").value.trim();
+    if (!ethers.isAddress(tokenAddress)) {
+      alert("Invalid token address");
+      return;
+    }
 
-    // Calculate fee per tx = gasEstimate * gas price/maxFeePerGas
-    const gasPrice = feeData.maxFeePerGas || feeData.gasPrice || ethers.parseUnits("20", "gwei"); // fallback
-    const feePerTx = gasEstimate * gasPrice;
+    const amount = document.getElementById("amount").value.trim();
+    const recipients = document.getElementById("recipientList").value.trim().split("\n").filter(Boolean);
+    const totalAmount = ethers.parseUnits(amount, decimals).mul(recipients.length);
 
-    document.getElementById("estimatedFee").innerText = `Estimated Fee (per tx): ${ethers.formatEther(feePerTx)} TARA`;
-    document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ~${ethers.formatEther(feePerTx * BigInt(count))} TARA`;
-  } catch (error) {
-    console.warn("Fee estimate failed:", error.message);
-    document.getElementById("estimatedFee").innerText = "Estimated Fee (per tx): -";
-    document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
+    const tokenContract = new ethers.Contract(tokenAddress, [
+      "function approve(address spender, uint256 amount) external returns (bool)"
+    ], signer);
+
+    try {
+      const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
+      const tx = await tokenContract.approve(multisendAddress, totalAmount);
+      document.getElementById("status").innerText = `Approve transaction sent: ${tx.hash}\nWaiting for confirmation...`;
+      await tx.wait();
+      document.getElementById("status").innerText += "\n✅ Approval confirmed! You can now send tokens.";
+    } catch (err) {
+      document.getElementById("status").innerText += `\n❌ Approval failed: ${err.message}`;
+    }
   }
-}
+  document.getElementById("approveBtn").onclick = approveTokens;
 
-async function approveTokens() {
-  const tokenAddress = document.getElementById("contractAddress").value.trim();
-  if (!ethers.isAddress(tokenAddress)) {
-    alert("Invalid token address");
-    return;
+  // Estimate multisend gas fee correctly using BigInt math
+  async function estimateMultisendFee(contract, tokenAddress, recipients, amounts) {
+    try {
+      const gasEstimate = await contract.estimateGas.multisend(tokenAddress, recipients, amounts);
+      const feeData = await provider.getFeeData();
+      const gasPrice = feeData.maxFeePerGas || feeData.gasPrice || ethers.parseUnits("20", "gwei");
+      
+      // Use BigInt multiplication for fee calculation
+      const fee = BigInt(gasEstimate.toString()) * BigInt(gasPrice.toString());
+
+      document.getElementById("estimatedFee").innerText = `Estimated Fee: ${ethers.formatEther(fee)} TARA`;
+      document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ~${ethers.formatEther(fee * BigInt(recipients.length))} TARA`;
+    } catch (err) {
+      console.warn("Multisend fee estimate failed:", err.message);
+      document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+      document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
+    }
   }
 
-  const decimals = 18; // or get dynamically as you do in getTokenInfo
-  const amount = document.getElementById("amount").value.trim();
-  const recipients = document.getElementById("recipientList").value.trim().split("\n").filter(Boolean);
-  const totalAmount = ethers.parseUnits(amount, decimals).mul(recipients.length);
+  // Update fee estimate live as user inputs
+  async function updateEstimatedFee() {
+    const tokenAddress = document.getElementById("contractAddress").value.trim();
+    const rawList = document.getElementById("recipientList").value.trim();
+    const amountStr = document.getElementById("amount").value.trim();
 
-  const tokenContract = new ethers.Contract(tokenAddress, [
-    "function approve(address spender, uint256 amount) external returns (bool)"
-  ], signer);
+    if (!ethers.isAddress(tokenAddress)) {
+      document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+      document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
+      return;
+    }
+    const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
+    if (recipients.length === 0 || !amountStr) {
+      document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+      document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
+      return;
+    }
 
-  try {
+    const parsedAmount = ethers.parseUnits(amountStr, decimals);
+    const amounts = new Array(recipients.length).fill(parsedAmount);
+
     const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
-    const tx = await tokenContract.approve(multisendAddress, totalAmount);
-    document.getElementById("status").innerText = `Approve transaction sent: ${tx.hash}\nWaiting for confirmation...`;
-    await tx.wait();
-    document.getElementById("status").innerText += "\n✅ Approval confirmed! You can now send tokens.";
-  } catch (err) {
-    document.getElementById("status").innerText += `\n❌ Approval failed: ${err.message}`;
-  }
-}
+    const multisendAbi = [
+      "function multisend(address token, address[] calldata recipients, uint256[] calldata amounts) external"
+    ];
+    const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
 
-document.getElementById("approveBtn").onclick = approveTokens;
-
-async function estimateMultisendFee(contract, tokenAddress, recipients, amounts) {
-  try {
-    const gasEstimate = await contract.estimateGas.multisend(tokenAddress, recipients, amounts);
-    const feeData = await provider.getFeeData();
-    const gasPrice = feeData.maxFeePerGas || feeData.gasPrice || ethers.parseUnits("20", "gwei");
-    const fee = gasEstimate * gasPrice;
-
-    document.getElementById("estimatedFee").innerText = `Estimated Fee: ${ethers.formatEther(fee)} TARA`;
-  } catch (err) {
-    console.warn("Multisend fee estimate failed:", err.message);
-    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
-  }
-}
-
-
-async function updateEstimatedFee() {
-  const tokenAddress = document.getElementById("contractAddress").value.trim();
-  const rawList = document.getElementById("recipientList").value.trim();
-  const amountStr = document.getElementById("amount").value.trim();
-
-  if (!ethers.isAddress(tokenAddress)) {
-    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
-    return;
-  }
-  const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
-  if (recipients.length === 0 || !amountStr) {
-    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
-    return;
+    try {
+      await estimateMultisendFee(multisendContract, tokenAddress, recipients, amounts);
+    } catch {
+      document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+      document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
+    }
   }
 
-  const decimals = 18; // or get dynamically if you want
-  const parsedAmount = ethers.parseUnits(amountStr, decimals);
-  const amounts = new Array(recipients.length).fill(parsedAmount);
-
-  const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
-  const multisendAbi = [
-    "function multisend(address token, address[] calldata recipients, uint256[] calldata amounts) external"
-  ];
-  const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
-
-  try {
-    await estimateMultisendFee(multisendContract, tokenAddress, recipients, amounts);
-  } catch {
-    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
-  }
-}
-
-document.getElementById("contractAddress").addEventListener("input", updateEstimatedFee);
-document.getElementById("recipientList").addEventListener("input", updateEstimatedFee);
-document.getElementById("amount").addEventListener("input", updateEstimatedFee);
+  // Update fee estimate on input changes
+  document.getElementById("contractAddress").addEventListener("input", updateEstimatedFee);
+  document.getElementById("recipientList").addEventListener("input", updateEstimatedFee);
+  document.getElementById("amount").addEventListener("input", updateEstimatedFee);
 
 </script>
 

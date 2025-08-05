@@ -156,8 +156,8 @@
 
     const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
     const multisendAbi = [
-      "function multisend(address token, address[] calldata recipients, uint256[] calldata amounts) external"
-    ];
+  "function multisend(address,address[],uint256[])"
+];
     const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
 
     try {
@@ -239,7 +239,11 @@
   // Estimate multisend gas fee correctly using BigInt math
   async function estimateMultisendFee(contract, tokenAddress, recipients, amounts) {
     try {
-      const gasEstimate = await contract.estimateGas.multisend(tokenAddress, recipients, amounts);
+      const gasEstimate = await contract.estimateGas["multisend(address,address[],uint256[])"](
+  tokenAddress,
+  recipients,
+  amounts
+);
       const feeData = await provider.getFeeData();
       const gasPrice = feeData.maxFeePerGas || feeData.gasPrice || ethers.parseUnits("20", "gwei");
       
@@ -287,8 +291,8 @@ if (!provider || !signer || typeof signer.getAddress !== "function") {
 
     const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
     const multisendAbi = [
-      "function multisend(address token, address[] calldata recipients, uint256[] calldata amounts) external"
-    ];
+  "function multisend(address,address[],uint256[])"
+];
     const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
 
     try {

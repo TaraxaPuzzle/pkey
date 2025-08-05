@@ -89,6 +89,8 @@
 <div id="durationEstimate"></div>
 <div id="estimatedFee">Estimated Fee (per tx): -</div>
 <div id="estimatedTotal">Estimated Total Fee: -</div>
+<button id="approveBtn">Approve Tokens</button>
+
 <button id="sendBtn">🚀 Send to All</button>
 
 <div id="loadingRing"></div>
@@ -153,69 +155,58 @@
   }
 
   async function sendBulkPKEY() {
-    const contractAddress = document.getElementById("contractAddress").value.trim();
-    const amount = document.getElementById("amount").value.trim();
-    let delayMs = parseInt(document.getElementById("delayInput").value.trim());
-    const warning = document.getElementById("delayWarning");
-    const durationPreview = document.getElementById("durationEstimate");
-    const rawList = document.getElementById("recipientList").value.trim();
-    const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
-    const estimatedDurationSec = Math.ceil((recipients.length * (isNaN(delayMs) || delayMs < 300 ? 300 : delayMs)) / 1000);
-    durationPreview.innerText = recipients.length ? `⏱ Estimated duration: ${estimatedDurationSec} seconds` : "";
-    if (isNaN(delayMs) || delayMs < 300) {
-      delayMs = 300;
-      warning.style.display = "block";
-    } else {
-      warning.style.display = "none";
-    }
+  const tokenAddress = document.getElementById("contractAddress").value.trim();
+  const amount = document.getElementById("amount").value.trim();
+  const rawList = document.getElementById("recipientList").value.trim();
+  const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
 
-    const statusBox = document.getElementById("status");
-    const loader = document.getElementById("loadingRing");
+  const warning = document.getElementById("delayWarning");
+  const durationPreview = document.getElementById("durationEstimate");
+  durationPreview.innerText = '';
 
-    if (!contractAddress || !amount || recipients.length === 0) {
-      alert("Please fill in all fields and provide recipient addresses.");
-      return;
-    }
-
-    const isValid = recipients.every(addr => ethers.isAddress(addr));
-    if (!isValid) {
-      alert("❌ One or more wallet addresses are invalid.");
-      return;
-    }
-
-    if (dryRun) {
-      alert(`Dry-run mode enabled. Would send ${amount} tokens to ${recipients.length} addresses.`);
-      statusBox.innerText = `🚧 Dry-run complete. ${amount} tokens * ${recipients.length} addresses.`;
-      return;
-    }
-
-    const contract = new ethers.Contract(contractAddress, ["function transfer(address to, uint amount) public returns (bool)"], signer);
-
-    await estimateFee(contract, recipients[0], amount, recipients.length);
-
-    loader.style.display = "block";
-    let statusText = `Starting multisend to ${recipients.length} addresses...\n`;
-    statusBox.innerText = statusText;
-
-    for (let i = 0; i < recipients.length; i++) {
-      const to = recipients[i];
-      try {
-        const tx = await contract.transfer(to, ethers.parseUnits(amount, decimals));
-        statusText += `⏳ [${i + 1}/${recipients.length}] Tx sent to ${to}: ${tx.hash}\n`;
-        statusBox.innerText = statusText;
-        await tx.wait();
-        statusText += `✅ Confirmed: ${tx.hash}\n`;
-      } catch (e) {
-        statusText += `❌ Failed for ${to}: ${e.message}\n`;
-      }
-      statusBox.innerText = statusText;
-      await new Promise(resolve => setTimeout(resolve, delayMs));
-    }
-
-    loader.style.display = "none";
-    statusText += `\n🎉 Done sending to ${recipients.length} addresses.`;
-    statusBox.innerText = statusText;
+  if (!tokenAddress || !amount || recipients.length === 0) {
+    alert("Please fill in all fields and provide recipient addresses.");
+    return;
   }
+
+  if (!recipients.every(addr => ethers.isAddress(addr))) {
+    alert("❌ One or more wallet addresses are invalid.");
+    return;
+  }
+
+  if (dryRun) {
+    alert(`Dry-run mode enabled. Would send ${amount} tokens to ${recipients.length} addresses in one tx.`);
+    document.getElementById("status").innerText = `🚧 Dry-run complete. ${amount} tokens * ${recipients.length} addresses.`;
+    return;
+  }
+
+  // Prepare amounts array - same amount for each recipient
+  const decimals = 18; // or use your dynamic decimals if you want
+  const parsedAmount = ethers.parseUnits(amount, decimals);
+  const amounts = new Array(recipients.length).fill(parsedAmount);
+
+  // Multisend contract address (replace this with your actual multisend contract)
+  const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
+
+  // Multisend contract ABI (only the multisend function)
+  const multisendAbi = [
+    "function multisend(address token, address[] calldata recipients, uint256[] calldata amounts) external"
+  ];
+
+  const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
+
+  try {
+    document.getElementById("status").innerText = `Sending multisend transaction to ${recipients.length} addresses...`;
+    const tx = await multisendContract.multisend(tokenAddress, recipients, amounts);
+    document.getElementById("status").innerText += `\nTransaction sent: ${tx.hash}\nWaiting for confirmation...`;
+
+    await tx.wait();
+
+    document.getElementById("status").innerText += "\n✅ Transaction confirmed! All tokens sent in 1 transaction.";
+  } catch (error) {
+    document.getElementById("status").innerText += `\n❌ Transaction failed: ${error.message}`;
+  }
+}
 
   async function getTokenInfo(address) {
     const erc20Abi = [
@@ -269,6 +260,87 @@ async function estimateFee(contract, recipient, amount, count) {
     document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
   }
 }
+
+async function approveTokens() {
+  const tokenAddress = document.getElementById("contractAddress").value.trim();
+  if (!ethers.isAddress(tokenAddress)) {
+    alert("Invalid token address");
+    return;
+  }
+
+  const decimals = 18; // or get dynamically as you do in getTokenInfo
+  const amount = document.getElementById("amount").value.trim();
+  const recipients = document.getElementById("recipientList").value.trim().split("\n").filter(Boolean);
+  const totalAmount = ethers.parseUnits(amount, decimals).mul(recipients.length);
+
+  const tokenContract = new ethers.Contract(tokenAddress, [
+    "function approve(address spender, uint256 amount) external returns (bool)"
+  ], signer);
+
+  try {
+    const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
+    const tx = await tokenContract.approve(multisendAddress, totalAmount);
+    document.getElementById("status").innerText = `Approve transaction sent: ${tx.hash}\nWaiting for confirmation...`;
+    await tx.wait();
+    document.getElementById("status").innerText += "\n✅ Approval confirmed! You can now send tokens.";
+  } catch (err) {
+    document.getElementById("status").innerText += `\n❌ Approval failed: ${err.message}`;
+  }
+}
+
+document.getElementById("approveBtn").onclick = approveTokens;
+
+async function estimateMultisendFee(contract, tokenAddress, recipients, amounts) {
+  try {
+    const gasEstimate = await contract.estimateGas.multisend(tokenAddress, recipients, amounts);
+    const feeData = await provider.getFeeData();
+    const gasPrice = feeData.maxFeePerGas || feeData.gasPrice || ethers.parseUnits("20", "gwei");
+    const fee = gasEstimate * gasPrice;
+
+    document.getElementById("estimatedFee").innerText = `Estimated Fee: ${ethers.formatEther(fee)} TARA`;
+  } catch (err) {
+    console.warn("Multisend fee estimate failed:", err.message);
+    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+  }
+}
+
+
+async function updateEstimatedFee() {
+  const tokenAddress = document.getElementById("contractAddress").value.trim();
+  const rawList = document.getElementById("recipientList").value.trim();
+  const amountStr = document.getElementById("amount").value.trim();
+
+  if (!ethers.isAddress(tokenAddress)) {
+    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+    return;
+  }
+  const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
+  if (recipients.length === 0 || !amountStr) {
+    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+    return;
+  }
+
+  const decimals = 18; // or get dynamically if you want
+  const parsedAmount = ethers.parseUnits(amountStr, decimals);
+  const amounts = new Array(recipients.length).fill(parsedAmount);
+
+  const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
+  const multisendAbi = [
+    "function multisend(address token, address[] calldata recipients, uint256[] calldata amounts) external"
+  ];
+  const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, provider);
+
+  try {
+    await estimateMultisendFee(multisendContract, tokenAddress, recipients, amounts);
+  } catch {
+    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+  }
+}
+
+document.getElementById("contractAddress").addEventListener("input", updateEstimatedFee);
+document.getElementById("recipientList").addEventListener("input", updateEstimatedFee);
+document.getElementById("amount").addEventListener("input", updateEstimatedFee);
+
 </script>
 
 </body>

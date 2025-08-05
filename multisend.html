@@ -130,6 +130,7 @@
   }
 
   async function sendBulkPKEY() {
+  console.log("🚀 sendBulkPKEY triggered");
     const tokenAddress = document.getElementById("contractAddress").value.trim();
     const amount = document.getElementById("amount").value.trim();
     const rawList = document.getElementById("recipientList").value.trim();
@@ -162,6 +163,12 @@
 
     try {
       document.getElementById("status").innerText = `Sending multisend transaction to ${recipients.length} addresses...`;
+	  
+	  console.log("Multisend contract ready:", multisendContract);
+console.log("Token:", tokenAddress);
+console.log("Recipients:", recipients);
+console.log("Amounts:", amounts);
+	  
       const tx = await multisendContract.multisend(tokenAddress, recipients, amounts);
       document.getElementById("status").innerText += `\nTransaction sent: ${tx.hash}\nWaiting for confirmation...`;
 
@@ -258,7 +265,10 @@ console.log("Gas price used:", gasPrice.toString());
       document.getElementById("estimatedFee").innerText = `Estimated Fee: ${ethers.formatEther(fee)} TARA`;
       document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ~${ethers.formatEther(fee * BigInt(recipients.length))} TARA`;
     } catch (err) {
-      console.warn("Multisend fee estimate failed:", err.message);
+  console.error("🔍 Full gas estimate error:", err);
+  document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+  document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
+}
       document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
       document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
     }

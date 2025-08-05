@@ -228,16 +228,19 @@ async function connectWallet() {
 
   let ethProvider;
 
-  if (window.enkrypt?.providers?.ethereum) {
-    ethProvider = window.enkrypt.providers.ethereum;
-    console.log("✅ Enkrypt detected");
-  } else if (window.ethereum) {
-    ethProvider = window.ethereum;
-    console.warn("⚠️ Enkrypt not found. Falling back to MetaMask.");
-  } else {
-    alert("No compatible wallet found (Enkrypt or MetaMask).");
-    return;
-  }
+if (window.enkrypt?.ethereum) {
+  ethProvider = window.enkrypt.ethereum;
+  console.log("✅ Enkrypt detected (enkrypt.ethereum)");
+} else if (window.enkrypt?.providers?.ethereum) {
+  ethProvider = window.enkrypt.providers.ethereum;
+  console.log("✅ Enkrypt detected (providers.ethereum)");
+} else if (window.ethereum) {
+  ethProvider = window.ethereum;
+  console.warn("⚠️ Enkrypt not found. Falling back to MetaMask.");
+} else {
+  alert("No compatible wallet found (Enkrypt or MetaMask).");
+  return;
+}
 
   provider = new ethers.BrowserProvider(ethProvider);
   await provider.send("eth_requestAccounts", []);

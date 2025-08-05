@@ -3,17 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Fomo.biz Style Wallet Connect Demo</title>
+<title>Wallet Connect Demo</title>
 
 <!-- Ethers.js -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
 
-<!-- Web3Modal v2 -->
+<!-- Web3Modal v2 scripts -->
 <script src="https://unpkg.com/@web3modal/html@2.3.4/dist/index.min.js"></script>
 <script src="https://unpkg.com/@web3modal/ethereum@2.3.4/dist/index.min.js"></script>
-
-<!-- Wagmi Core -->
-<script src="https://unpkg.com/@wagmi/core@0.10.1/dist/index.min.js"></script>
 
 <style>
   body {
@@ -59,7 +56,7 @@
 </head>
 <body>
 
-<h1>Connect Wallet (Fomo.biz Style)</h1>
+<h1>Connect Your Wallet</h1>
 <button id="connectBtn">Connect Wallet</button>
 <div id="walletAddress"></div>
 <div id="networkStatus">✅ Connected to Taraxa Mainnet</div>
@@ -78,49 +75,33 @@
 
   const projectId = "c3bca9309d970d96c70be0b04f661798"; // WalletConnect Cloud Project ID
 
-  // Wagmi Core objects from the global import
-  const { w3mConnectors, w3mProvider, EthereumClient } = window.WagmiCore;
-  const { Web3Modal } = window.Web3Modal;
-
-  // Setup Wagmi provider and connectors for WalletConnect Cloud
-  const wagmiProvider = w3mProvider({ projectId, chains });
-  const wagmiConnectors = w3mConnectors({ projectId, chains });
-
-  // Ethereum client bridge for Web3Modal
-  const ethereumClient = new EthereumClient(wagmiProvider, wagmiConnectors);
-
-  // Initialize Web3Modal with Ethereum client
-  const web3Modal = new Web3Modal({
+  // Create Web3ModalEthereum instance directly
+  const web3modalEthereum = new window.Web3ModalEthereum.Web3ModalEthereum({
     projectId,
-    ethereumClient,
-    themeMode: "light"
+    chains
+  });
+
+  // Create Web3Modal instance with web3modalEthereum
+  const web3modal = new window.Web3Modal.HTML.Web3ModalHTML({
+    themeMode: "light",
+    ethereum: web3modalEthereum
   });
 
   let provider, signer;
 
   async function connectWallet() {
     try {
-      // Open wallet selection modal
-      await web3Modal.open();
-
-      // Get ethers provider from ethereumClient's provider
-      provider = new ethers.BrowserProvider(ethereumClient.getProvider());
-
-      // Request accounts
+      await web3modal.openModal();
+      provider = new ethers.BrowserProvider(web3modalEthereum);
       await provider.send("eth_requestAccounts", []);
-
-      // Get signer and address
       signer = await provider.getSigner();
       const address = await signer.getAddress();
-
-      // Display wallet info
       document.getElementById("walletAddress").innerText = "Connected wallet: " + address;
       document.getElementById("networkStatus").style.display = "block";
-
       console.log("Connected wallet:", address);
     } catch (err) {
-      console.error("Wallet connection failed:", err);
-      alert("Failed to connect wallet. Please try again.");
+      console.error("Failed to connect wallet:", err);
+      alert("Connection failed. Please try again.");
     }
   }
 

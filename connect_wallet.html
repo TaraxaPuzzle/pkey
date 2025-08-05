@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wallet Connect Demo - Taraxa</title>
+
+<link rel="icon" type="image/png" href="favicon.png.png" />
+
+<!-- Ethers.js -->
+<script src="https://unpkg.com/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+
+<!-- Web3Modal v2 scripts -->
+<script src="https://unpkg.com/@web3modal/html@2.3.4/dist/index.min.js"></script>
+<script src="https://unpkg.com/@web3modal/ethereum@2.3.4/dist/index.min.js"></script>
+
+<style>
+  body {
+    max-width: 400px;
+    margin: 40px auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  h1 {
+    color: #343a40;
+    margin-bottom: 1rem;
+  }
+  button {
+    padding: 12px 24px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #0d6efd;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #0b5ed7;
+  }
+  #walletAddress {
+    margin-top: 20px;
+    font-size: 1.1rem;
+    color: #198754;
+    word-break: break-word;
+  }
+  #networkStatus {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #198754;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>Connect Your Wallet</h1>
+<button id="connectBtn">Connect Wallet</button>
+<div id="walletAddress"></div>
+<div id="networkStatus">✅ Connected to Taraxa Mainnet</div>
+
+<script>
+  const chains = [
+    {
+      id: 841,
+      name: "Taraxa Mainnet",
+      network: "taraxa",
+      nativeCurrency: { decimals: 18, name: "Tara", symbol: "TARA" },
+      rpcUrls: { default: ["https://rpc.mainnet.taraxa.io"] },
+      blockExplorers: { default: { name: "Taraxa Explorer", url: "https://explorer.mainnet.taraxa.io" } }
+    }
+  ];
+
+  const projectId = "c3bca9309d970d96c70be0b04f661798";
+
+  // Create Web3ModalEthereum and Web3ModalHTML instances
+  const web3modalEthereum = new window.Web3ModalEthereum({
+    projectId,
+    chains
+  });
+
+  const web3modal = new window.Web3ModalHTML({
+    themeMode: "light",
+    ethereum: web3modalEthereum
+  });
+
+  let provider, signer;
+
+  async function connectWallet() {
+    try {
+      await web3modal.openModal();
+      provider = new ethers.BrowserProvider(web3modalEthereum);
+      await provider.send("eth_requestAccounts", []);
+      signer = await provider.getSigner();
+      const address = await signer.getAddress();
+      document.getElementById("walletAddress").innerText = "Connected wallet: " + address;
+      document.getElementById("networkStatus").style.display = "block";
+      console.log("Connected:", address);
+    } catch (err) {
+      console.error("Failed to connect wallet:", err);
+      alert("Connection failed. Please try again.");
+    }
+  }
+
+  document.getElementById("connectBtn").onclick = connectWallet;
+</script>
+
+</body>
+</html>

@@ -248,6 +248,27 @@
 
   document.getElementById("connectBtn").onclick = connectWallet;
   document.getElementById("sendBtn").onclick = sendBulkPKEY;
+  
+async function estimateFee(contract, recipient, amount, count) {
+  try {
+    // Create a transaction to estimate gas and fees
+    const gasEstimate = await contract.estimateGas.transfer(recipient, ethers.parseUnits(amount, decimals));
+
+    // Fetch current gas price or maxFeePerGas (EIP-1559)
+    const feeData = await provider.getFeeData();
+
+    // Calculate fee per tx = gasEstimate * gas price/maxFeePerGas
+    const gasPrice = feeData.maxFeePerGas || feeData.gasPrice || ethers.parseUnits("20", "gwei"); // fallback
+    const feePerTx = gasEstimate * gasPrice;
+
+    document.getElementById("estimatedFee").innerText = `Estimated Fee (per tx): ${ethers.formatEther(feePerTx)} TARA`;
+    document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ~${ethers.formatEther(feePerTx * BigInt(count))} TARA`;
+  } catch (error) {
+    console.warn("Fee estimate failed:", error.message);
+    document.getElementById("estimatedFee").innerText = "Estimated Fee (per tx): -";
+    document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
+  }
+}
 </script>
 
 </body>

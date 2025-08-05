@@ -6,6 +6,8 @@
   <title>Multisend Tool</title>
   <link rel="icon" type="image/png" href="favicon.png.png" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js">
+  </script>
+  <script>
 async function setupTaraxaNetwork() {
   const TARAXA_MAIN = {
     chainId: '0x349',
@@ -160,8 +162,7 @@ async function sendBulkPKEY() {
   const warning = document.getElementById("delayWarning");
   const durationPreview = document.getElementById("durationEstimate");
   const rawList = document.getElementById("recipientList").value.trim();
-  const recipients = rawList.split("
-").map(a => a.trim()).filter(Boolean);
+  const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
   const estimatedDurationSec = Math.ceil((recipients.length * (isNaN(delayMs) || delayMs < 300 ? 300 : delayMs)) / 1000);
   durationPreview.innerText = recipients.length ? `⏱ Estimated duration: ${estimatedDurationSec} seconds` : "";
   if (isNaN(delayMs) || delayMs < 300) {
@@ -177,6 +178,9 @@ async function sendBulkPKEY() {
   if (!contractAddress || !amount || recipients.length === 0) {
     return alert("Please fill in all fields and provide recipient addresses.");
   }
+  
+  const isValid = recipients.every(addr => ethers.isAddress(addr));
+  if (!isValid) return alert("❌ One or more wallet addresses are invalid.");
 
   if (dryRun) {
     alert(`Dry-run mode enabled. Would send ${amount} tokens to ${recipients.length} addresses.`);
@@ -259,6 +263,18 @@ document.getElementById("contractAddress").addEventListener("blur", async () => 
     document.title = `${info.name} Multisend Tool`;
   }
 });
+
+async function estimateFee(contract, recipient, amount, count) {
+  try {
+    const tx = await contract.transfer(recipient, ethers.parseUnits(amount, decimals));
+    const feePerTx = tx.gasLimit * tx.maxFeePerGas;
+    document.getElementById("estimatedFee").innerText = `Estimated Fee (per tx): ${ethers.formatEther(feePerTx)} TARA`;
+    document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ~${ethers.formatEther(feePerTx * BigInt(count))} TARA`;
+  } catch (e) {
+    console.warn("Fee estimate failed:", e.message);
+  }
+}
+
 </script>
 </body>
 </html>

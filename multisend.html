@@ -132,8 +132,73 @@ async function setupTaraxaNetwork() {
   <div id="loadingRing"></div>
   <div id="status"></div>
 <script>
+let dryRun = false; // Set to true to simulate without sending
+
 let provider, signer, decimals = 18;
 const abi = ["function transfer(address to, uint amount) public returns (bool)"];
+
+async function sendBulkPKEY() {
+  const contractAddress = document.getElementById("contractAddress").value.trim();
+  const amount = document.getElementById("amount").value.trim();
+  let delayMs = parseInt(document.getElementById("delayInput").value.trim());
+  const warning = document.getElementById("delayWarning");
+  const durationPreview = document.getElementById("durationEstimate");
+  const rawList = document.getElementById("recipientList").value.trim();
+  const recipients = rawList.split("
+").map(a => a.trim()).filter(Boolean);
+  const estimatedDurationSec = Math.ceil((recipients.length * (isNaN(delayMs) || delayMs < 300 ? 300 : delayMs)) / 1000);
+  durationPreview.innerText = recipients.length ? `⏱ Estimated duration: ${estimatedDurationSec} seconds` : "";
+  if (isNaN(delayMs) || delayMs < 300) {
+    delayMs = 300;
+    warning.style.display = "block";
+  } else {
+    warning.style.display = "none";
+  }
+
+  const statusBox = document.getElementById("status");
+  const loader = document.getElementById("loadingRing");
+
+  if (!contractAddress || !amount || recipients.length === 0) {
+    return alert("Please fill in all fields and provide recipient addresses.");
+  }
+
+  if (dryRun) {
+    alert(`Dry-run mode enabled. Would send ${amount} tokens to ${recipients.length} addresses.`);
+    statusBox.innerText = `🚧 Dry-run complete. ${amount} tokens * ${recipients.length} addresses.`;
+    return;
+  }
+
+  const contract = new ethers.Contract(contractAddress, abi, signer);
+  await estimateFee(contract, recipients[0], amount, recipients.length);
+
+  loader.style.display = "block";
+  let statusText = `Starting multisend to ${recipients.length} addresses...
+`;
+  statusBox.innerText = statusText;
+
+  for (let i = 0; i < recipients.length; i++) {
+    const to = recipients[i];
+    try {
+      const tx = await contract.transfer(to, ethers.parseUnits(amount, decimals));
+      statusText += `⏳ [${i + 1}/${recipients.length}] Tx sent to ${to}: ${tx.hash}
+`;
+      statusBox.innerText = statusText;
+      await tx.wait();
+      statusText += `✅ Confirmed: ${tx.hash}
+`;
+    } catch (e) {
+      statusText += `❌ Failed for ${to}: ${e.message}
+`;
+    }
+    statusBox.innerText = statusText;
+    await new Promise(resolve => setTimeout(resolve, delayMs));
+  }
+
+  loader.style.display = "none";
+  statusText += `
+🎉 Done sending to ${recipients.length} addresses.`;
+  statusBox.innerText = statusText;
+}
 
 async function connectWallet() {
   await setupTaraxaNetwork();

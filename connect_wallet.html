@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Enkrypt Wallet Connect Test</title>
+<title>Enkrypt Wallet Connect Test (Doc Compliant)</title>
 <style>
   body { font-family: Arial, sans-serif; max-width: 400px; margin: 40px auto; text-align: center; }
   button { padding: 12px 24px; font-size: 1.2rem; cursor: pointer; }
@@ -23,25 +23,21 @@
   const addressDiv = document.getElementById('address');
   const errorDiv = document.getElementById('error');
 
-  function getEnkryptProvider() {
-    if (window.enkrypt && window.enkrypt.ethereum) return window.enkrypt.ethereum;
-    if (window.ethereum && window.ethereum.isEnkrypt) return window.ethereum;
-    // fallback: check for other injection names if any
-    return null;
-  }
-
   connectBtn.onclick = async () => {
     errorDiv.textContent = '';
     addressDiv.textContent = '';
 
-    const provider = getEnkryptProvider();
-
-    if (!provider) {
-      errorDiv.textContent = 'Enkrypt wallet NOT detected. Make sure the extension is installed, enabled, and you are running this from a proper HTTPS or localhost server.';
+    if (
+      !window.enkrypt ||
+      !window.enkrypt.providers ||
+      !window.enkrypt.providers.ethereum
+    ) {
+      errorDiv.textContent = 'Enkrypt wallet NOT detected at window.enkrypt.providers.ethereum. Please install & enable Enkrypt extension.';
       return;
     }
 
     try {
+      const provider = window.enkrypt.providers.ethereum;
       const accounts = await provider.request({ method: 'eth_requestAccounts' });
       addressDiv.textContent = 'Connected address: ' + accounts[0];
     } catch (err) {

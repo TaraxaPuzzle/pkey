@@ -1,56 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Enkrypt Wallet Connect Demo</title>
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
-<style>
-  body {
-    max-width: 400px; margin: 40px auto; font-family: Arial, sans-serif; text-align: center;
-    background: #f8f9fa; padding: 30px; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-  }
-  button {
-    padding: 12px 24px; font-size: 1rem; border: none; border-radius: 8px;
-    background-color: #0d6efd; color: white; cursor: pointer;
-  }
-  button:hover { background-color: #0b5ed7; }
-  #walletAddress { margin-top: 20px; font-size: 1.1rem; color: #198754; word-break: break-word; }
-</style>
-</head>
+<head><meta charset="UTF-8" /><title>Enkrypt Taraxa Connect</title></head>
 <body>
-
-<h1>Connect Enkrypt Wallet</h1>
-<button id="connectBtn">Connect Wallet</button>
-<div id="walletAddress"></div>
-
+<button id="connectBtn">Connect Enkrypt + Add Taraxa</button>
+<div id="status"></div>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
 <script>
-  const connectBtn = document.getElementById('connectBtn');
-  const walletAddressDiv = document.getElementById('walletAddress');
+  const btn = document.getElementById("connectBtn");
+  const status = document.getElementById("status");
 
-  async function connectEnkrypt() {
+  btn.onclick = async () => {
+    status.innerText = "Checking Enkrypt wallet...";
     if (!window.enkrypt || !window.enkrypt.ethereum) {
-      alert("Enkrypt wallet not detected. Please install or open Enkrypt extension.");
+      status.innerText = "Enkrypt wallet not detected. Please install or enable it.";
       return;
     }
-
+    const provider = new ethers.BrowserProvider(window.enkrypt.ethereum);
     try {
-      const provider = new ethers.BrowserProvider(window.enkrypt.ethereum);
-      // Request accounts
+      status.innerText = "Requesting account access...";
       await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
+      status.innerText = `Connected: ${address}\nAdding Taraxa network...`;
 
-      walletAddressDiv.innerText = `Connected Wallet: ${address}`;
-      console.log("Connected Enkrypt wallet:", address);
+      const taraxaChain = {
+        chainId: "0x349",
+        chainName: "Taraxa Mainnet",
+        nativeCurrency: { name: "Tara", symbol: "TARA", decimals: 18 },
+        rpcUrls: ["https://rpc.mainnet.taraxa.io"],
+        blockExplorerUrls: ["https://explorer.mainnet.taraxa.io"]
+      };
+
+      await provider.send("wallet_addEthereumChain", [taraxaChain]);
+      status.innerText += "\nTaraxa network added/switched successfully!";
     } catch (err) {
-      console.error("Connection failed:", err);
-      alert("Failed to connect Enkrypt wallet.");
+      console.error(err);
+      status.innerText = "Error: " + err.message;
     }
-  }
-
-  connectBtn.onclick = connectEnkrypt;
+  };
 </script>
-
 </body>
 </html>

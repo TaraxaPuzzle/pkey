@@ -108,9 +108,22 @@ async function setupTaraxaNetwork() {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+	#dryRunNotice {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #ffc107;
+  color: #212529;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 1000;
+}
   </style>
 </head>
 <body>
+<div id="dryRunNotice" style="display:none;">🚧 Dry-run mode activated</div>
   <h2>🔁 Multisend Tool</h2>
   <button onclick="connectWallet()">Connect Wallet</button>
   <div id="walletAddress"></div>
@@ -133,6 +146,9 @@ async function setupTaraxaNetwork() {
   <div id="status"></div>
 <script>
 let dryRun = true; // Set to true to simulate without sending
+if (dryRun) {
+  document.getElementById("dryRunNotice").style.display = "block";
+}
 
 let provider, signer, decimals = 18;
 const abi = ["function transfer(address to, uint amount) public returns (bool)"];

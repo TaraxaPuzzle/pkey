@@ -14,6 +14,9 @@
 <script src="https://unpkg.com/@web3modal/html@2.3.4/dist/index.min.js"></script>
 <script src="https://unpkg.com/@web3modal/ethereum@2.3.4/dist/index.min.js"></script>
 
+<!-- Wagmi Core -->
+<script src="https://unpkg.com/@wagmi/core@0.10.1/dist/index.min.js"></script>
+
 <style>
   body {
     max-width: 700px; margin: 40px auto; font-family: 'Segoe UI', sans-serif;
@@ -99,13 +102,8 @@
 <div id="status"></div>
 
 <script>
-  let dryRun = true; // change to false to send real txs
-
-  window.onload = () => {
-    if (dryRun) {
-      document.getElementById("dryRunNotice").style.display = "block";
-    }
-  };
+  const { w3mConnectors, w3mProvider, EthereumClient } = window.WagmiCore;
+  const { Web3Modal } = window.Web3Modal;
 
   const chains = [
     {
@@ -118,14 +116,20 @@
     }
   ];
 
-  const web3modalEthereum = new window.Web3ModalEthereum({
-    projectId: "c3bca9309d970d96c70be0b04f661798", // get one free at https://cloud.walletconnect.com
-    chains: chains
-  });
+  const projectId = "c3bca9309d970d96c70be0b04f661798";
 
-  const web3modal = new window.Web3ModalHTML({
+  // Wagmi provider and connectors
+  const wagmiProvider = w3mProvider({ projectId, chains });
+  const wagmiConnectors = w3mConnectors({ projectId, chains });
+
+  // Ethereum client for Web3Modal
+  const ethereumClient = new EthereumClient(wagmiProvider, wagmiConnectors);
+
+  // Web3Modal instance
+  const web3Modal = new Web3Modal({
+    projectId,
+    ethereumClient,
     themeMode: "light",
-    ethereum: web3modalEthereum
   });
 
   let provider, signer, decimals = 18;
@@ -146,16 +150,14 @@
 
   async function connectWallet() {
     try {
-      await web3modal.openModal();
-      provider = new ethers.BrowserProvider(web3modalEthereum);
+      await web3Modal.open();
+      provider = new ethers.BrowserProvider(ethereumClient.getProvider());
       await provider.send("eth_requestAccounts", []);
       signer = await provider.getSigner();
       const address = await signer.getAddress();
       document.getElementById("walletAddress").innerText = "Connected: " + address;
       document.getElementById("networkStatus").style.display = "block";
-
       await setupTaraxaNetwork();
-
     } catch (err) {
       console.error("Connection error:", err);
       alert("Failed to connect wallet.");
@@ -264,6 +266,14 @@
 
   document.getElementById("connectBtn").onclick = connectWallet;
   document.getElementById("sendBtn").onclick = sendBulkPKEY;
+
+  let dryRun = true; // Make sure dryRun is declared here, for usage in sendBulkPKEY
+
+  window.onload = () => {
+    if (dryRun) {
+      document.getElementById("dryRunNotice").style.display = "block";
+    }
+  };
 </script>
 
 </body>

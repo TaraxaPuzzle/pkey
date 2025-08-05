@@ -127,66 +127,74 @@
     }
   }
 
-  async function sendBulkPKEY() {
+ async function sendBulkPKEY() {
   console.log("🚀 sendBulkPKEY triggered");
-    const tokenAddress = document.getElementById("contractAddress").value.trim();
-    const amount = document.getElementById("amount").value.trim();
-    const rawList = document.getElementById("recipientList").value.trim();
-    const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
 
-    if (!tokenAddress || !amount || recipients.length === 0) {
-      alert("Please fill in all fields and provide recipient addresses.");
-      return;
-    }
+  const tokenAddress = document.getElementById("contractAddress").value.trim();
+  const amount = document.getElementById("amount").value.trim();
+  const rawList = document.getElementById("recipientList").value.trim();
+  const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
 
-    if (!recipients.every(addr => ethers.isAddress(addr))) {
-      alert("❌ One or more wallet addresses are invalid.");
-      return;
-    }
-
-    if (dryRun) {
-      alert(`Dry-run mode enabled. Would send ${amount} tokens to ${recipients.length} addresses in one tx.`);
-      document.getElementById("status").innerText = `🚧 Dry-run complete. ${amount} tokens * ${recipients.length} addresses.`;
-      return;
-    }
-
-    const parsedAmount = ethers.parseUnits(amount, decimals);
-    const amounts = new Array(recipients.length).fill(parsedAmount);
-
-    const multisendAddress = ethers.getAddress("0x77c5f7f6e275f0dd30ce62be5a0afbf06a31f827");
-    const multisendAbi = [
-  {
-    "inputs": [
-      { "internalType": "address", "name": "token", "type": "address" },
-      { "internalType": "address[]", "name": "recipients", "type": "address[]" },
-      { "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }
-    ],
-    "name": "multisend",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+  if (!tokenAddress || !amount || recipients.length === 0) {
+    alert("Please fill in all fields and provide recipient addresses.");
+    return;
   }
-];
-    const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
+
+  if (!recipients.every(addr => ethers.isAddress(addr))) {
+    alert("❌ One or more wallet addresses are invalid.");
+    return;
+  }
+
+  if (dryRun) {
+    alert(`Dry-run mode enabled. Would send ${amount} tokens to ${recipients.length} addresses.`);
+    document.getElementById("status").innerText =
+      `🚧 Dry-run complete. ${amount} tokens * ${recipients.length} addresses.`;
+    return;
+  }
+
+  const parsedAmount = ethers.parseUnits(amount, decimals);
+  const multisendAddress = ethers.getAddress("0x77c5f7f6e275f0dd30ce62be5a0afbf06a31f827");
+
+  const multisendAbi = [
+    {
+      "inputs": [
+        { "internalType": "address", "name": "token", "type": "address" },
+        { "internalType": "address[]", "name": "recipients", "type": "address[]" },
+        { "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }
+      ],
+      "name": "multisend",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
+
+  const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
+
+  const batchSize = 300; // ✅ safe batch size
+  document.getElementById("status").innerText = `⏳ Sending tokens to ${recipients.length} addresses...\n`;
+
+  for (let i = 0; i < recipients.length; i += batchSize) {
+    const batchRecipients = recipients.slice(i, i + batchSize);
+    const batchAmounts = new Array(batchRecipients.length).fill(parsedAmount);
 
     try {
-      document.getElementById("status").innerText = `Sending multisend transaction to ${recipients.length} addresses...`;
-	  
-	  console.log("Multisend contract ready:", multisendContract);
-console.log("Token:", tokenAddress);
-console.log("Recipients:", recipients);
-console.log("Amounts:", amounts);
-	  
-      const tx = await multisendContract.multisend(tokenAddress, recipients, amounts);
-      document.getElementById("status").innerText += `\nTransaction sent: ${tx.hash}\nWaiting for confirmation...`;
+      document.getElementById("status").innerText += `\n🚀 Sending batch ${i / batchSize + 1} (${batchRecipients.length} addresses)...`;
+
+      const tx = await multisendContract.multisend(tokenAddress, batchRecipients, batchAmounts);
+      document.getElementById("status").innerText += `\n📨 TX sent: ${tx.hash}\n⏳ Waiting for confirmation...`;
 
       await tx.wait();
-
-      document.getElementById("status").innerText += "\n✅ Transaction confirmed! All tokens sent in 1 transaction.";
+      document.getElementById("status").innerText += `\n✅ Batch confirmed!`;
     } catch (error) {
-      document.getElementById("status").innerText += `\n❌ Transaction failed: ${error.message}`;
+      console.error("Batch error:", error);
+      document.getElementById("status").innerText += `\n❌ Batch ${i / batchSize + 1} failed: ${error.message}`;
+      break; // stop on failure
     }
   }
+
+  document.getElementById("status").innerText += `\n🎉 All done.`;
+}
 
   async function getTokenInfo(address) {
     const erc20Abi = [
@@ -269,6 +277,9 @@ async function estimateMultisendFee(contract, tokenAddress, recipients, amounts)
     document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ~${ethers.formatEther(fee * BigInt(recipients.length))} TARA`;
   } catch (err) {
     console.error("🔍 Full gas estimate error:", err);
+document.getElementById("status").innerText += `\n⚠️ Estimation failed:\n${err.message}`;
+    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
+    document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
   }
 }
 

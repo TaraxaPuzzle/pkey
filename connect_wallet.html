@@ -2,37 +2,49 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Enkrypt Wallet Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Enkrypt Wallet Connect Demo</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 400px; margin: 40px auto; text-align: center; }
+  button { padding: 12px 24px; font-size: 1.2rem; cursor: pointer; }
+  #address { margin-top: 20px; font-weight: bold; color: green; word-break: break-word; }
+  #error { margin-top: 20px; color: red; }
+</style>
 </head>
 <body>
+
+<h1>Enkrypt Wallet Connect Demo</h1>
 <button id="connectBtn">Connect Enkrypt Wallet</button>
-<pre id="status"></pre>
+<div id="address"></div>
+<div id="error"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
 <script>
-const btn = document.getElementById('connectBtn');
-const status = document.getElementById('status');
+  const connectBtn = document.getElementById('connectBtn');
+  const addressDiv = document.getElementById('address');
+  const errorDiv = document.getElementById('error');
 
-btn.onclick = async () => {
-  status.textContent = 'Checking for Enkrypt...';
+  connectBtn.onclick = async () => {
+    errorDiv.textContent = '';
+    addressDiv.textContent = '';
 
-  if (!window.enkrypt || !window.enkrypt.ethereum) {
-    status.textContent = 'Enkrypt not detected. Make sure extension is installed and enabled.';
-    return;
-  }
+    if (!window.enkrypt || !window.enkrypt.ethereum) {
+      errorDiv.textContent = 'Enkrypt wallet NOT detected. Please install & enable the Enkrypt extension.';
+      return;
+    }
 
-  const provider = new ethers.BrowserProvider(window.enkrypt.ethereum);
-
-  try {
-    status.textContent = 'Requesting accounts...';
-    await provider.send('eth_requestAccounts', []);
-    const signer = await provider.getSigner();
-    const address = await signer.getAddress();
-    status.textContent = `Connected to Enkrypt wallet:\n${address}`;
-  } catch (error) {
-    status.textContent = `Error requesting accounts:\n${error.message}`;
-  }
-};
+    try {
+      // Request user accounts through Enkrypt
+      const accounts = await window.enkrypt.ethereum.request({ method: 'eth_requestAccounts' });
+      if(accounts && accounts.length > 0) {
+        addressDiv.textContent = 'Connected address: ' + accounts[0];
+      } else {
+        errorDiv.textContent = 'No accounts found.';
+      }
+    } catch (err) {
+      errorDiv.textContent = 'Connection rejected or failed: ' + err.message;
+    }
+  };
 </script>
+
 </body>
 </html>

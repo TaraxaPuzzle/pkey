@@ -157,7 +157,17 @@
 
     const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
     const multisendAbi = [
-  "function multisend(address,address[],uint256[])"
+  {
+    "inputs": [
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "address[]", "name": "recipients", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }
+    ],
+    "name": "multisend",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
 ];
     const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
 
@@ -301,7 +311,17 @@ if (!provider || !signer || typeof signer.getAddress !== "function") {
 
     const multisendAddress = "0x77C5f7f6E275F0dd30Ce62be5A0AfbF06a31f827";
     const multisendAbi = [
-  "function multisend(address,address[],uint256[])"
+  {
+    "inputs": [
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "address[]", "name": "recipients", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }
+    ],
+    "name": "multisend",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
 ];
     const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
 

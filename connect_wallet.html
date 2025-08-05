@@ -2,24 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>WalletConnect Demo</title>
-
-<!-- Ethers.js -->
+<title>Enkrypt Wallet Connect Demo</title>
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
-
-<!-- Web3Modal v2 -->
 <script src="https://unpkg.com/@web3modal/html@2.3.4/dist/index.min.js"></script>
 <script src="https://unpkg.com/@web3modal/ethereum@2.3.4/dist/index.min.js"></script>
-
-<style>
-  body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-  #walletAddress { margin-top: 20px; }
-</style>
 </head>
 <body>
-
-<h1>WalletConnect Demo</h1>
 <button id="connectBtn">Connect Wallet</button>
 <div id="walletAddress"></div>
 
@@ -37,36 +25,47 @@
 
   const projectId = "c3bca9309d970d96c70be0b04f661798";
 
-  // Instantiate classes directly
+  // Web3Modal + WalletConnect v2 setup
   const web3modalEthereum = new Web3ModalEthereum({
     projectId,
     chains
   });
-
   const web3modal = new Web3Modal({
-    themeMode: "light",
-    ethereum: web3modalEthereum
+    ethereum: web3modalEthereum,
+    themeMode: "light"
   });
 
   let provider, signer;
 
   async function connectWallet() {
     try {
-      await web3modal.openModal();
-      provider = new ethers.BrowserProvider(web3modalEthereum);
+      if (window.enkrypt?.ethereum) {
+        // Use Enkrypt injected provider directly
+        provider = new ethers.BrowserProvider(window.enkrypt.ethereum);
+        console.log("Using Enkrypt injected provider");
+      } else if (window.ethereum && window.ethereum.isEnkrypt) {
+        provider = new ethers.BrowserProvider(window.ethereum);
+        console.log("Using Enkrypt provider via window.ethereum");
+      } else {
+        // Fallback to Web3Modal wallet selector (includes Enkrypt via WalletConnect)
+        await web3modal.openModal();
+        provider = new ethers.BrowserProvider(web3modalEthereum);
+        console.log("Using Web3Modal WalletConnect provider");
+      }
+
       await provider.send("eth_requestAccounts", []);
       signer = await provider.getSigner();
       const address = await signer.getAddress();
       document.getElementById("walletAddress").innerText = "Connected wallet: " + address;
       console.log("Connected wallet:", address);
-    } catch (e) {
-      console.error("Connect error:", e);
+
+    } catch (err) {
+      console.error("Connection failed:", err);
       alert("Failed to connect wallet");
     }
   }
 
   document.getElementById("connectBtn").onclick = connectWallet;
 </script>
-
 </body>
 </html>

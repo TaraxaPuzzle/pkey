@@ -328,7 +328,7 @@ async function updateEstimatedFee() {
   const multisendAbi = [
     "function multisend(address token, address[] calldata recipients, uint256[] calldata amounts) external"
   ];
-  const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, provider);
+  const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
 
   try {
     await estimateMultisendFee(multisendContract, tokenAddress, recipients, amounts);

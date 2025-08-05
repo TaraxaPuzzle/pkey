@@ -5,14 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Wallet Connect Demo - Taraxa</title>
 
-<link rel="icon" type="image/png" href="favicon.png.png" />
-
-<!-- Ethers.js -->
 <script src="https://unpkg.com/ethers@6.8.1/dist/ethers.umd.min.js"></script>
-
-<!-- Web3Modal v2 scripts -->
 <script src="https://unpkg.com/@web3modal/html@2.3.4/dist/index.min.js"></script>
 <script src="https://unpkg.com/@web3modal/ethereum@2.3.4/dist/index.min.js"></script>
+<script src="https://unpkg.com/@wagmi/core@0.10.1/dist/index.min.js"></script>
 
 <style>
   body {
@@ -64,6 +60,9 @@
 <div id="networkStatus">✅ Connected to Taraxa Mainnet</div>
 
 <script>
+  const { w3mConnectors, w3mProvider, EthereumClient } = window.WagmiCore;
+  const { Web3Modal } = window.Web3Modal;
+
   const chains = [
     {
       id: 841,
@@ -77,23 +76,26 @@
 
   const projectId = "c3bca9309d970d96c70be0b04f661798";
 
-  // Create Web3ModalEthereum and Web3ModalHTML instances
-  const web3modalEthereum = new window.Web3ModalEthereum({
-    projectId,
-    chains
-  });
+  // Setup wagmi provider and connectors
+  const wagmiProvider = w3mProvider({ projectId, chains });
+  const wagmiConnectors = w3mConnectors({ projectId, chains });
 
-  const web3modal = new window.Web3ModalHTML({
+  // Create EthereumClient instance
+  const ethereumClient = new EthereumClient(wagmiProvider, wagmiConnectors);
+
+  // Create Web3Modal instance
+  const web3Modal = new Web3Modal({
+    projectId,
+    ethereumClient,
     themeMode: "light",
-    ethereum: web3modalEthereum
   });
 
   let provider, signer;
 
   async function connectWallet() {
     try {
-      await web3modal.openModal();
-      provider = new ethers.BrowserProvider(web3modalEthereum);
+      await web3Modal.open();
+      provider = new ethers.BrowserProvider(ethereumClient.getProvider());
       await provider.send("eth_requestAccounts", []);
       signer = await provider.getSigner();
       const address = await signer.getAddress();

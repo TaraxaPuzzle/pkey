@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Wallet Connect Demo - Taraxa</title>
+<title>Wallet Connect Demo</title>
 
 <script src="https://unpkg.com/ethers@6.8.1/dist/ethers.umd.min.js"></script>
 <script src="https://unpkg.com/@web3modal/html@2.3.4/dist/index.min.js"></script>
@@ -11,79 +11,35 @@
 <script src="https://unpkg.com/@wagmi/core@0.10.1/dist/index.min.js"></script>
 
 <style>
-  body {
-    max-width: 400px;
-    margin: 40px auto;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
-    padding: 30px;
-    border-radius: 16px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-    text-align: center;
-  }
-  h1 {
-    color: #343a40;
-    margin-bottom: 1rem;
-  }
-  button {
-    padding: 12px 24px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    background-color: #0d6efd;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  button:hover {
-    background-color: #0b5ed7;
-  }
-  #walletAddress {
-    margin-top: 20px;
-    font-size: 1.1rem;
-    color: #198754;
-    word-break: break-word;
-  }
-  #networkStatus {
-    margin-top: 10px;
-    font-size: 0.9rem;
-    color: #198754;
-    display: none;
-  }
+  body { font-family: sans-serif; padding: 2rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; }
+  #walletAddress { margin-top: 1rem; }
 </style>
 </head>
 <body>
 
-<h1>Connect Your Wallet</h1>
 <button id="connectBtn">Connect Wallet</button>
 <div id="walletAddress"></div>
-<div id="networkStatus">✅ Connected to Taraxa Mainnet</div>
 
 <script>
   const { w3mConnectors, w3mProvider, EthereumClient } = window.WagmiCore;
   const { Web3Modal } = window.Web3Modal;
 
-  const chains = [
-    {
-      id: 841,
-      name: "Taraxa Mainnet",
-      network: "taraxa",
-      nativeCurrency: { decimals: 18, name: "Tara", symbol: "TARA" },
-      rpcUrls: { default: ["https://rpc.mainnet.taraxa.io"] },
-      blockExplorers: { default: { name: "Taraxa Explorer", url: "https://explorer.mainnet.taraxa.io" } }
-    }
-  ];
+  const chains = [{
+    id: 841,
+    name: "Taraxa Mainnet",
+    network: "taraxa",
+    nativeCurrency: { decimals: 18, name: "Tara", symbol: "TARA" },
+    rpcUrls: { default: ["https://rpc.mainnet.taraxa.io"] },
+    blockExplorers: { default: { name: "Taraxa Explorer", url: "https://explorer.mainnet.taraxa.io" } }
+  }];
 
   const projectId = "c3bca9309d970d96c70be0b04f661798";
 
-  // Setup wagmi provider and connectors
   const wagmiProvider = w3mProvider({ projectId, chains });
   const wagmiConnectors = w3mConnectors({ projectId, chains });
-
-  // Create EthereumClient instance
   const ethereumClient = new EthereumClient(wagmiProvider, wagmiConnectors);
 
-  // Create Web3Modal instance
   const web3Modal = new Web3Modal({
     projectId,
     ethereumClient,
@@ -99,12 +55,11 @@
       await provider.send("eth_requestAccounts", []);
       signer = await provider.getSigner();
       const address = await signer.getAddress();
-      document.getElementById("walletAddress").innerText = "Connected wallet: " + address;
-      document.getElementById("networkStatus").style.display = "block";
+      document.getElementById("walletAddress").innerText = `Connected wallet: ${address}`;
       console.log("Connected:", address);
     } catch (err) {
       console.error("Failed to connect wallet:", err);
-      alert("Connection failed. Please try again.");
+      alert("Connection failed.");
     }
   }
 

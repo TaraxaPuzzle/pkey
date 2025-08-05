@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Enkrypt Wallet Connect Demo</title>
+<title>Enkrypt Wallet Connect Test</title>
 <style>
   body { font-family: Arial, sans-serif; max-width: 400px; margin: 40px auto; text-align: center; }
   button { padding: 12px 24px; font-size: 1.2rem; cursor: pointer; }
@@ -13,7 +13,7 @@
 </head>
 <body>
 
-<h1>Enkrypt Wallet Connect Demo</h1>
+<h1>Enkrypt Wallet Connect Test</h1>
 <button id="connectBtn">Connect Enkrypt Wallet</button>
 <div id="address"></div>
 <div id="error"></div>
@@ -23,23 +23,27 @@
   const addressDiv = document.getElementById('address');
   const errorDiv = document.getElementById('error');
 
+  function getEnkryptProvider() {
+    if (window.enkrypt && window.enkrypt.ethereum) return window.enkrypt.ethereum;
+    if (window.ethereum && window.ethereum.isEnkrypt) return window.ethereum;
+    // fallback: check for other injection names if any
+    return null;
+  }
+
   connectBtn.onclick = async () => {
     errorDiv.textContent = '';
     addressDiv.textContent = '';
 
-    if (!window.enkrypt || !window.enkrypt.ethereum) {
-      errorDiv.textContent = 'Enkrypt wallet NOT detected. Please install & enable the Enkrypt extension.';
+    const provider = getEnkryptProvider();
+
+    if (!provider) {
+      errorDiv.textContent = 'Enkrypt wallet NOT detected. Make sure the extension is installed, enabled, and you are running this from a proper HTTPS or localhost server.';
       return;
     }
 
     try {
-      // Request user accounts through Enkrypt
-      const accounts = await window.enkrypt.ethereum.request({ method: 'eth_requestAccounts' });
-      if(accounts && accounts.length > 0) {
-        addressDiv.textContent = 'Connected address: ' + accounts[0];
-      } else {
-        errorDiv.textContent = 'No accounts found.';
-      }
+      const accounts = await provider.request({ method: 'eth_requestAccounts' });
+      addressDiv.textContent = 'Connected address: ' + accounts[0];
     } catch (err) {
       errorDiv.textContent = 'Connection rejected or failed: ' + err.message;
     }

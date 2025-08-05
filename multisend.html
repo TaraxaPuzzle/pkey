@@ -101,12 +101,12 @@
 
   let provider, signer, decimals = 18;
 
-  window.onload = () => {
-    if (dryRun) {
-      document.getElementById("dryRunNotice").style.display = "block";
-    }
-    document.getElementById("networkStatus").style.display = "none";
-  };
+  document.addEventListener("DOMContentLoaded", () => {
+  if (dryRun) {
+    document.getElementById("dryRunNotice").style.display = "block";
+  }
+  document.getElementById("networkStatus").style.display = "none";
+});
 
   async function connectWallet() {
     try {

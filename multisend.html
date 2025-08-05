@@ -147,10 +147,13 @@ async function setupTaraxaNetwork() {
   <div id="loadingRing"></div>
   <div id="status"></div>
 <script>
-let dryRun = true; // Set to true to simulate without sending
-if (dryRun) {
-  document.getElementById("dryRunNotice").style.display = "block";
-}
+let dryRun = true;
+
+window.onload = () => {
+  if (dryRun) {
+    document.getElementById("dryRunNotice").style.display = "block";
+  }
+};
 
 let provider, signer, decimals = 18;
 const abi = ["function transfer(address to, uint amount) public returns (bool)"];

@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Wallet Connect Demo</title>
 
-<script src="https://unpkg.com/ethers@6.8.1/dist/ethers.umd.min.js"></script>
-<script src="https://unpkg.com/@web3modal/html@2.3.4/dist/index.min.js"></script>
-<script src="https://unpkg.com/@web3modal/ethereum@2.3.4/dist/index.min.js"></script>
-<script src="https://unpkg.com/@wagmi/core@0.10.1/dist/index.min.js"></script>
+<script src="https://unpkg.com/@wagmi/core@0.10.1/dist/index.min.js" defer></script>
+<script src="https://unpkg.com/@web3modal/html@2.3.4/dist/index.min.js" defer></script>
+<script src="https://unpkg.com/@web3modal/ethereum@2.3.4/dist/index.min.js" defer></script>
+<script src="https://unpkg.com/ethers@6.8.1/dist/ethers.umd.min.js" defer></script>
 
 <style>
   body { font-family: sans-serif; padding: 2rem; }
@@ -21,7 +21,8 @@
 <button id="connectBtn">Connect Wallet</button>
 <div id="walletAddress"></div>
 
-<script>
+<script defer>
+window.addEventListener('DOMContentLoaded', () => {
   const { w3mConnectors, w3mProvider, EthereumClient } = window.WagmiCore;
   const { Web3Modal } = window.Web3Modal;
 
@@ -64,6 +65,7 @@
   }
 
   document.getElementById("connectBtn").onclick = connectWallet;
+});
 </script>
 
 </body>

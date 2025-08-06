@@ -1,110 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Multisend Tool</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multisend Tool</title>
+    <link rel="icon" type="image/png" href="favicon.png.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-3xl bg-white shadow-xl rounded-2xl p-8">
+      <div id="dryRunNotice" class="hidden bg-yellow-200 text-yellow-900 p-3 rounded-md text-sm mb-4">🚧 Dry-run mode activated</div>
 
-<link rel="icon" type="image/png" href="favicon.png.png" />
+      <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">🔁 Multisend Tool</h2>
 
-<!-- Ethers.js -->
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+      <button id="connectBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md mb-2">Connect Wallet</button>
+      <div id="walletAddress" class="text-center text-sm text-gray-600"></div>
+      <div id="networkStatus" class="text-center text-green-600 text-sm hidden">✅ Connected to Taraxa Mainnet</div>
 
-<style>
-  body {
-    max-width: 700px; margin: 40px auto; font-family: 'Segoe UI', sans-serif;
-    background-color: #f8f9fa; padding: 30px; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-  }
-  h2 {
-    text-align: center; margin-bottom: 20px; color: #343a40;
-  }
-  input, textarea, button {
-    width: 100%; padding: 12px; margin: 10px 0; font-size: 1rem;
-    border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;
-  }
-  button {
-    background-color: #0d6efd; color: white; cursor: pointer; border: none;
-    transition: background-color 0.2s;
-  }
-  button:hover {
-    background-color: #0b5ed7;
-  }
-  textarea {
-    height: 180px; resize: vertical;
-  }
-  #status {
-    margin-top: 20px; font-size: 0.95rem; background: #fff; padding: 15px;
-    border-radius: 8px; border: 1px solid #dee2e6; white-space: pre-wrap;
-  }
-  #loadingRing {
-    display: none; margin: 20px auto; border: 6px solid #e9ecef;
-    border-top: 6px solid #0d6efd; border-radius: 50%; width: 40px; height: 40px;
-    animation: spin 1s linear infinite;
-  }
-  #delayWarning {
-    color: #dc3545; font-size: 0.9rem; display: none;
-  }
-  #walletAddress {
-    text-align: center; font-size: 0.95rem; margin-bottom: 10px;
-  }
-  #networkStatus {
-    text-align: center; font-size: 0.9rem; color: #198754; display: none;
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg);}
-    100% { transform: rotate(360deg);}
-  }
-  #dryRunNotice {
-    position: fixed; bottom: 20px; right: 20px; background: #ffc107;
-    color: #212529; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15); z-index: 1000;
-  }
-</style>
-</head>
-<body>
+      <input id="contractAddress" type="text" placeholder="ERC-20 Token Contract Address" class="w-full border border-gray-300 rounded-md p-3 mt-4" />
 
-<div id="dryRunNotice" style="display:none;">🚧 Dry-run mode activated</div>
+      <label for="amount" class="text-sm text-gray-600 mt-3 block">Amount to send per wallet</label>
+      <input id="amount" type="number" placeholder="Amount per address" value="1" class="w-full border border-gray-300 rounded-md p-3" />
 
-<h2>🔁 Multisend Tool</h2>
+      <label for="delayInput" class="text-sm text-gray-600 mt-3 block">Delay between transactions (ms)</label>
+      <input id="delayInput" type="number" placeholder="Delay between TXs" value="300" class="w-full border border-gray-300 rounded-md p-3" />
+      <div id="delayWarning" class="text-red-500 text-sm hidden mt-1">Minimum delay is 300ms for network health. Using 300ms.</div>
 
-<button id="connectBtn">Connect Wallet</button>
-<div id="walletAddress"></div>
-<div id="networkStatus">✅ Connected to Taraxa Mainnet</div>
+      <label for="recipientList" class="text-sm text-gray-600 mt-4 block">Wallet addresses (one per line):</label>
+      <textarea id="recipientList" class="w-full border border-gray-300 rounded-md p-3 h-40 resize-y mt-1" placeholder="Paste wallet addresses"></textarea>
 
-<input type="text" id="contractAddress" placeholder="ERC-20 Token Contract Address" />
-<label for="amount" style="font-size: 0.9rem; color: #495057;">
-  Amount to send per wallet (e.g. <b>1</b> = 1 token unit based on decimals)
-</label>
-<input type="number" id="amount" placeholder="Amount per address (token units)" value="1" />
-<label for="delayInput" style="font-size: 0.9rem; color: #495057;">
-  Delay between transactions in milliseconds (e.g. <b>300</b> = 0.3 seconds). Helps avoid rate limiting.
-</label>
-<input type="number" id="delayInput" placeholder="Delay between TXs (ms)" value="300" />
-<div id="delayWarning">Minimum delay is 300ms for network health. Using 300ms.</div>
-<label for="recipientList" style="font-size: 0.9rem; color: #495057;">
-  Wallet addresses to send to (one per line):
-</label>
-<textarea id="recipientList" placeholder="Paste wallet addresses, one per line"></textarea>
+      <div class="flex gap-4 mt-4">
+        <button id="approveBtn" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-md">Approve Tokens</button>
+        <button id="sendBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-md">🚀 Send to All</button>
+      </div>
 
-<div id="durationEstimate"></div>
-<button id="approveBtn">Approve Tokens</button>
+      <div id="loadingRing" class="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin mx-auto my-6 hidden"></div>
 
-<button id="sendBtn">🚀 Send to All</button>
-
-<div id="loadingRing"></div>
-<div id="status"></div>
+      <pre id="status" class="bg-gray-50 border border-gray-200 rounded-md p-4 mt-4 text-sm text-gray-800 whitespace-pre-wrap"></pre>
+    </div>
 
 <script>
-  let dryRun = false; // Change to false to send real transactions
-
+  let dryRun = false;
   let provider, signer, decimals = 18;
 
   document.addEventListener("DOMContentLoaded", () => {
-  if (dryRun) {
-    document.getElementById("dryRunNotice").style.display = "block";
-  }
-  document.getElementById("networkStatus").style.display = "none";
-});
+    if (dryRun) {
+      document.getElementById("dryRunNotice").style.display = "block";
+    }
+    document.getElementById("networkStatus").style.display = "none";
+  });
 
   async function connectWallet() {
     try {
@@ -119,44 +64,41 @@
       document.getElementById("walletAddress").innerText = "Connected: " + address;
       document.getElementById("networkStatus").style.display = "block";
       console.log("Connected:", address);
-      // After connecting, update fee estimate live
-      setTimeout(updateEstimatedFee, 100);
     } catch (err) {
       console.error("Connection error:", err);
       alert("Failed to connect wallet.");
     }
   }
 
- async function sendBulkPKEY() {
-  console.log("🚀 sendBulkPKEY triggered");
+  async function sendBulkPKEY() {
+    console.log("🚀 sendBulkPKEY triggered");
 
-  const tokenAddress = document.getElementById("contractAddress").value.trim();
-  const amount = document.getElementById("amount").value.trim();
-  const rawList = document.getElementById("recipientList").value.trim();
-  const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
+    const tokenAddress = document.getElementById("contractAddress").value.trim();
+    const amount = document.getElementById("amount").value.trim();
+    const rawList = document.getElementById("recipientList").value.trim();
+    const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
 
-  if (!tokenAddress || !amount || recipients.length === 0) {
-    alert("Please fill in all fields and provide recipient addresses.");
-    return;
-  }
+    if (!tokenAddress || !amount || recipients.length === 0) {
+      alert("Please fill in all fields and provide recipient addresses.");
+      return;
+    }
 
-  if (!recipients.every(addr => ethers.isAddress(addr))) {
-    alert("❌ One or more wallet addresses are invalid.");
-    return;
-  }
+    if (!recipients.every(addr => ethers.isAddress(addr))) {
+      alert("❌ One or more wallet addresses are invalid.");
+      return;
+    }
 
-  if (dryRun) {
-    alert(`Dry-run mode enabled. Would send ${amount} tokens to ${recipients.length} addresses.`);
-    document.getElementById("status").innerText =
-      `🚧 Dry-run complete. ${amount} tokens * ${recipients.length} addresses.`;
-    return;
-  }
+    if (dryRun) {
+      alert(`Dry-run mode enabled. Would send ${amount} tokens to ${recipients.length} addresses.`);
+      document.getElementById("status").innerText =
+        `🚧 Dry-run complete. ${amount} tokens * ${recipients.length} addresses.`;
+      return;
+    }
 
-  const parsedAmount = ethers.parseUnits(amount, decimals);
-  const multisendAddress = ethers.getAddress("0x77c5f7f6e275f0dd30ce62be5a0afbf06a31f827");
+    const parsedAmount = ethers.parseUnits(amount, decimals);
+    const multisendAddress = ethers.getAddress("0x77c5f7f6e275f0dd30ce62be5a0afbf06a31f827");
 
-  const multisendAbi = [
-    {
+    const multisendAbi = [{
       "inputs": [
         { "internalType": "address", "name": "token", "type": "address" },
         { "internalType": "address[]", "name": "recipients", "type": "address[]" },
@@ -166,35 +108,33 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    }];
+
+    const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
+    const batchSize = 300;
+    document.getElementById("status").innerText = `⏳ Sending tokens to ${recipients.length} addresses...\n`;
+
+    for (let i = 0; i < recipients.length; i += batchSize) {
+      const batchRecipients = recipients.slice(i, i + batchSize);
+      const batchAmounts = new Array(batchRecipients.length).fill(parsedAmount);
+
+      try {
+        document.getElementById("status").innerText += `\n🚀 Sending batch ${i / batchSize + 1} (${batchRecipients.length} addresses)...`;
+
+        const tx = await multisendContract.multisend(tokenAddress, batchRecipients, batchAmounts);
+        document.getElementById("status").innerText += `\n📨 TX sent: ${tx.hash}\n⏳ Waiting for confirmation...`;
+
+        await tx.wait();
+        document.getElementById("status").innerText += `\n✅ Batch confirmed!`;
+      } catch (error) {
+        console.error("Batch error:", error);
+        document.getElementById("status").innerText += `\n❌ Batch ${i / batchSize + 1} failed: ${error.message}`;
+        break;
+      }
     }
-  ];
 
-  const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
-
-  const batchSize = 300; // ✅ safe batch size
-  document.getElementById("status").innerText = `⏳ Sending tokens to ${recipients.length} addresses...\n`;
-
-  for (let i = 0; i < recipients.length; i += batchSize) {
-    const batchRecipients = recipients.slice(i, i + batchSize);
-    const batchAmounts = new Array(batchRecipients.length).fill(parsedAmount);
-
-    try {
-      document.getElementById("status").innerText += `\n🚀 Sending batch ${i / batchSize + 1} (${batchRecipients.length} addresses)...`;
-
-      const tx = await multisendContract.multisend(tokenAddress, batchRecipients, batchAmounts);
-      document.getElementById("status").innerText += `\n📨 TX sent: ${tx.hash}\n⏳ Waiting for confirmation...`;
-
-      await tx.wait();
-      document.getElementById("status").innerText += `\n✅ Batch confirmed!`;
-    } catch (error) {
-      console.error("Batch error:", error);
-      document.getElementById("status").innerText += `\n❌ Batch ${i / batchSize + 1} failed: ${error.message}`;
-      break; // stop on failure
-    }
+    document.getElementById("status").innerText += `\n🎉 All done.`;
   }
-
-  document.getElementById("status").innerText += `\n🎉 All done.`;
-}
 
   async function getTokenInfo(address) {
     const erc20Abi = [
@@ -222,15 +162,9 @@
     if (info) {
       document.getElementById("amount").placeholder = `Amount per address (${info.symbol})`;
       document.title = `${info.name} Multisend Tool`;
-      // Update decimals for amount parsing
       decimals = info.decimals;
-      // Update fee estimate
-      setTimeout(updateEstimatedFee, 200);
     }
   });
-
-  document.getElementById("connectBtn").onclick = connectWallet;
-  document.getElementById("sendBtn").onclick = sendBulkPKEY;
 
   async function approveTokens() {
     const tokenAddress = document.getElementById("contractAddress").value.trim();
@@ -257,86 +191,10 @@
       document.getElementById("status").innerText += `\n❌ Approval failed: ${err.message}`;
     }
   }
+
+  document.getElementById("connectBtn").onclick = connectWallet;
+  document.getElementById("sendBtn").onclick = sendBulkPKEY;
   document.getElementById("approveBtn").onclick = approveTokens;
-
-  // Estimate multisend gas fee correctly using BigInt math
-async function estimateMultisendFee(contract, tokenAddress, recipients, amounts) {
-  try {
-    const gasEstimate = await contract.estimateGas.multisend(
-      tokenAddress,
-      recipients,
-      amounts
-    );
-
-    const feeData = await provider.getFeeData();
-    const gasPrice = feeData.maxFeePerGas || feeData.gasPrice || ethers.parseUnits("20", "gwei");
-
-    const fee = BigInt(gasEstimate.toString()) * BigInt(gasPrice.toString());
-
-    document.getElementById("estimatedFee").innerText = `Estimated Fee: ${ethers.formatEther(fee)} TARA`;
-    document.getElementById("estimatedTotal").innerText = `Estimated Total Fee: ~${ethers.formatEther(fee * BigInt(recipients.length))} TARA`;
-  } catch (err) {
-    console.error("🔍 Full gas estimate error:", err);
-document.getElementById("status").innerText += `\n⚠️ Estimation failed:\n${err.message}`;
-    document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
-    document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
-  }
-}
-
-  // Update fee estimate live as user inputs
-  async function updateEstimatedFee() {
-if (!provider || !signer || typeof signer.getAddress !== "function") {
-  console.warn("Signer not ready yet");
-  return;
-}
-    const tokenAddress = document.getElementById("contractAddress").value.trim();
-    const rawList = document.getElementById("recipientList").value.trim();
-    const amountStr = document.getElementById("amount").value.trim();
-
-    if (!ethers.isAddress(tokenAddress)) {
-      document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
-      document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
-      return;
-    }
-    const recipients = rawList.split("\n").map(a => a.trim()).filter(Boolean);
-    if (recipients.length === 0 || !amountStr) {
-      document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
-      document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
-      return;
-    }
-
-    const parsedAmount = ethers.parseUnits(amountStr, decimals);
-    const amounts = new Array(recipients.length).fill(parsedAmount);
-
-    const multisendAddress = ethers.getAddress("0x77c5f7f6e275f0dd30ce62be5a0afbf06a31f827");
-    const multisendAbi = [
-  {
-    "inputs": [
-      { "internalType": "address", "name": "token", "type": "address" },
-      { "internalType": "address[]", "name": "recipients", "type": "address[]" },
-      { "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }
-    ],
-    "name": "multisend",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-];
-    const multisendContract = new ethers.Contract(multisendAddress, multisendAbi, signer);
-
-    try {
-      await estimateMultisendFee(multisendContract, tokenAddress, recipients, amounts);
-    } catch {
-      document.getElementById("estimatedFee").innerText = "Estimated Fee: -";
-      document.getElementById("estimatedTotal").innerText = "Estimated Total Fee: -";
-    }
-  }
-
-  // Update fee estimate on input changes
-  document.getElementById("contractAddress").addEventListener("input", updateEstimatedFee);
-  document.getElementById("recipientList").addEventListener("input", updateEstimatedFee);
-  document.getElementById("amount").addEventListener("input", updateEstimatedFee);
-
 </script>
 
 </body>

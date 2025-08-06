@@ -8,76 +8,61 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
   </head>
-  <body class="bg-black min-h-screen text-white px-4">
-    <div class="w-full max-w-3xl bg-yellow-50/5 backdrop-blur-xl shadow-2xl rounded-3xl p-10 mx-auto mt-10 border border-yellow-400/20">
-      <div id="dryRunNotice" class="hidden bg-yellow-400/90 text-black p-3 rounded-md text-sm mb-4 shadow-md">🚧 Dry-run mode activated</div>
+  <body class="bg-[#0a0a0a] min-h-screen text-white px-4">
+    <div class="w-full max-w-2xl bg-[#1a1a1a] shadow-xl rounded-2xl p-6 mx-auto mt-10 border border-yellow-700/20">
+      <div id="dryRunNotice" class="hidden bg-yellow-500/20 text-yellow-200 p-2 rounded-md text-sm mb-4">🚧 Dry-run mode activated</div>
 
-      <h2 class="text-4xl font-extrabold text-left text-yellow-300 mb-2">
+      <h2 class="text-3xl font-bold text-left text-yellow-300 mb-1">
         🔥 Multisend Tool
       </h2>
-      <p class="text-sm text-yellow-200 ml-1 mb-6">Built for Taraxa. Supported with Enkrypt.</p>
+      <p class="text-sm text-yellow-500 ml-1 mb-4">Built for Taraxa. Supported with Enkrypt.</p>
 
-      <button id="connectBtn" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-all">🔌 Connect Wallet</button>
-      <div id="walletAddress" class="text-center text-sm text-yellow-100 mt-2"></div>
-      <div id="networkStatus" class="text-center text-green-400 text-sm hidden">✅ Connected to Taraxa Mainnet</div>
+      <button id="connectBtn" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg font-medium transition-all">🔌 Connect Wallet</button>
+      <div id="walletAddress" class="text-center text-xs text-yellow-200 mt-1"></div>
+      <div id="networkStatus" class="text-center text-green-400 text-xs hidden mt-1">✅ Connected to Taraxa Mainnet</div>
 
-      <input id="contractAddress" type="text" placeholder="ERC-20 Token Contract Address" class="w-full border border-yellow-400/30 bg-yellow-50/5 text-yellow-100 placeholder-yellow-300 rounded-md p-3 mt-6" />
+      <input id="contractAddress" type="text" placeholder="ERC-20 Token Contract Address" class="w-full border border-yellow-600/30 bg-[#2a2a2a] text-yellow-100 placeholder-yellow-400 rounded-md p-2 mt-4 text-sm" />
 
-      <label for="amount" class="text-sm text-yellow-200 mt-4 block">Amount to send per wallet</label>
-      <input id="amount" type="number" placeholder="Amount per address" value="1" class="w-full border border-yellow-400/30 bg-yellow-50/5 text-yellow-100 placeholder-yellow-300 rounded-md p-3" />
+      <label for="amount" class="text-xs text-yellow-400 mt-3 block">Amount to send per wallet</label>
+      <input id="amount" type="number" placeholder="Amount per address" value="1" class="w-full border border-yellow-600/30 bg-[#2a2a2a] text-yellow-100 placeholder-yellow-400 rounded-md p-2 text-sm" />
 
-      <label for="delayInput" class="text-sm text-yellow-200 mt-4 block">Delay between transactions (ms)</label>
-      <input id="delayInput" type="number" placeholder="Delay between TXs" value="300" class="w-full border border-yellow-400/30 bg-yellow-50/5 text-yellow-100 placeholder-yellow-300 rounded-md p-3" />
-      <div id="delayWarning" class="text-orange-400 text-sm hidden mt-1">Minimum delay is 300ms for network health. Using 300ms.</div>
+      <label for="delayInput" class="text-xs text-yellow-400 mt-3 block">Delay between transactions (ms)</label>
+      <input id="delayInput" type="number" placeholder="Delay between TXs" value="300" class="w-full border border-yellow-600/30 bg-[#2a2a2a] text-yellow-100 placeholder-yellow-400 rounded-md p-2 text-sm" />
+      <div id="delayWarning" class="text-orange-400 text-xs hidden mt-1">Minimum delay is 300ms for network health. Using 300ms.</div>
 
-      <label for="recipientList" class="text-sm text-yellow-200 mt-4 block">Wallet addresses (one per line):</label>
-      <textarea id="recipientList" class="w-full border border-yellow-400/30 bg-yellow-50/5 text-yellow-100 placeholder-yellow-300 rounded-md p-3 h-40 resize-y mt-1" placeholder="Paste wallet addresses..."></textarea>
+      <label for="recipientList" class="text-xs text-yellow-400 mt-3 block">Wallet addresses (one per line):</label>
+      <textarea id="recipientList" class="w-full border border-yellow-600/30 bg-[#2a2a2a] text-yellow-100 placeholder-yellow-400 rounded-md p-2 h-36 resize-none text-sm mt-1" placeholder="Paste wallet addresses..."></textarea>
 
-      <div class="flex gap-4 mt-6">
-        <button id="approveBtn" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black py-3 rounded-xl font-semibold">✅ Approve Tokens</button>
-        <button id="sendBtn" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold">📤 Send to All</button>
+      <div class="flex gap-3 mt-4">
+        <button id="approveBtn" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black py-2 rounded-lg text-sm font-medium">✅ Approve</button>
+        <button id="sendBtn" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg text-sm font-medium">📤 Send</button>
       </div>
 
-      <div id="loadingRing" class="w-10 h-10 border-4 border-yellow-100 border-t-orange-500 rounded-full animate-spin mx-auto my-6 hidden"></div>
+      <div id="loadingRing" class="w-8 h-8 border-4 border-yellow-200 border-t-orange-400 rounded-full animate-spin mx-auto my-4 hidden"></div>
 
-      <pre id="status" class="bg-yellow-50/10 border border-yellow-400/30 rounded-md p-4 mt-4 text-sm text-yellow-100 whitespace-pre-wrap"></pre>
+      <pre id="status" class="bg-[#1a1a1a] border border-yellow-700/30 rounded-md p-3 mt-4 text-xs text-yellow-100 whitespace-pre-wrap"></pre>
     </div>
 
-    <footer class="w-full px-4 py-4 border-t border-yellow-600/40 mt-24 text-sm text-yellow-300">
-      <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <footer class="w-full px-4 py-4 border-t border-yellow-800 mt-12 text-xs text-yellow-600 text-center">
+      <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
         <div class="flex items-center gap-2">
-          <img src="logo.png" alt="PuzzleKey Logo" class="w-9 h-9" />
-          <span><span class="font-medium text-yellow-100">pkey.quest</span> © 2025 · 
+          <img src="logo.png" alt="PuzzleKey Logo" class="w-6 h-6" />
+          <span><span class="font-semibold text-yellow-300">pkey.quest</span> © 2025 · 
             <a href="https://taraxa.io/" target="_blank" class="text-orange-400 hover:text-yellow-300 font-semibold">TARAXA</a>
           </span>
         </div>
-
-        <div class="flex flex-col md:flex-row items-center gap-6">
-          <div class="flex items-center gap-4">
-            <a href="https://x.com/pkeyquest" target="_blank" aria-label="X" class="text-orange-400 hover:text-yellow-300 transition">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19.18 0.21H22.66L14.69 10.28L24 23.78H16.62L10.77 15.10L4.10 23.78H0.62L9.08 12.80L0 0H7.59L12.82 7.63L19.18 0.21Z M18 20.57H20.10L11.07 11.37L17.21 20.57H18Z" />
-              </svg>
-            </a>
-            <a href="https://t.me/pkeyquest" target="_blank" aria-label="Telegram" class="text-orange-400 hover:text-yellow-300 transition">
-              <svg class="w-5 h-5" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="120" cy="120" r="120" fill="currentColor" />
-                <path d="M180.7 70.6 61.1 115.8c-4.6 1.7-4.6 6.5.6 8.1l29.2 9.1 11.2 34c1.4 4.2 2.4 5.8 5 5.8 2.6 0 3.7-1.1 5.1-4.1l14.1-28.1 29.4 21.8c5.4 3 9.3 1.4 10.6-5.1l17.2-80.5c2-8.4-3.2-12.3-8.8-10z" fill="#fff" />
-              </svg>
-            </a>
-          </div>
-          <div class="hidden md:block w-px h-5 bg-yellow-700"></div>
-          <div class="flex items-center gap-4">
-            <a href="https://fomo.biz/app/token/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A" target="_blank">
-              <img src="fomobiz.png" alt="fomo.biz" class="w-6 h-6" />
-            </a>
-            <a href="https://www.geckoterminal.com/taraxa/pools/0x35b29982d582b8e6727453aeb06557ea08205da9" target="_blank">
-              <img src="geckoterminal.png" alt="geckoterminal" class="w-6 h-6" />
-            </a>
-            <a href="https://www.defined.fi/taraxa/0x35b29982d582b8e6727453aeb06557ea08205da9?quoteToken=token1" target="_blank">
-              <img src="defined.png" alt="defined.fi" class="w-6 h-6" />
-            </a>
-          </div>
+        <div class="flex items-center gap-4">
+          <a href="https://x.com/pkeyquest" target="_blank" aria-label="X" class="text-yellow-400 hover:text-yellow-200">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19.18 0.21H22.66L14.69 10.28L24 23.78H16.62L10.77 15.10L4.10 23.78H0.62L9.08 12.80L0 0H7.59L12.82 7.63L19.18 0.21Z M18 20.57H20.10L11.07 11.37L17.21 20.57H18Z" />
+            </svg>
+          </a>
+          <a href="https://t.me/pkeyquest" target="_blank" aria-label="Telegram" class="text-yellow-400 hover:text-yellow-200">
+            <svg class="w-4 h-4" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="120" cy="120" r="120" fill="currentColor" />
+              <path d="M180.7 70.6 61.1 115.8c-4.6 1.7-4.6 6.5.6 8.1l29.2 9.1 11.2 34c1.4 4.2 2.4 5.8 5 5.8 2.6 0 3.7-1.1 5.1-4.1l14.1-28.1 29.4 21.8c5.4 3 9.3 1.4 10.6-5.1l17.2-80.5c2-8.4-3.2-12.3-8.8-10z" fill="#fff" />
+            </svg>
+          </a>
         </div>
       </div>
     </footer>

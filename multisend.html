@@ -123,7 +123,7 @@
     }
 
     const parsedAmount = ethers.parseUnits(amount, decimals);
-    const multisendAddress = "0xaa2Af9Ddae4D0bB3a25691755C99dD73Df53fD19";
+    const multisendAddress = ethers.getAddress("0xaa2Af9Ddae4D0bB3a25691755C99dD73Df53fD19");
 
     const multisendAbi = [{
       "inputs": [
@@ -206,7 +206,7 @@
       "function approve(address spender, uint256 amount) external returns (bool)"
     ], signer);
 
-    const multisendAddress = "0xaa2Af9Ddae4D0bB3a25691755C99dD73Df53fD19"; // already correct
+    const multisendAddress = ethers.getAddress("0xaa2Af9Ddae4D0bB3a25691755C99dD73Df53fD19"); // already correct
     const tx = await tokenContract.approve(multisendAddress, totalAmount);
 
     document.getElementById("status").innerText = `Approve transaction sent: ${tx.hash}\nWaiting for confirmation...`;

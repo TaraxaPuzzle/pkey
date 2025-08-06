@@ -8,65 +8,65 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
   </head>
-  <body class="bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364] min-h-screen text-white px-4">
-    <div class="w-full max-w-3xl bg-white/10 backdrop-blur-md shadow-2xl rounded-3xl p-10 mx-auto mt-10">
-      <div id="dryRunNotice" class="hidden bg-yellow-300/90 text-yellow-900 p-3 rounded-md text-sm mb-4">🚧 Dry-run mode activated</div>
+  <body class="bg-black min-h-screen text-white px-4">
+    <div class="w-full max-w-3xl bg-yellow-50/5 backdrop-blur-xl shadow-2xl rounded-3xl p-10 mx-auto mt-10 border border-yellow-400/20">
+      <div id="dryRunNotice" class="hidden bg-yellow-400/90 text-black p-3 rounded-md text-sm mb-4 shadow-md">🚧 Dry-run mode activated</div>
 
-      <h2 class="text-4xl font-extrabold text-left text-white mb-2">
-        🚀 Multisend Tool
+      <h2 class="text-4xl font-extrabold text-left text-yellow-300 mb-2">
+        🔥 Multisend Tool
       </h2>
-      <p class="text-sm text-gray-300 ml-1 mb-6">Built for Taraxa. Supported with Enkrypt.</p>
+      <p class="text-sm text-yellow-200 ml-1 mb-6">Built for Taraxa. Supported with Enkrypt.</p>
 
-      <button id="connectBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-semibold transition-all">🔌 Connect Wallet</button>
-      <div id="walletAddress" class="text-center text-sm text-gray-300 mt-2"></div>
+      <button id="connectBtn" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-all">🔌 Connect Wallet</button>
+      <div id="walletAddress" class="text-center text-sm text-yellow-100 mt-2"></div>
       <div id="networkStatus" class="text-center text-green-400 text-sm hidden">✅ Connected to Taraxa Mainnet</div>
 
-      <input id="contractAddress" type="text" placeholder="ERC-20 Token Contract Address" class="w-full border border-gray-600 bg-white/20 text-white rounded-md p-3 mt-6" />
+      <input id="contractAddress" type="text" placeholder="ERC-20 Token Contract Address" class="w-full border border-yellow-400/30 bg-yellow-50/5 text-yellow-100 placeholder-yellow-300 rounded-md p-3 mt-6" />
 
-      <label for="amount" class="text-sm text-gray-300 mt-4 block">Amount to send per wallet</label>
-      <input id="amount" type="number" placeholder="Amount per address" value="1" class="w-full border border-gray-600 bg-white/20 text-white rounded-md p-3" />
+      <label for="amount" class="text-sm text-yellow-200 mt-4 block">Amount to send per wallet</label>
+      <input id="amount" type="number" placeholder="Amount per address" value="1" class="w-full border border-yellow-400/30 bg-yellow-50/5 text-yellow-100 placeholder-yellow-300 rounded-md p-3" />
 
-      <label for="delayInput" class="text-sm text-gray-300 mt-4 block">Delay between transactions (ms)</label>
-      <input id="delayInput" type="number" placeholder="Delay between TXs" value="300" class="w-full border border-gray-600 bg-white/20 text-white rounded-md p-3" />
-      <div id="delayWarning" class="text-red-400 text-sm hidden mt-1">Minimum delay is 300ms for network health. Using 300ms.</div>
+      <label for="delayInput" class="text-sm text-yellow-200 mt-4 block">Delay between transactions (ms)</label>
+      <input id="delayInput" type="number" placeholder="Delay between TXs" value="300" class="w-full border border-yellow-400/30 bg-yellow-50/5 text-yellow-100 placeholder-yellow-300 rounded-md p-3" />
+      <div id="delayWarning" class="text-orange-400 text-sm hidden mt-1">Minimum delay is 300ms for network health. Using 300ms.</div>
 
-      <label for="recipientList" class="text-sm text-gray-300 mt-4 block">Wallet addresses (one per line):</label>
-      <textarea id="recipientList" class="w-full border border-gray-600 bg-white/20 text-white rounded-md p-3 h-40 resize-y mt-1 placeholder-gray-400" placeholder="Paste wallet addresses..."></textarea>
+      <label for="recipientList" class="text-sm text-yellow-200 mt-4 block">Wallet addresses (one per line):</label>
+      <textarea id="recipientList" class="w-full border border-yellow-400/30 bg-yellow-50/5 text-yellow-100 placeholder-yellow-300 rounded-md p-3 h-40 resize-y mt-1" placeholder="Paste wallet addresses..."></textarea>
 
       <div class="flex gap-4 mt-6">
-        <button id="approveBtn" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold">✅ Approve Tokens</button>
-        <button id="sendBtn" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold">📤 Send to All</button>
+        <button id="approveBtn" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black py-3 rounded-xl font-semibold">✅ Approve Tokens</button>
+        <button id="sendBtn" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold">📤 Send to All</button>
       </div>
 
-      <div id="loadingRing" class="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin mx-auto my-6 hidden"></div>
+      <div id="loadingRing" class="w-10 h-10 border-4 border-yellow-100 border-t-orange-500 rounded-full animate-spin mx-auto my-6 hidden"></div>
 
-      <pre id="status" class="bg-black/20 border border-gray-700 rounded-md p-4 mt-4 text-sm text-gray-100 whitespace-pre-wrap"></pre>
+      <pre id="status" class="bg-yellow-50/10 border border-yellow-400/30 rounded-md p-4 mt-4 text-sm text-yellow-100 whitespace-pre-wrap"></pre>
     </div>
 
-    <footer class="w-full px-4 py-4 border-t border-gray-700 mt-24 text-sm text-gray-400">
+    <footer class="w-full px-4 py-4 border-t border-yellow-600/40 mt-24 text-sm text-yellow-300">
       <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-2">
           <img src="logo.png" alt="PuzzleKey Logo" class="w-9 h-9" />
-          <span><span class="font-medium text-white">pkey.quest</span> © 2025 · 
-            <a href="https://taraxa.io/" target="_blank" class="text-[#1fa5a2] hover:text-[#2dccc8] font-semibold">TARAXA</a>
+          <span><span class="font-medium text-yellow-100">pkey.quest</span> © 2025 · 
+            <a href="https://taraxa.io/" target="_blank" class="text-orange-400 hover:text-yellow-300 font-semibold">TARAXA</a>
           </span>
         </div>
 
         <div class="flex flex-col md:flex-row items-center gap-6">
           <div class="flex items-center gap-4">
-            <a href="https://x.com/pkeyquest" target="_blank" aria-label="X" class="text-[#1fa5a2] hover:text-[#2dccc8] transition">
+            <a href="https://x.com/pkeyquest" target="_blank" aria-label="X" class="text-orange-400 hover:text-yellow-300 transition">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19.18 0.21H22.66L14.69 10.28L24 23.78H16.62L10.77 15.10L4.10 23.78H0.62L9.08 12.80L0 0H7.59L12.82 7.63L19.18 0.21Z M18 20.57H20.10L11.07 11.37L17.21 20.57H18Z" />
               </svg>
             </a>
-            <a href="https://t.me/pkeyquest" target="_blank" aria-label="Telegram" class="text-[#1fa5a2] hover:text-[#2dccc8] transition">
+            <a href="https://t.me/pkeyquest" target="_blank" aria-label="Telegram" class="text-orange-400 hover:text-yellow-300 transition">
               <svg class="w-5 h-5" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="120" cy="120" r="120" fill="currentColor" />
                 <path d="M180.7 70.6 61.1 115.8c-4.6 1.7-4.6 6.5.6 8.1l29.2 9.1 11.2 34c1.4 4.2 2.4 5.8 5 5.8 2.6 0 3.7-1.1 5.1-4.1l14.1-28.1 29.4 21.8c5.4 3 9.3 1.4 10.6-5.1l17.2-80.5c2-8.4-3.2-12.3-8.8-10z" fill="#fff" />
               </svg>
             </a>
           </div>
-          <div class="hidden md:block w-px h-5 bg-gray-600"></div>
+          <div class="hidden md:block w-px h-5 bg-yellow-700"></div>
           <div class="flex items-center gap-4">
             <a href="https://fomo.biz/app/token/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A" target="_blank">
               <img src="fomobiz.png" alt="fomo.biz" class="w-6 h-6" />

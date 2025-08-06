@@ -8,16 +8,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
   </head>
-  <body class="bg-[#0a0a0a] min-h-screen text-white px-4">
-    <div class="w-full max-w-2xl bg-[#1a1a1a] shadow-xl rounded-2xl p-6 mx-auto mt-10 border border-yellow-700/20">
+  <body class="bg-[#0a0a0a] min-h-screen text-white px-4 flex flex-col justify-between">
+    <main class="w-full max-w-2xl bg-[#1a1a1a] shadow-xl rounded-2xl p-6 mx-auto mt-10 border border-yellow-700/20">
       <div id="dryRunNotice" class="hidden bg-yellow-500/20 text-yellow-200 p-2 rounded-md text-sm mb-4">🚧 Dry-run mode activated</div>
 
       <h2 class="text-3xl font-bold text-left text-yellow-300 mb-1">
-        🔥 Multisend Tool
+        Multisend Tool
       </h2>
       <p class="text-sm text-yellow-500 ml-1 mb-4">Built for Taraxa. Supported with Enkrypt.</p>
 
-      <button id="connectBtn" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg font-medium transition-all">🔌 Connect Wallet</button>
+      <button id="connectBtn" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg font-medium transition-all">Connect Wallet</button>
       <div id="walletAddress" class="text-center text-xs text-yellow-200 mt-1"></div>
       <div id="networkStatus" class="text-center text-green-400 text-xs hidden mt-1">✅ Connected to Taraxa Mainnet</div>
 
@@ -34,16 +34,16 @@
       <textarea id="recipientList" class="w-full border border-yellow-600/30 bg-[#2a2a2a] text-yellow-100 placeholder-yellow-400 rounded-md p-2 h-36 resize-none text-sm mt-1" placeholder="Paste wallet addresses..."></textarea>
 
       <div class="flex gap-3 mt-4">
-        <button id="approveBtn" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black py-2 rounded-lg text-sm font-medium">✅ Approve</button>
-        <button id="sendBtn" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg text-sm font-medium">📤 Send</button>
+        <button id="approveBtn" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black py-2 rounded-lg text-sm font-medium">Approve</button>
+        <button id="sendBtn" class="flex-1 bg-orange-500 text-white py-2 rounded-lg text-sm font-medium opacity-50 cursor-not-allowed" disabled>Send</button>
       </div>
 
       <div id="loadingRing" class="w-8 h-8 border-4 border-yellow-200 border-t-orange-400 rounded-full animate-spin mx-auto my-4 hidden"></div>
 
       <pre id="status" class="bg-[#1a1a1a] border border-yellow-700/30 rounded-md p-3 mt-4 text-xs text-yellow-100 whitespace-pre-wrap"></pre>
-    </div>
+    </main>
 
-    <footer class="w-full px-4 py-4 border-t border-yellow-800 mt-12 text-xs text-yellow-600 text-center">
+    <footer class="w-full px-4 py-4 border-t border-yellow-800 mt-32 text-xs text-yellow-600 text-center">
       <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
         <div class="flex items-center gap-2">
           <img src="logo.png" alt="PuzzleKey Logo" class="w-6 h-6" />
@@ -214,11 +214,13 @@
       document.getElementById("status").innerText = `Approve transaction sent: ${tx.hash}\nWaiting for confirmation...`;
       await tx.wait();
       document.getElementById("status").innerText += "\n✅ Approval confirmed! You can now send tokens.";
+	  document.getElementById("sendBtn").disabled = false;
+      document.getElementById("sendBtn").classList.remove("opacity-50", "cursor-not-allowed");
     } catch (err) {
       document.getElementById("status").innerText += `\n❌ Approval failed: ${err.message}`;
     }
   }
-
+  
   document.getElementById("connectBtn").onclick = connectWallet;
   document.getElementById("sendBtn").onclick = sendBulkPKEY;
   document.getElementById("approveBtn").onclick = approveTokens;

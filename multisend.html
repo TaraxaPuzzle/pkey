@@ -194,11 +194,9 @@
   });
 
   async function approveTokens() {
-    const tokenAddress = document.getElementById("contractAddress").value.trim();
-    if (!ethers.isAddress(tokenAddress)) {
-      alert("Invalid token address");
-      return;
-    }
+  try {
+    let tokenAddress = document.getElementById("contractAddress").value.trim();
+    tokenAddress = ethers.getAddress(tokenAddress); // ✅ Ensures valid checksum
 
     const amount = document.getElementById("amount").value.trim();
     const recipients = document.getElementById("recipientList").value.trim().split("\n").filter(Boolean);
@@ -208,18 +206,19 @@
       "function approve(address spender, uint256 amount) external returns (bool)"
     ], signer);
 
-    try {
-      const multisendAddress = ethers.getAddress("0xaa2aF9DdAE4D0BB3A25691755C99Dd73Df53fD19");
-      const tx = await tokenContract.approve(multisendAddress, totalAmount);
-      document.getElementById("status").innerText = `Approve transaction sent: ${tx.hash}\nWaiting for confirmation...`;
-      await tx.wait();
-      document.getElementById("status").innerText += "\n✅ Approval confirmed! You can now send tokens.";
-	  document.getElementById("sendBtn").disabled = false;
-      document.getElementById("sendBtn").classList.remove("opacity-50", "cursor-not-allowed");
-    } catch (err) {
-      document.getElementById("status").innerText += `\n❌ Approval failed: ${err.message}`;
-    }
+    const multisendAddress = ethers.getAddress("0xaa2aF9DdAE4D0BB3A25691755C99Dd73Df53fD19"); // already correct
+    const tx = await tokenContract.approve(multisendAddress, totalAmount);
+
+    document.getElementById("status").innerText = `Approve transaction sent: ${tx.hash}\nWaiting for confirmation...`;
+    await tx.wait();
+    document.getElementById("status").innerText += "\n✅ Approval confirmed! You can now send tokens.";
+    document.getElementById("sendBtn").disabled = false;
+    document.getElementById("sendBtn").classList.remove("opacity-50", "cursor-not-allowed");
+
+  } catch (err) {
+    document.getElementById("status").innerText += `\n❌ Approval failed: ${err.message}`;
   }
+}
   
   document.getElementById("connectBtn").onclick = connectWallet;
   document.getElementById("sendBtn").onclick = sendBulkPKEY;

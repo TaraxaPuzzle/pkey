@@ -41,7 +41,7 @@
             <div id="txcountTotal" class="text-3xl font-bold text-yellow-300 mt-1">--</div>
             <div class="text-xs text-gray-500 mt-1 flex gap-2 items-center">
             <span id="txcountRange">Last 24h</span>
-            <button onclick="toggleTxRange()" class="text-blue-400 hover:text-blue-200 underline ml-2">30d</button>
+            <button id="toggleTxBtn" onclick="toggleTxRange()" class="ml-2 px-2 py-1 rounded text-sm font-semibold transition bg-blue-600 text-white">30d</button>
           </div>
           </div>
         </div>
@@ -304,7 +304,7 @@ initializeDashboard();
 async function toggleTxRange() {
   using30d = !using30d;
   const label = document.getElementById("txcountRange");
-  const btn = event.target;
+  const btn = document.getElementById("toggleTxBtn");
 
   if (using30d) {
     try {
@@ -316,13 +316,21 @@ async function toggleTxRange() {
       document.getElementById("txcountTotal").textContent = totalTx.toLocaleString();
       btn.textContent = "24h";
 
+      // active 30d
+      btn.classList.remove("bg-gray-700", "text-gray-300");
+      btn.classList.add("bg-blue-600", "text-white");
+
     } catch (err) {
       console.error("⚠️ Failed to load 30d data", err);
     }
   } else {
-    // Reset to default 24h summary
     updateSummary("24h");
+    label.textContent = "Last 24h";
     btn.textContent = "30d";
+
+    // back to 24h
+    btn.classList.remove("bg-blue-600", "text-white");
+    btn.classList.add("bg-gray-700", "text-gray-300");
   }
 }
 	

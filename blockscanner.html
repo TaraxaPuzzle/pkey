@@ -290,11 +290,17 @@ async function initializeDashboard() {
   try {
     renderTxHistory();
     loadLatestBlock();
+
     setInterval(() => {
       loadLatestBlock();
-      updateSummary(currentRange);
+
+      if (!using30d) {
+        updateSummary(currentRange);  // only refresh if not in 30d mode
+      }
+
       renderTxHistory();
     }, 500);
+    
   } catch (err) {
     console.error("Initialization failed:", err);
   }

@@ -303,8 +303,12 @@ initializeDashboard();
 
 async function toggleTxRange() {
   using30d = !using30d;
+
   const label = document.getElementById("txcountRange");
   const btn = document.getElementById("toggleTxBtn");
+
+  // Reset classes
+  btn.classList.remove("bg-blue-600", "bg-gray-700", "text-white", "text-gray-300");
 
   if (using30d) {
     try {
@@ -312,13 +316,16 @@ async function toggleTxRange() {
       const data = await res.json();
       const totalTx = Object.values(data).reduce((sum, v) => sum + v, 0);
 
-      label.textContent = "Last 30d";
       document.getElementById("txcountTotal").textContent = totalTx.toLocaleString();
-      btn.textContent = "24h";
+      label.textContent = "Last 30d";
 
-      // active 30d
-      btn.classList.remove("bg-gray-700", "text-gray-300");
+      btn.textContent = "24h";
       btn.classList.add("bg-blue-600", "text-white");
+
+      // Optional: Update other labels too if you want full consistency
+      document.getElementById("uawRange").textContent = "Last 30d";
+      document.getElementById("tpsRange").textContent = "Last 30d";
+      document.getElementById("chartTitle").textContent = "Activity Chart - Last 30d";
 
     } catch (err) {
       console.error("⚠️ Failed to load 30d data", err);
@@ -326,11 +333,13 @@ async function toggleTxRange() {
   } else {
     updateSummary("24h");
     label.textContent = "Last 24h";
-    btn.textContent = "30d";
 
-    // back to 24h
-    btn.classList.remove("bg-blue-600", "text-white");
+    btn.textContent = "30d";
     btn.classList.add("bg-gray-700", "text-gray-300");
+
+    document.getElementById("uawRange").textContent = "Last 24h";
+    document.getElementById("tpsRange").textContent = "Last 24h";
+    document.getElementById("chartTitle").textContent = "Activity Chart - Last 24h";
   }
 }
 	

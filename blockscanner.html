@@ -290,17 +290,13 @@ async function initializeDashboard() {
   try {
     renderTxHistory();
     loadLatestBlock();
-
     setInterval(() => {
       loadLatestBlock();
-
       if (!using30d) {
-        updateSummary(currentRange);  // only refresh if not in 30d mode
+        updateSummary(currentRange); // Only refresh full metrics if not 30d
       }
-
-      renderTxHistory();
+      renderTxHistory(); // Always refresh tx history (separate)
     }, 500);
-    
   } catch (err) {
     console.error("Initialization failed:", err);
   }
@@ -313,7 +309,7 @@ async function toggleTxRange() {
   const label = document.getElementById("txcountRange");
   const btn = document.getElementById("toggleTxBtn");
 
-  // Reset classes
+  // Reset button styles
   btn.classList.remove("bg-blue-600", "bg-gray-700", "text-white", "text-gray-300");
 
   if (using30d) {
@@ -328,26 +324,21 @@ async function toggleTxRange() {
       btn.textContent = "24h";
       btn.classList.add("bg-blue-600", "text-white");
 
-      // Optional: Update other labels too if you want full consistency
-      document.getElementById("uawRange").textContent = "Last 30d";
-      document.getElementById("tpsRange").textContent = "Last 30d";
-      document.getElementById("chartTitle").textContent = "Activity Chart - Last 30d";
-
+      // ❌ Do NOT touch UAW, TPS, or chart
     } catch (err) {
       console.error("⚠️ Failed to load 30d data", err);
     }
   } else {
     updateSummary("24h");
-    label.textContent = "Last 24h";
 
+    label.textContent = "Last 24h";
     btn.textContent = "30d";
     btn.classList.add("bg-gray-700", "text-gray-300");
 
-    document.getElementById("uawRange").textContent = "Last 24h";
-    document.getElementById("tpsRange").textContent = "Last 24h";
-    document.getElementById("chartTitle").textContent = "Activity Chart - Last 24h";
+    // ✅ Let updateSummary() restore UAW, TPS, Chart, and txcount
   }
 }
+
 	
   </script>
   

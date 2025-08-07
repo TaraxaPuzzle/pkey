@@ -39,7 +39,10 @@
           <div class="bg-white/5 hover:bg-white/10 p-5 rounded-xl border border-white/10 transition">
             <div class="text-xs uppercase text-gray-400">Transactions</div>
             <div id="txcountTotal" class="text-3xl font-bold text-yellow-300 mt-1">--</div>
-            <div id="txcountRange" class="text-xs text-gray-500 mt-1">Last 24h</div>
+            <div class="text-xs text-gray-500 mt-1 flex gap-2 items-center">
+            <span id="txcountRange">Last 24h</span>
+            <button onclick="toggleTxRange()" class="text-blue-400 hover:text-blue-200 underline ml-2">30d</button>
+          </div>
           </div>
         </div>
         <!-- Live Widget -->
@@ -111,6 +114,7 @@
     let currentDataset = 'uaw';
 	let cachedTxHistory = [];
 	let lastLiveTPS = null;
+	let using30d = false;
 
     const chartData = {
   labels: [],
@@ -296,6 +300,31 @@ async function initializeDashboard() {
   }
 }
 initializeDashboard();
+
+async function toggleTxRange() {
+  using30d = !using30d;
+  const label = document.getElementById("txcountRange");
+  const btn = event.target;
+
+  if (using30d) {
+    try {
+      const res = await fetch("https://tarablockscanner-production.up.railway.app/safe_state_30days.json");
+      const data = await res.json();
+      const totalTx = Object.values(data).reduce((sum, v) => sum + v, 0);
+
+      label.textContent = "Last 30d";
+      document.getElementById("txcountTotal").textContent = totalTx.toLocaleString();
+      btn.textContent = "24h";
+
+    } catch (err) {
+      console.error("⚠️ Failed to load 30d data", err);
+    }
+  } else {
+    // Reset to default 24h summary
+    updateSummary("24h");
+    btn.textContent = "30d";
+  }
+}
 	
   </script>
   

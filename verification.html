@@ -546,6 +546,7 @@ async function payVerification(tokenAddr) {
     if (r2?.status !== 1) throw new Error("Verification transaction failed.");
 
     // 4) Confirm from chain and update UI
+	const roVerifier = new ethers.Contract(VERIFIER_ADDR, VERIFIER_ABI, provider);
     const ok = await verifier.isVerified(tokenNorm);
     if (!ok) throw new Error("Verified flag not set (try refreshing).");
 

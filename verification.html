@@ -136,7 +136,7 @@ body.condensed .result-grid > * { min-width: 0; }
       </div>
 
       <!-- Search Surface -->
-      <div class="search-wrap mt-6 rounded-2xl bg-white/70 backdrop-blur border border-slate-200/80 shadow-sm">
+      <div class="search-wrap mt-6 bg-white md:bg-white/70 md:backdrop-blur border-0 md:border md:border-slate-200/80 shadow-none md:shadow-sm rounded-none md:rounded-2xl">
         <div class="p-4 md:p-5">
           <label for="contract" class="block text-[11px] uppercase tracking-wide text-slate-500 mb-2">Contract Address</label>
 
@@ -158,15 +158,19 @@ body.condensed .result-grid > * { min-width: 0; }
         </div>
       </div>
 
-      <div id="token-info" class="hidden mt-6 rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur p-6 shadow-sm">
-  <!-- Header row: avatar + title + badge -->
-<div class="flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
+      <div id="token-info" class="hidden mt-6 bg-white md:bg-white/70 md:backdrop-blur border-0 md:border md:border-slate-200/80 shadow-none md:shadow-sm rounded-none md:rounded-2xl p-4 md:p-6">
+<!-- Header row -->
+<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-white md:bg-transparent p-3 md:p-0 rounded-lg">
   <div class="flex items-center gap-3 min-w-0">
-    <img id="token-avatar" alt="Token avatar" class="h-12 w-12 rounded-xl border border-slate-200/80 shadow-sm object-cover bg-white shrink-0" />
+    <img id="token-avatar" alt="Token avatar"
+      class="h-12 w-12 rounded-xl border border-slate-200/80 shadow-sm object-cover bg-white shrink-0" />
     <h2 class="text-lg font-semibold truncate">Token Info</h2>
   </div>
   <div id="verification-status" class="hidden">
-    <span id="status-badge" class="inline-flex items-center gap-2 rounded-full bg-slate-900/5 border border-slate-300 px-3 py-1 text-sm font-medium text-slate-900">Not Verified</span>
+    <span id="status-badge"
+      class="inline-flex items-center gap-2 rounded-full bg-slate-900/5 border border-slate-300 px-3 py-1 text-sm font-medium text-slate-900">
+      Not Verified
+    </span>
   </div>
 </div>
 

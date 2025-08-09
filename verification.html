@@ -775,6 +775,16 @@ async function fetchToken(addr){
     const addrNorm  = ethers.getAddress(addr);
     currentTokenAddress = addrNorm;
     const addrLower = addr.toLowerCase();
+	
+	// 🔹 Ignore list check
+const ignoreList = [
+  "0x000000000000000000000000000000000000dEaD"
+];
+if (ignoreList.includes(addrLower)) {
+  $("error").textContent = "This contract is excluded from results.";
+  show($("error"));
+  return;
+}
 
     // Link to explorer
     $("token-address").innerHTML =

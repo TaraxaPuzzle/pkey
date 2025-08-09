@@ -9,6 +9,7 @@
   <!-- Ethers (browser UMD) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
   <style>
+  html, body { overflow-x: hidden; }
     html, body { height: 100%; margin: 0; display: flex; flex-direction: column; background: transparent; }
     #triangles { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
     main { flex: 1; min-height: 0; }
@@ -67,17 +68,29 @@
     90% { opacity: 1; transform: translate(-50%, 0); }
     100% { opacity: 0; transform: translate(-50%, -10px); }
   }
-  body.condensed .result-grid {
+body.condensed .result-grid {
   display: grid;
-  grid-template-columns: 1fr; /* default: 1 column for mobile */
+  grid-template-columns: 1fr; /* mobile: 1 column */
   gap: 12px;
   align-items: start;
 }
-
 @media (min-width: 768px) {
   body.condensed .result-grid {
-    grid-template-columns: 1fr 1fr; /* 2 columns on tablets/desktops */
+    grid-template-columns: 1fr 1fr; /* >= md: 2 columns */
   }
+}
+body.condensed .result-grid > * { min-width: 0; }
+#token-address,
+#token-address a,
+.tara-link,
+#top-holders-list a,
+#status-badge {
+  word-break: break-all;        /* breaks 0x… */
+  overflow-wrap: anywhere;      /* modern fallback */
+}
+#token-info .flex.items-center.justify-between { flex-wrap: wrap; row-gap: 8px; }
+@media (max-width: 480px) {
+  #top-holders-list { max-height: 200px; }
 }
   </style>
 </head>
@@ -146,16 +159,16 @@
       </div>
 
       <div id="token-info" class="hidden mt-6 rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur p-6 shadow-sm">
-        <!-- Header row: avatar + title + badge -->
-        <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <img id="token-avatar" alt="Token avatar" class="h-12 w-12 rounded-xl border border-slate-200/80 shadow-sm object-cover bg-white" />
-            <h2 class="text-lg font-semibold">Token Info</h2>
-          </div>
-          <div id="verification-status" class="hidden">
-            <span id="status-badge" class="inline-flex items-center gap-2 rounded-full bg-slate-900/5 border border-slate-300 px-3 py-1 text-sm font-medium text-slate-900">Not Verified</span>
-          </div>
-        </div>
+  <!-- Header row: avatar + title + badge -->
+<div class="flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
+  <div class="flex items-center gap-3 min-w-0">
+    <img id="token-avatar" alt="Token avatar" class="h-12 w-12 rounded-xl border border-slate-200/80 shadow-sm object-cover bg-white shrink-0" />
+    <h2 class="text-lg font-semibold truncate">Token Info</h2>
+  </div>
+  <div id="verification-status" class="hidden">
+    <span id="status-badge" class="inline-flex items-center gap-2 rounded-full bg-slate-900/5 border border-slate-300 px-3 py-1 text-sm font-medium text-slate-900">Not Verified</span>
+  </div>
+</div>
 
         <!-- Compact two-column layout -->
         <div class="result-grid mt-4">

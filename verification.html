@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PKEYverification</title>
+  <link rel="icon" type="image/png" href="favicon.png.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Ethers (browser UMD) -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+  <style>
+    html, body { height: 100%; margin: 0; display: flex; flex-direction: column; background: transparent; }
+    #triangles { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+    main { flex: 1; min-height: 0; }
+    .sparkle { position: relative; overflow: hidden; display: inline-block; }
+    .sparkle::after { content:""; position:absolute; top:-120%; left:-30%; width:40%; height:300%; transform: rotate(25deg); background: linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent); animation: sweep 3.2s ease-in-out infinite; }
+    @keyframes sweep { 0%{transform:translateX(-120%) rotate(25deg)} 60%,100%{transform:translateX(220%) rotate(25deg)} }
+    .spinner { width: 18px; height: 18px; border-radius: 9999px; border: 2px solid rgba(0,0,0,.12); border-top-color: rgba(0,0,0,.6); animation: spin .9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== Condensed state after results ===== */
+    body.condensed main { align-items: flex-start; }
+    body.condensed .hero-copy { display: none; }
+    body.condensed .search-wrap { max-width: 520px; margin: 12px auto 0; }
+    body.condensed main section { max-width: 100%; padding-top: 12px; padding-bottom: 0; }
+    body.condensed #token-info { max-width: min(1400px, 70vw); margin: 16px auto 0; }
+    body.condensed { overflow-y: auto; }
+    body.condensed main { overflow-y: auto; }
+    body.condensed .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+    body.condensed #top-holders-list { max-height: 260px; overflow: auto; }
+    body.condensed #token-info { max-width: min(1200px, 70vw); margin: 12px auto 0; padding: 16px !important; }
+    #status-badge.verified { border-color: #86efac; }
+    #status-badge.not-verified { border-color: #fca5a5; }
+
+    #token-info.is-loading { opacity: .55; filter: saturate(.8); pointer-events: none; transition: opacity .2s ease; }
+
+    .tara-link { color: inherit; text-decoration: none; transition: color 0.2s ease; }
+    .tara-link:hover { color: #10b981; }
+
+    .source-pill{
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:12px; padding:6px 10px; border-radius:9999px;
+      background:rgba(16,185,129,.10); border:1px solid rgba(16,185,129,.35);
+      color:#065f46; transition:transform .15s ease, background .2s ease;
+    }
+    .source-pill:hover{ background:rgba(16,185,129,.18); transform:translateY(-1px); }
+    .source-pill svg{ width:14px; height:14px; opacity:.9 }
+	
+	  .notif {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff8e7;
+    color: #d97706;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #fcd34d;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 9999;
+    animation: fadeInOut 3s forwards;
+  }
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -10px); }
+    10% { opacity: 1; transform: translate(-50%, 0); }
+    90% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -10px); }
+  }
+  </style>
+</head>
+<body class="min-h-screen text-slate-900">
+  <canvas id="triangles"></canvas>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 border-b border-white/60 bg-white/70 backdrop-blur">
+    <div class="relative mx-auto max-w-screen-xl px-6 lg:px-10 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="h-6 w-6 rounded-full bg-gradient-to-br from-amber-400 to-rose-500 shadow"></div>
+        <div class="sparkle">
+          <span class="text-[15px] md:text-base font-extrabold tracking-tight">PKEYverification</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="connectBtn" class="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-800 transition">Connect Wallet</button>
+        <span id="walletLabel" class="text-xs text-slate-600 hidden"></span>
+      </div>
+
+      <!-- Wallet choice menu (hidden by default) -->
+      <div id="walletMenu" class="absolute mt-2 right-6 z-50 hidden">
+        <div class="rounded-xl border border-slate-200/80 bg-white shadow-lg overflow-hidden">
+          <button id="chooseEnkrypt" class="block w-full px-4 py-2 text-sm hover:bg-slate-50 text-slate-800 text-left">Enkrypt</button>
+          <button id="chooseMetaMask" class="block w-full px-4 py-2 text-sm hover:bg-slate-50 text-slate-800 text-left">MetaMask</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="relative z-10 flex items-center">
+    <section class="mx-auto w-full max-w-3xl px-6 lg:px-10 py-10 md:py-16">
+      <div class="hero-copy text-center">
+        <div class="mx-auto mb-4 h-10 w-10 rounded-full bg-gradient-to-br from-slate-900 to-slate-700"></div>
+        <h1 class="text-3xl md:text-4xl font-semibold tracking-tight">Taraxa Token Lookup</h1>
+        <p class="mt-2 text-slate-600">Paste a contract address to fetch on-chain metadata.</p>
+      </div>
+
+      <!-- Search Surface -->
+      <div class="search-wrap mt-6 rounded-2xl bg-white/70 backdrop-blur border border-slate-200/80 shadow-sm">
+        <div class="p-4 md:p-5">
+          <label for="contract" class="block text-[11px] uppercase tracking-wide text-slate-500 mb-2">Contract Address</label>
+
+          <div class="flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-emerald-500">
+            <input id="contract" type="text" placeholder="0x…" class="w-full outline-none text-sm placeholder-slate-400" />
+            <button id="searchBtn" class="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition">Search</button>
+          </div>
+
+          <p id="error" class="mt-2 text-xs text-rose-600 hidden"></p>
+        </div>
+        <div class="border-t border-slate-200/80"></div>
+        <div class="px-4 md:px-5 py-2 text-[11px] text-slate-500">Tip: works only with ERC-20 contracts deployed on Taraxa mainnet.</div>
+      </div>
+
+      <div class="mt-4 flex w-full justify-center items-center gap-3">
+        <div id="loading" class="hidden flex items-center gap-2 text-slate-700">
+          <div class="spinner" aria-hidden="true"></div>
+          <span class="text-sm">Fetching token data…</span>
+        </div>
+      </div>
+
+      <div id="token-info" class="hidden mt-6 rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur p-6 shadow-sm">
+        <!-- Header row: avatar + title + badge -->
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <img id="token-avatar" alt="Token avatar" class="h-12 w-12 rounded-xl border border-slate-200/80 shadow-sm object-cover bg-white" />
+            <h2 class="text-lg font-semibold">Token Info</h2>
+          </div>
+          <div id="verification-status" class="hidden">
+            <span id="status-badge" class="inline-flex items-center gap-2 rounded-full bg-slate-900/5 border border-slate-300 px-3 py-1 text-sm font-medium text-slate-900">Not Verified</span>
+          </div>
+        </div>
+
+        <!-- Compact two-column layout -->
+        <div class="result-grid mt-4">
+          <div class="grid gap-3 text-sm">
+            <div class="space-y-1">
+              <div><span class="text-slate-600">Address:</span> <span id="token-address" class="font-mono">—</span></div>
+              <div><span class="text-slate-600">Name:</span> <span id="token-name">—</span></div>
+              <div><span class="text-slate-600">Symbol:</span> <span id="token-symbol">—</span></div>
+            </div>
+            <div class="space-y-1">
+              <div><span class="text-slate-600">Decimals:</span> <span id="token-decimals">—</span></div>
+              <div><span class="text-slate-600">Total Supply:</span> <span id="token-supply">—</span></div>
+              <div id="holders-row" class="hidden"><span class="text-slate-600">Holders:</span> <span id="token-holders">—</span></div>
+            </div>
+          </div>
+
+          <div id="top-holders-card" class="hidden rounded-xl border border-slate-200/80 bg-white/60 p-3">
+            <h3 class="text-sm font-semibold">Top holders (excl. contracts)</h3>
+            <ol id="top-holders-list" class="mt-2 space-y-1 text-sm"></ol>
+          </div>
+        </div>
+
+        <div id="source-tags" class="mt-4 hidden"></div>
+      </div>
+	  
+<div class="mt-10 flex flex-col items-center">
+  <button id="verifyBtn"
+    class="w-full max-w-sm h-14 rounded-2xl px-6 font-extrabold text-xl tracking-tight
+           bg-white/70 backdrop-blur border border-slate-300 text-orange-500
+           shadow-sm hover:bg-white hover:shadow-md
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400/50
+           focus-visible:ring-offset-2 focus-visible:ring-offset-white
+           active:scale-[0.99] transition">
+    GET VERIFIED
+  </button>
+  <span class="mt-2 text-sm font-medium text-slate-600">(1000&nbsp;PKEY)</span>
+</div>
+
+<div id="verifyModal" class="hidden fixed inset-0 z-[60]">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+  <div class="relative mx-auto mt-28 w-[92%] max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+    <h3 class="text-lg font-semibold text-slate-900">Choose contract to verify</h3>
+    <p class="mt-1 text-sm text-slate-600">Confirm or paste the ERC-20 contract to verify.</p>
+
+    <label class="block text-xs text-slate-500 mt-4 mb-1">Contract Address</label>
+    <input id="verifyTokenInput" type="text"
+           class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+           placeholder="0x..." />
+
+    <p id="verifyAddrError" class="mt-2 text-xs text-rose-600 hidden">Invalid address.</p>
+
+    <div class="mt-6 flex gap-3">
+      <button id="verifyCancel"
+              class="flex-1 rounded-xl border border-slate-200 px-4 py-2 font-medium hover:bg-slate-50">
+        Cancel
+      </button>
+      <button id="verifyProceed"
+              class="flex-1 rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled>
+        Continue
+      </button>
+    </div>
+  </div>
+</div>
+	  
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto relative z-40">
+    <div class="mx-auto max-w-screen-xl px-6 lg:px-10 py-10 text-center text-xs text-slate-600">
+      © <span id="year"></span> PKEYverification — Not an audit. Not an endorsement.
+    </div>
+  </footer>
+  
+<script>
+window.currentTokenAddress = null;
+  // Simple toast
+function showNotification(msg) {
+  // avoid stacking duplicates
+  document.querySelectorAll('.notif').forEach(n => n.remove());
+  const notif = document.createElement('div');
+  notif.className = 'notif';
+  notif.textContent = msg;
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 3000);
+}
+
+// Elements
+const verifyBtn       = document.getElementById('verifyBtn');
+const verifyModal     = document.getElementById('verifyModal');
+const verifyInput     = document.getElementById('verifyTokenInput');
+const verifyAddrError = document.getElementById('verifyAddrError');
+const verifyCancel    = document.getElementById('verifyCancel');
+const verifyProceed   = document.getElementById('verifyProceed');
+
+// Open modal if connected; prefill input
+verifyBtn?.addEventListener('click', () => {
+  const isConnected = !!window.walletSigner;
+  if (!isConnected) {
+    showNotification('Please connect your wallet first.');
+    return;
+  }
+  // Prefill with last looked-up address or whatever is in the search box
+  const fromLookup = currentTokenAddress;
+  const fromField  = (document.getElementById('contract')?.value || '').trim();
+  const pref = fromLookup ?? (ethers.isAddress(fromField) ? ethers.getAddress(fromField) : '');
+  verifyInput.value = pref;
+  verifyAddrError.classList.add('hidden');
+  verifyProceed.disabled = !ethers.isAddress(pref);
+  verifyModal.classList.remove('hidden');
+});
+
+// Live validate input
+verifyInput?.addEventListener('input', () => {
+  const v = verifyInput.value.trim();
+  const ok = ethers.isAddress(v);
+  verifyProceed.disabled = !ok;
+  verifyAddrError.classList.toggle('hidden', ok);
+});
+
+// Close modal
+verifyCancel?.addEventListener('click', () => {
+  verifyModal.classList.add('hidden');
+});
+
+verifyProceed?.addEventListener('click', async () => {
+  const sel = verifyInput.value.trim();
+  if (!ethers.isAddress(sel)) return;
+
+  verifyProceed.disabled = true;            // <-- prevent double click
+  try {
+    currentTokenAddress = ethers.getAddress(sel);
+    verifyModal.classList.add('hidden');
+    await payVerification(currentTokenAddress);
+  } finally {
+    verifyProceed.disabled = false;         // <-- re-enable
+  }
+});
+</script>
+
+  <!-- App logic: wallet + fetch + UI -->
+  <script>
+  // ====== Multi-wallet connect (Enkrypt + MetaMask) ======
+  const TARA_CHAIN_HEX = '0x349'; // 841
+  const TARA_PARAMS = {
+    chainId: TARA_CHAIN_HEX,
+    chainName: 'Taraxa Mainnet',
+    nativeCurrency: { name: 'TARA', symbol: 'TARA', decimals: 18 },
+    rpcUrls: ['https://rpc.mainnet.taraxa.io'],
+    blockExplorerUrls: ['https://explorer.taraxa.io'],
+  };
+
+  // --- EIP-6963 discovery ---
+  const discoveredProviders = []; // { info, provider }
+  function setupEip6963Discovery() {
+    window.addEventListener('eip6963:announceProvider', (event) => {
+      const detail = event.detail; // { info, provider }
+      if (!discoveredProviders.some(d => d.info?.rdns === detail.info?.rdns)) {
+        discoveredProviders.push(detail);
+      }
+    });
+    window.dispatchEvent(new Event('eip6963:requestProvider'));
+  }
+  setupEip6963Discovery();
+
+  // Read-only RPC provider for lookups (unchanged)
+  const TARAXA_RPC_URL = "https://rpc.mainnet.taraxa.io";
+  const provider = new ethers.JsonRpcProvider(TARAXA_RPC_URL);
+
+  // Session state for a chosen wallet
+  let walletEip1193 = null;     // raw provider (enkrypt/metamask)
+  let walletProvider = null;     // ethers.BrowserProvider
+  let walletSigner = null;       // ethers.Signer
+  let selectedWallet = null;     // 'enkrypt' | 'metamask'
+
+  const lbl = document.getElementById('walletLabel');
+  const connectBtn = document.getElementById('connectBtn');
+  const walletMenu = document.getElementById('walletMenu');
+  const btnEnkrypt = document.getElementById('chooseEnkrypt');
+  const btnMetaMask = document.getElementById('chooseMetaMask');
+
+  function short(addr){ return addr.slice(0,6) + '…' + addr.slice(-4); }
+  function showEl(el){ el?.classList.remove('hidden'); }
+  function hideEl(el){ el?.classList.add('hidden'); }
+
+  // --- Helpers with reliable detection ---
+  function hasEnkrypt() {
+    if (discoveredProviders.some(d => (d.info?.name || '').toLowerCase().includes('enkrypt'))) return true;
+    if (window.enkrypt?.providers?.ethereum) return true;
+    if (window.ethereum?.providers?.some(p => p.isEnkrypt)) return true;
+    return false;
+  }
+
+  function hasMetaMask() {
+    if (discoveredProviders.some(d => (d.info?.name || '').toLowerCase().includes('metamask'))) return true;
+    if (window.ethereum?.providers?.some(p => p.isMetaMask)) return true;
+    if (window.ethereum?.isMetaMask) return true;
+    return false;
+  }
+
+  function getEip1193(kind) {
+    // 1) EIP-6963 discovery
+    const found = discoveredProviders.find(d => {
+      const name = (d.info?.name || '').toLowerCase();
+      if (kind === 'metamask') return name.includes('metamask');
+      if (kind === 'enkrypt')  return name.includes('enkrypt');
+      return false;
+    });
+    if (found) return found.provider;
+
+    // 2) Multiple injected providers (MetaMask exposes window.ethereum.providers)
+    const eth = window.ethereum;
+    if (eth?.providers?.length) {
+      if (kind === 'metamask') {
+        const mm = eth.providers.find(p => p.isMetaMask);
+        if (mm) return mm;
+      } else if (kind === 'enkrypt') {
+        const ek = eth.providers.find(p => p.isEnkrypt);
+        if (ek) return ek;
+      }
+    }
+
+    // 3) Wallet-specific globals
+    if (kind === 'enkrypt' && window.enkrypt?.providers?.ethereum) {
+      return window.enkrypt.providers.ethereum;
+    }
+    if (kind === 'metamask' && window.ethereum?.isMetaMask) {
+      return window.ethereum;
+    }
+
+    // 4) Not found
+    return null;
+  }
+
+  async function ensureTaraxaOn(eip){
+    try {
+      await eip.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: TARA_CHAIN_HEX }] });
+    } catch (e) {
+      if (e.code === 4902) {
+        await e.request({ method: 'wallet_addEthereumChain', params: [TARA_PARAMS] });
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  function onAccountsChanged(accs){
+    if (accs?.length){
+      lbl.textContent = short(accs[0]);
+      lbl.classList.remove('hidden');
+      connectBtn.textContent = 'Connected';
+    } else {
+      lbl.classList.add('hidden');
+      connectBtn.textContent = 'Connect Wallet';
+    }
+  }
+  function onChainChanged(){ window.location.reload(); }
+
+  function removeWalletListeners(eip){
+    try { eip?.removeListener?.('accountsChanged', onAccountsChanged); } catch {}
+    try { eip?.removeListener?.('chainChanged', onChainChanged); } catch {}
+  }
+  function bindWalletListeners(eip){
+    eip?.on?.('accountsChanged', onAccountsChanged);
+    eip?.on?.('chainChanged', onChainChanged);
+  }
+
+  async function connect(kind){
+    const enk = hasEnkrypt();
+    const mm  = hasMetaMask();
+
+    if (!kind){
+      if (enk && mm){
+        walletMenu.classList.toggle('hidden');
+        return;
+      } else if (enk){ kind = 'enkrypt'; }
+      else if (mm){ kind = 'metamask'; }
+      else {
+        alert('No wallet detected. Please install Enkrypt or MetaMask.');
+        return;
+      }
+    }
+
+    hideEl(walletMenu);
+
+    const eip = getEip1193(kind);
+    if (!eip){
+      alert(kind === 'enkrypt' ? 'Enkrypt not found.' : 'MetaMask not found.');
+      return;
+    }
+
+    if (walletEip1193 && walletEip1193 !== eip){
+      removeWalletListeners(walletEip1193);
+    }
+
+    try {
+      await ensureTaraxaOn(eip);
+      await eip.request({ method: 'eth_requestAccounts' });
+
+      walletEip1193 = eip;
+      walletProvider = new ethers.BrowserProvider(eip);
+      walletSigner = await walletProvider.getSigner();
+	  window.walletSigner = walletSigner;
+	  window.walletProvider = walletProvider;
+      selectedWallet = kind;
+
+      const addr = await walletSigner.getAddress();
+      lbl.textContent = short(addr);
+      lbl.classList.remove('hidden');
+      connectBtn.textContent = 'Connected';
+
+      bindWalletListeners(eip);
+    } catch (err) {
+      console.error('Connect error:', err);
+      alert('Failed to connect wallet.');
+    }
+  }
+
+  connectBtn.addEventListener('click', () => connect());
+  btnEnkrypt?.addEventListener('click', () => connect('enkrypt'));
+  btnMetaMask?.addEventListener('click', () => connect('metamask'));
+
+  document.addEventListener('click', (e) => {
+    if (walletMenu && !walletMenu.contains(e.target) && e.target !== connectBtn) hideEl(walletMenu);
+  });
+
+
+  // === Year ===
+  document.getElementById("year").textContent = new Date().getFullYear();
+  
+  // === PKEY + Verifier (Taraxa mainnet) ===
+const VERIFIER_ADDR   = "0xc46b82d9bc9ffd72a7a81a7cd3aa0900bcb3729f"; // your deployed PkeyVerifier
+const PKEY_TOKEN_ADDR = "0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A"; // PKEY token
+
+// Minimal ABIs we need
+const VERIFIER_ABI = [
+  "function fee() view returns (uint256)",
+  "function verify(address tokenToVerify) external",
+  "function isVerified(address token) view returns (bool)"
+];
+
+const ERC20_ABI_RW = [
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 amount) external returns (bool)"
+];
+
+async function payVerification(tokenAddr) {
+  // Normalize early; bail if bad input
+  if (!ethers.isAddress(tokenAddr)) {
+    showNotification("Invalid token address.");
+    return;
+  }
+  const tokenNorm = ethers.getAddress(tokenAddr);
+
+  // Guard: need a connected signer
+  if (!window.walletSigner) {
+    showNotification("Please connect your wallet first.");
+    return;
+  }
+
+  const signer = window.walletSigner;
+  const user   = await signer.getAddress();
+  
+  // ✅ Ensure we're on Taraxa Mainnet
+    try {
+      const net = await window.walletProvider.getNetwork();
+      if (net.chainId !== 841n) {
+        await window.walletProvider.send("wallet_switchEthereumChain", [{ chainId: "0x349" }]);
+      }
+    } catch (e) {
+      showNotification("Please switch to Taraxa Mainnet.");
+      throw e;
+    }
+
+  // Contracts
+  const verifier = new ethers.Contract(VERIFIER_ADDR, VERIFIER_ABI, signer);
+  const pkey     = new ethers.Contract(PKEY_TOKEN_ADDR, ERC20_ABI_RW, signer);
+
+  // Disable the button while we work (optional but nice UX)
+  const btn = document.getElementById("verifyProceed") || document.getElementById("verifyBtn");
+  const reenable = () => { if (btn) btn.disabled = false; if (btn) btn.classList.remove("opacity-60","cursor-not-allowed"); };
+  if (btn) { btn.disabled = true; btn.classList.add("opacity-60","cursor-not-allowed"); }
+
+  try {
+    // 1) Read fee + allowance in parallel
+    const [fee, allowance] = await Promise.all([
+      verifier.fee(),
+      pkey.allowance(user, VERIFIER_ADDR),
+    ]);
+
+    // 2) Approve if needed
+    if (allowance < fee) {
+      showNotification("Approving 1000 PKEY…");
+      const tx1 = await pkey.approve(VERIFIER_ADDR, fee);
+      const r1  = await tx1.wait();
+      if (r1?.status !== 1) throw new Error("Approve transaction failed.");
+    }
+
+    // 3) Call verify
+    showNotification("Paying 1000 PKEY…");
+    const tx2 = await verifier.verify(tokenNorm);
+    const r2  = await tx2.wait();
+    if (r2?.status !== 1) throw new Error("Verification transaction failed.");
+
+    // 4) Confirm from chain and update UI
+    const ok = await verifier.isVerified(tokenNorm);
+    if (!ok) throw new Error("Verified flag not set (try refreshing).");
+
+    showNotification("✅ Verified successfully!");
+
+    // If the token currently shown equals the one just verified, flip the badge
+    if (typeof currentTokenAddress === "string" &&
+        ethers.isAddress(currentTokenAddress) &&
+        ethers.getAddress(currentTokenAddress) === tokenNorm) {
+      const badge = document.getElementById("status-badge");
+      if (badge) {
+        badge.textContent = "Verified";
+        badge.classList.remove("not-verified");
+        badge.classList.add("verified");
+      }
+    }
+
+  } catch (err) {
+    const msg = (err?.reason || err?.data?.message || err?.message || String(err));
+    // Common user-decline codes (MM/Enkrypt) -> friendlier copy
+    if (/user rejected|user denied|user rejected the request/i.test(msg)) {
+      showNotification("❌ Transaction rejected.");
+    } else {
+      showNotification(`❌ ${msg.slice(0, 140)}`);
+    }
+    console.error(err);
+  } finally {
+    reenable();
+  }
+}
+
+  // ====== Lookup logic (unchanged except for addrNorm pass) ======
+  const ERC20_ABI = [
+    "function name() view returns (string)",
+    "function symbol() view returns (string)",
+    "function decimals() view returns (uint8)",
+    "function totalSupply() view returns (uint256)"
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const show = (el) => el.classList.remove("hidden");
+  const hide = (el) => el.classList.add("hidden");
+
+  let hasFirstResult = false;
+
+  function isAddress(addr){ try { return ethers.isAddress(addr); } catch { return false; } }
+  function formatSupply(raw, decimals){ try { return ethers.formatUnits(raw, decimals); } catch { return String(raw); } }
+
+  async function fetchWithRetry(url, options = {}, retries = 1, timeoutMs = 8000){
+    for (let attempt = 0; attempt <= retries; attempt++){
+      try{
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+        const res = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(timeout);
+        if (!res.ok) throw new Error("Bad status: " + res.status);
+        return res;
+      }catch(err){
+        if (attempt === retries) throw err;
+        await new Promise(r => setTimeout(r, 500));
+      }
+    }
+  }
+
+  let holdersAbort;
+  async function fetchHolders(addrLower){
+    holdersAbort?.abort();
+    holdersAbort = new AbortController();
+    const { signal } = holdersAbort;
+
+    try {
+      const res = await fetchWithRetry(`https://tara.to/api/v2/tokens/${addrLower}`, { cache: "no-store", signal }, 1, 8000);
+      const data = await res.json();
+
+      const raw = (data.holders_count ?? data.holders ?? "").toString().trim();
+      const n = Number(raw.replace(/[, ]/g, ""));
+      $("token-holders").textContent = Number.isFinite(n) && n >= 0 ? n.toLocaleString() : "—";
+    } catch (e) {
+      if (e.name !== "AbortError") $("token-holders").textContent = "—";
+    } finally {
+      show($("holders-row"));
+    }
+  }
+
+  function shorten(a){ return a.slice(0, 6) + '…' + a.slice(-4); }
+  function pctFrom(balRaw, totalRaw){
+    if (!totalRaw || totalRaw === 0n) return 0;
+    return Number((balRaw * 10000n) / totalRaw) / 100;
+  }
+
+  async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
+    const card = $("top-holders-card");
+    const list = $("top-holders-list");
+    if (!card || !list) return;
+
+    list.innerHTML = `<li class="text-gray-500">Loading…</li>`;
+    card.classList.remove("hidden");
+
+    try {
+      const res = await fetchWithRetry(
+        `https://tara.to/api/v2/tokens/${addrLower}/holders?items_count=200`,
+        { cache: "no-store" },
+        1,
+        8000
+      );
+      const data = await res.json();
+
+      const items = data.items ?? [];
+      const isFomoBiz = items.some(i => {
+        const n = (i?.address?.name || "").toLowerCase().replace(/[^a-z0-9.]/g, "");
+        return n.includes("fomo") || n.includes("fomo.biz");
+      });
+
+      setSourceTag(isFomoBiz, addrNorm);
+
+      const eoas = items.filter(i => !i?.address?.is_contract);
+      if (!eoas.length){
+        list.innerHTML = `<li class="text-gray-500">No EOA holders found.</li>`;
+        return;
+      }
+
+      const top = eoas.slice(0, 10).map((i, idx) => {
+        const bal = BigInt(i.value);
+        const pct = pctFrom(bal, totalSupplyRaw);
+        return { rank: idx + 1, addr: i.address.hash, bal, pct };
+      });
+
+      list.innerHTML = top.map(row => {
+        const w = Math.max(2, Math.min(100, Math.round(row.pct)));
+        return `
+<li class="flex items-center gap-3">
+  <span class="w-5 text-right tabular-nums text-gray-500">${row.rank}.</span>
+  <a href="https://tara.to/address/${row.addr}" target="_blank" rel="noopener noreferrer" class="tara-link">${shorten(row.addr)}</a>
+  <div class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden mx-2">
+    <div class="h-full bg-gray-900" style="width:${w}%"></div>
+  </div>
+  <span class="tabular-nums">${row.pct.toFixed(2)}%</span>
+</li>`;
+      }).join("");
+    } catch (e) {
+      setSourceTag(false);
+      list.innerHTML = `<li class="text-red-600">Failed to load top holders.</li>`;
+    }
+  }
+
+  function showLoading(){
+    const loader = $('loading');
+    const info = $('token-info');
+    if (loader) loader.classList.remove('hidden');
+    if (info) info.classList.add('hidden');
+  }
+
+  function hideLoading(){
+    const loader = $('loading');
+    if (loader) loader.classList.add('hidden');
+  }
+
+  function setSourceTag(isFomoBiz, addrForLink){
+    const wrap = $("source-tags");
+    if (!wrap) return;
+    if (isFomoBiz){
+      wrap.innerHTML = `
+        <a href="https://fomo.biz/app/token/${addrForLink}" target="_blank" rel="noopener noreferrer" class="source-pill">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.6 9.1l5.8-.8L12 3z" stroke="currentColor" stroke-width="1.3" />
+          </svg>
+          fomo.biz
+        </a>`;
+      wrap.classList.remove("hidden");
+    } else {
+      wrap.classList.add("hidden");
+      wrap.innerHTML = "";
+    }
+  }
+
+async function fetchToken(addr){
+  hide($("error"));
+  showLoading();
+  hide($("verification-status"));
+
+  const infoBox = $("token-info");
+  const hadResults = infoBox && !infoBox.classList.contains("hidden");
+  if (hadResults) infoBox.classList.add("is-loading");
+
+  try {
+    // Validate input
+    if (!isAddress(addr)){
+      $("error").textContent = "Invalid address. Please paste a valid 0x… contract address.";
+      show($("error"));
+      return;
+    }
+
+    const addrNorm  = ethers.getAddress(addr);
+    currentTokenAddress = addrNorm;
+    const addrLower = addr.toLowerCase();
+
+    // Link to explorer
+    $("token-address").innerHTML =
+      `<a href="https://tara.to/token/${addrNorm}" target="_blank" rel="noopener noreferrer" class="tara-link">${addrNorm}</a>`;
+
+    // ✅ Check verified flag from your Verifier
+    try {
+      const verifierRead = new ethers.Contract(VERIFIER_ADDR, VERIFIER_ABI, provider);
+      const v = await verifierRead.isVerified(addrNorm);
+      const badge = $("status-badge");
+      if (badge){
+        badge.textContent = v ? "Verified" : "Not Verified";
+        badge.classList.remove("verified", "not-verified");
+        badge.classList.add(v ? "verified" : "not-verified");
+        show($("verification-status"));
+      }
+    } catch {
+      const badge = $("status-badge");
+      if (badge){
+        badge.textContent = "Not Verified";
+        badge.classList.remove("verified", "not-verified");
+        badge.classList.add("not-verified");
+        show($("verification-status"));
+      }
+    }
+
+    // Avatar
+    const avatarEl = $("token-avatar");
+    if (avatarEl){
+      avatarEl.src = `https://alien.pkey.quest/${addrLower}.png`;
+      avatarEl.onerror = () => {
+        avatarEl.src = "data:image/svg+xml;utf8," + encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128">
+             <rect width="100%" height="100%" fill="#e5e7eb"/>
+             <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="14" fill="#6b7280">No Avatar</text>
+           </svg>`
+        );
+      };
+    }
+
+    // Ensure it's a contract
+    const code = await provider.getCode(addrLower);
+    if (!code || code === "0x"){
+      $("error").textContent = "No contract code at this address on Taraxa.";
+      show($("error"));
+      return;
+    }
+
+    // ERC-20 reads
+    let name = "—", symbol = "—", decimals = null, totalSupply = "—", tsRaw = null;
+    const contract = new ethers.Contract(addrLower, ERC20_ABI, provider);
+    try { name = await contract.name(); } catch {}
+    try { symbol = await contract.symbol(); } catch {}
+    try { decimals = await contract.decimals(); } catch {}
+    try {
+      const ts = await contract.totalSupply();
+      tsRaw = ts;
+      totalSupply = (decimals != null) ? formatSupply(ts, decimals) : ts.toString();
+    } catch {}
+
+    $("token-name").textContent     = name ?? "—";
+    $("token-symbol").textContent   = symbol ?? "—";
+    $("token-decimals").textContent = (decimals != null) ? decimals : "—";
+    $("token-supply").textContent   = totalSupply;
+
+    // Holders + top holders
+    $("token-holders").textContent = "…";
+    show($("holders-row"));
+    await fetchHolders(addrLower);
+
+    if (typeof tsRaw === "bigint" && tsRaw > 0n){
+      await fetchTopHolders(addrLower, tsRaw, addrNorm);
+    } else {
+      $("top-holders-card")?.classList.add("hidden");
+    }
+
+    if (!hasFirstResult){
+      document.body.classList.add("condensed");
+      hasFirstResult = true;
+    }
+
+    hideLoading();
+    show($("token-info"));
+    $("token-info")?.classList.remove("is-loading");
+  } finally {
+    hideLoading();
+    $("token-info")?.classList.remove("is-loading");
+  }
+}
+
+  document.getElementById("searchBtn").addEventListener("click", () => {
+    const addr = document.getElementById("contract").value.trim();
+    fetchToken(addr);
+  });
+  document.getElementById("contract").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("searchBtn").click();
+  });
+  </script>
+
+  <!-- Background animation: triangles -->
+  <script>
+  (function(){
+    const canvas = document.getElementById("triangles");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let w, h, dpr, triangles = [], mx = -9999, my = -9999;
+    const cfg = { gap: 20, size: 6, influence: 90, push: 10 };
+    const baseColor = [180, 200, 220];
+
+    function resize(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildTriangles();
+    }
+
+    function buildTriangles(){
+      triangles = [];
+      for(let y = cfg.size; y < h; y += cfg.gap){
+        for(let x = cfg.size; x < w; x += cfg.gap){
+          triangles.push({ x, y, rot: Math.random() * Math.PI * 2 });
+        }
+      }
+    }
+
+    function draw(){
+      ctx.clearRect(0, 0, w, h);
+      const time = Date.now() * 0.002;
+      for(const t of triangles){
+        const dx = t.x - mx;
+        const dy = t.y - my;
+        const dist = Math.hypot(dx, dy);
+        let offsetX = 0, offsetY = 0, glow = 0, color = baseColor;
+        if (dist < cfg.influence){
+          const force = Math.pow(1 - dist / cfg.influence, 2);
+          const ang = Math.atan2(dy, dx);
+          offsetX = Math.cos(ang) * cfg.push * force;
+          offsetY = Math.sin(ang) * cfg.push * force;
+          glow = force;
+          const hue = (time * 50 + t.x + t.y) % 360;
+          color = hslToRgb(hue / 360, 1, 0.5);
+        }
+        drawTriangle(t.x + offsetX, t.y + offsetY, cfg.size, t.rot, glow, color);
+      }
+      requestAnimationFrame(draw);
+    }
+
+    function drawTriangle(x, y, size, rotation, glow, rgb){
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+      ctx.beginPath();
+      ctx.moveTo(0, -size/2);
+      ctx.lineTo(size/2, size/2);
+      ctx.lineTo(-size/2, size/2);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${0.6 + glow * 0.4})`;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function hslToRgb(h, s, l){
+      let r, g, b;
+      if (s === 0){ r = g = b = l; }
+      else {
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+        };
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+      }
+      return [Math.round(r * 255), Math.round(b * 0 + g * 255), Math.round(b * 255)];
+    }
+
+    function onMove(e){
+      const p = e.touches ? e.touches[0] : e;
+      mx = p.clientX;
+      my = p.clientY;
+    }
+    function onLeave(){ mx = my = -9999; }
+
+    window.addEventListener("resize", resize);
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("mouseleave", onLeave, { passive: true });
+    window.addEventListener("touchend", onLeave, { passive: true });
+
+    resize();
+    draw();
+  })();
+  </script>
+</body>
+</html>

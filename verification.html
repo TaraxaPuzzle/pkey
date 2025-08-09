@@ -670,46 +670,58 @@ async function payVerification(tokenAddr) {
     return Number((balRaw * 10000n) / totalRaw) / 100;
   }
 
-  async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
-    const card = $("top-holders-card");
-    const list = $("top-holders-list");
-    if (!card || !list) return;
+async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
+  const card = $("top-holders-card");
+  const list = $("top-holders-list");
+  if (!card || !list) return;
 
-    list.innerHTML = `<li class="text-gray-500">Loading…</li>`;
-    card.classList.remove("hidden");
+  list.innerHTML = `<li class="text-gray-500">Loading…</li>`;
+  card.classList.remove("hidden");
 
-    try {
-      const res = await fetchWithRetry(
-        `https://tara.to/api/v2/tokens/${addrLower}/holders?items_count=200`,
-        { cache: "no-store" },
-        1,
-        8000
-      );
-      const data = await res.json();
+  try {
+    const res = await fetchWithRetry(
+      `https://tara.to/api/v2/tokens/${addrLower}/holders?items_count=200`,
+      { cache: "no-store" },
+      1,
+      8000
+    );
+    const data = await res.json();
 
-      const items = data.items ?? [];
-      const isFomoBiz = items.some(i => {
-        const n = (i?.address?.name || "").toLowerCase().replace(/[^a-z0-9.]/g, "");
-        return n.includes("fomo") || n.includes("fomo.biz");
-      });
+    const items = data.items ?? [];
 
-      setSourceTag(isFomoBiz, addrNorm);
+    // Keep this check as-is (uses full items list)
+    const isFomoBiz = items.some(i => {
+      const n = (i?.address?.name || "").toLowerCase().replace(/[^a-z0-9.]/g, "");
+      return n.includes("fomo") || n.includes("fomo.biz");
+    });
+    setSourceTag(isFomoBiz, addrNorm);
 
-      const eoas = items.filter(i => !i?.address?.is_contract);
-      if (!eoas.length){
-        list.innerHTML = `<li class="text-gray-500">No EOA holders found.</li>`;
-        return;
-      }
+    // 🔹 Ignore specific holder addresses (lowercased)
+    const ignoreHolders = new Set([
+      "0x000000000000000000000000000000000000dead", // dead wallet
+      "0x0000000000000000000000000000000000000000"  // zero addr (just in case)
+      // add more if needed
+    ]);
 
-      const top = eoas.slice(0, 10).map((i, idx) => {
-        const bal = BigInt(i.value);
-        const pct = pctFrom(bal, totalSupplyRaw);
-        return { rank: idx + 1, addr: i.address.hash, bal, pct };
-      });
+    // EOAs only, not in ignore list
+    const eoas = items
+      .filter(i => !i?.address?.is_contract)
+      .filter(i => !ignoreHolders.has((i?.address?.hash || "").toLowerCase()));
 
-      list.innerHTML = top.map(row => {
-        const w = Math.max(2, Math.min(100, Math.round(row.pct)));
-        return `
+    if (!eoas.length){
+      list.innerHTML = `<li class="text-gray-500">No EOA holders found.</li>`;
+      return;
+    }
+
+    const top = eoas.slice(0, 10).map((i, idx) => {
+      const bal = BigInt(i.value);
+      const pct = pctFrom(bal, totalSupplyRaw);
+      return { rank: idx + 1, addr: i.address.hash, bal, pct };
+    });
+
+    list.innerHTML = top.map(row => {
+      const w = Math.max(2, Math.min(100, Math.round(row.pct)));
+      return `
 <li class="flex items-center gap-3">
   <span class="w-5 text-right tabular-nums text-gray-500">${row.rank}.</span>
   <a href="https://tara.to/address/${row.addr}" target="_blank" rel="noopener noreferrer" class="tara-link">${shorten(row.addr)}</a>
@@ -718,12 +730,12 @@ async function payVerification(tokenAddr) {
   </div>
   <span class="tabular-nums">${row.pct.toFixed(2)}%</span>
 </li>`;
-      }).join("");
-    } catch (e) {
-      setSourceTag(false);
-      list.innerHTML = `<li class="text-red-600">Failed to load top holders.</li>`;
-    }
+    }).join("");
+  } catch (e) {
+    setSourceTag(false);
+    list.innerHTML = `<li class="text-red-600">Failed to load top holders.</li>`;
   }
+}
 
   function showLoading(){
     const loader = $('loading');
@@ -775,16 +787,6 @@ async function fetchToken(addr){
     const addrNorm  = ethers.getAddress(addr);
     currentTokenAddress = addrNorm;
     const addrLower = addr.toLowerCase();
-	
-	// 🔹 Ignore list check
-const ignoreList = [
-  "0x000000000000000000000000000000000000dEaD"
-];
-if (ignoreList.includes(addrLower)) {
-  $("error").textContent = "This contract is excluded from results.";
-  show($("error"));
-  return;
-}
 
     // Link to explorer
     $("token-address").innerHTML =

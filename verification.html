@@ -288,7 +288,7 @@ async function updateVerifyCostLabel() {
   if (!el) return;
 
   try {
-    const roVerifier = new ethers.Contract(VERIFIER_ADDR, VERIFIER_ABI, provider);
+    const roVerifier = new ethers.Contract(ACTIVE_VERIFIER_ADDR, VERIFIER_ABI, provider);
     const rawFee = await roVerifier.fee();
     const pkeyAmount = Number(ethers.formatUnits(rawFee, PKEY_DECIMALS));
 
@@ -579,7 +579,11 @@ verifyProceed?.addEventListener('click', async () => {
   document.getElementById("year").textContent = new Date().getFullYear();
   
   // === PKEY + Verifier (Taraxa mainnet) ===
-const VERIFIER_ADDR   = "0xc46b82d9bc9ffd72a7a81a7cd3aa0900bcb3729f"; // your deployed PkeyVerifier
+const ACTIVE_VERIFIER_ADDR = "0x6e8502c644f6c045ec8bcd4264ce292a9b74ec28"; // new contract
+const LEGACY_VERIFIER_ADDRS = [
+  "0xc46b82d9bc9ffd72a7a81a7cd3aa0900bcb3729f", // old
+  "0x6e8502c644f6c045ec8bcd4264ce292a9b74ec28",   // new
+];
 const PKEY_TOKEN_ADDR = "0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A"; // PKEY token
 
 // Minimal ABIs we need
@@ -623,7 +627,7 @@ async function payVerification(tokenAddr) {
     }
 
   // Contracts
-  const verifier = new ethers.Contract(VERIFIER_ADDR, VERIFIER_ABI, signer);
+  const verifier = new ethers.Contract(ACTIVE_VERIFIER_ADDR, VERIFIER_ABI, signer);
   const pkey     = new ethers.Contract(PKEY_TOKEN_ADDR, ERC20_ABI_RW, signer);
 
   // Disable the button while we work (optional but nice UX)
@@ -635,7 +639,7 @@ async function payVerification(tokenAddr) {
     // 1) Read fee + allowance in parallel
     const [fee, allowance] = await Promise.all([
       verifier.fee(),
-      pkey.allowance(user, VERIFIER_ADDR),
+      pkey.allowance(user, ACTIVE_VERIFIER_ADDR),
     ]);
 	
 	const feePkey = Number(ethers.formatUnits(fee, PKEY_DECIMALS));
@@ -650,7 +654,7 @@ async function payVerification(tokenAddr) {
     // 2) Approve if needed
     if (allowance < fee) {
       showNotification(`Approving ${feeText}…`);
-      const tx1 = await pkey.approve(VERIFIER_ADDR, fee);
+      const tx1 = await pkey.approve(ACTIVE_VERIFIER_ADDR, fee);
       const r1  = await tx1.wait();
       if (r1?.status !== 1) throw new Error("Approve transaction failed.");
     }
@@ -662,8 +666,8 @@ async function payVerification(tokenAddr) {
     if (r2?.status !== 1) throw new Error("Verification transaction failed.");
 
     // 4) Confirm from chain and update UI
-	const roVerifier = new ethers.Contract(VERIFIER_ADDR, VERIFIER_ABI, provider);
-    const ok = await verifier.isVerified(tokenNorm);
+	const roVerifier = new ethers.Contract(ACTIVE_VERIFIER_ADDR, VERIFIER_ABI, provider);
+    const ok = await roVerifier.isVerified(tokenNorm);
     if (!ok) throw new Error("Verified flag not set (try refreshing).");
 
     showNotification("✅ Verified successfully!");
@@ -849,6 +853,14 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
       wrap.innerHTML = "";
     }
   }
+  
+async function isTokenVerifiedAnywhere(tokenAddr) {
+  for (const addr of LEGACY_VERIFIER_ADDRS) {
+    const v = new ethers.Contract(addr, VERIFIER_ABI, provider);
+    try { if (await v.isVerified(tokenAddr)) return true; } catch {}
+  }
+  return false;
+}
 
 async function fetchToken(addr){
   hide($("error"));
@@ -877,8 +889,7 @@ async function fetchToken(addr){
 
     // ✅ Check verified flag from your Verifier
     try {
-      const verifierRead = new ethers.Contract(VERIFIER_ADDR, VERIFIER_ABI, provider);
-      const v = await verifierRead.isVerified(addrNorm);
+      const v = await isTokenVerifiedAnywhere(addrNorm);
       const badge = $("status-badge");
       if (badge){
         badge.textContent = v ? "Verified" : "Not Verified";

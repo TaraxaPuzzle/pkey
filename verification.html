@@ -874,7 +874,7 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
       const n = (i?.address?.name || "").toLowerCase().replace(/[^a-z0-9.]/g, "");
       return n.includes("fomo") || n.includes("fomo.biz");
     });
-	const geckoLink    = await getGeckoLinkForToken(addrLower);
+	const geckoLink = await getGeckoLinkForToken(addrLower);
     const taraSwapLink = await getTaraswapLinkForToken(addrLower);
     setSourceTags(isFomoBiz, geckoLink, taraSwapLink, addrNorm);
 
@@ -937,7 +937,7 @@ const TARASWAP_ASSETS_URLS = [
   "https://cdn.jsdelivr.net/gh/taraswap/assets@main/assets.json"
 ];
 
-let __taraswapAddrSet; // cached Set<string> of lowercase addresses
+let __taraswapAddrSet; // cached Set<string> (lowercase)
 
 async function loadTaraswapAssets() {
   if (__taraswapAddrSet) return __taraswapAddrSet;
@@ -950,19 +950,25 @@ async function loadTaraswapAssets() {
 
       const addrs = new Set();
 
-      // common token-list format
+      // --- Shape 1: address-keyed object (your example)
+      // { "0xABC...": { name, symbol, ... }, ... }
+      if (j && typeof j === "object" && !Array.isArray(j)) {
+        for (const k of Object.keys(j)) {
+          if (/^0x[0-9a-fA-F]{40}$/.test(k)) addrs.add(k.toLowerCase());
+        }
+      }
+
+      // --- Also support common TokenList shapes (future-proof) ---
       if (Array.isArray(j?.tokens)) {
         for (const t of j.tokens) {
+          const a = t?.address;
           const chainOk =
             String(t?.chainId) === "841" ||
             t?.chainId === 841 ||
             (t?.network && String(t.network).toLowerCase() === "taraxa");
-          const a = t?.address;
           if (chainOk && a && /^0x[0-9a-fA-F]{40}$/.test(a)) addrs.add(a.toLowerCase());
         }
       }
-
-      // other possible shapes
       if (Array.isArray(j?.taraxa)) {
         for (const t of j.taraxa) {
           const a = t?.address || t;
@@ -976,10 +982,8 @@ async function loadTaraswapAssets() {
         }
       }
 
-      if (addrs.size) {
-        __taraswapAddrSet = addrs;
-        return __taraswapAddrSet;
-      }
+      __taraswapAddrSet = addrs;
+      return __taraswapAddrSet;
     } catch {}
   }
 
@@ -987,10 +991,11 @@ async function loadTaraswapAssets() {
   return __taraswapAddrSet;
 }
 
-// Returns TaraSwap link if listed, else null
 async function getTaraswapLinkForToken(addrLower) {
   const set = await loadTaraswapAssets();
-  return set.has(addrLower) ? `https://www.taraswap.info/#/tokens/${addrLower}` : null;
+  return set.has(addrLower)
+    ? `https://www.taraswap.info/#/tokens/${addrLower}`
+    : null;
 }
   
   async function getGeckoLinkForToken(addrLower){

@@ -874,7 +874,8 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
       const n = (i?.address?.name || "").toLowerCase().replace(/[^a-z0-9.]/g, "");
       return n.includes("fomo") || n.includes("fomo.biz");
     });
-    setSourceTag(isFomoBiz, addrNorm);
+	const geckoLink = await getGeckoLinkForToken(addrLower);
+    setSourceTags(isFomoBiz, geckoLink, addrNorm);
 
     // 🔹 Ignore specific holder addresses (lowercased)
     const ignoreHolders = new Set([
@@ -912,7 +913,7 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
 </li>`;
     }).join("");
   } catch (e) {
-    setSourceTag(false);
+    setSourceTags(false, null, addrNorm);
     list.innerHTML = `<li class="text-red-600">Failed to load top holders.</li>`;
   }
 }
@@ -928,24 +929,73 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
     const loader = $('loading');
     if (loader) loader.classList.add('hidden');
   }
+  
+  async function getGeckoLinkForToken(addrLower){
+  try {
+    // include=top_pools lets us grab a canonical pool if GT knows one
+    const res = await fetch(
+      `${GECKO_BASE}/networks/${GECKO_NETWORK}/tokens/${addrLower}?include=top_pools`,
+      { headers: { accept: "application/json" }, cache: "no-store" }
+    );
+    if (!res.ok) return null;
 
-  function setSourceTag(isFomoBiz, addrForLink){
-    const wrap = $("source-tags");
-    if (!wrap) return;
-    if (isFomoBiz){
-      wrap.innerHTML = `
-        <a href="https://fomo.biz/app/token/${addrForLink}" target="_blank" rel="noopener noreferrer" class="source-pill">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.6 9.1l5.8-.8L12 3z" stroke="currentColor" stroke-width="1.3" />
-          </svg>
-          fomo.biz
-        </a>`;
-      wrap.classList.remove("hidden");
-    } else {
-      wrap.classList.add("hidden");
-      wrap.innerHTML = "";
+    const j = await res.json();
+    if (!j?.data?.id) return null; // token unknown to GT
+
+    // Try to extract a pool address from included data
+    let poolAddr = null;
+    const included = Array.isArray(j?.included) ? j.included : [];
+    const poolItem = included.find((x) => x?.type === "pool");
+    if (poolItem?.id) {
+      // GT pool IDs look like "pool_taraxa_0x35b29982d582b8e6727453aeb06557ea08205da9"
+      const parts = poolItem.id.split("_");
+      poolAddr = parts[parts.length - 1]; // last bit is the 0x… address
     }
+
+    if (poolAddr) {
+      return `https://www.geckoterminal.com/${GECKO_NETWORK}/pools/${poolAddr}`;
+    }
+    // Fallback: token page is fine if no top pool found
+    return `https://www.geckoterminal.com/${GECKO_NETWORK}/tokens/${addrLower}`;
+  } catch {
+    return null;
   }
+}
+
+function setSourceTags(isFomoBiz, geckoLink, addrForLink){
+  const wrap = document.getElementById("source-tags");
+  if (!wrap) return;
+
+  const pills = [];
+
+  if (isFomoBiz){
+    pills.push(`
+      <a href="https://fomo.biz/app/token/${addrForLink}" target="_blank" rel="noopener noreferrer" class="source-pill">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.6 9.1l5.8-.8L12 3z" stroke="currentColor" stroke-width="1.3" />
+        </svg>
+        fomo.biz
+      </a>`);
+  }
+
+  if (geckoLink){
+    pills.push(`
+      <a href="${geckoLink}" target="_blank" rel="noopener noreferrer" class="source-pill">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        GeckoTerminal
+      </a>`);
+  }
+
+  if (pills.length){
+    wrap.innerHTML = pills.join(" ");
+    wrap.classList.remove("hidden");
+  } else {
+    wrap.innerHTML = "";
+    wrap.classList.add("hidden");
+  }
+}
   
 async function isTokenVerifiedAnywhere(tokenAddr) {
   for (const addr of LEGACY_VERIFIER_ADDRS) {

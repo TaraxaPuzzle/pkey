@@ -112,6 +112,7 @@ body.condensed .result-grid > * { min-width: 0; }
       </div>
 
       <div class="flex items-center gap-3">
+	   <button id="feeUsageBtn" class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold hover:bg-slate-50 transition">Fee usage</button>
         <button id="connectBtn" class="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-800 transition">Connect Wallet</button>
         <span id="walletLabel" class="text-xs text-slate-600 hidden"></span>
       </div>
@@ -244,6 +245,54 @@ body.condensed .result-grid > * { min-width: 0; }
     </div>
   </div>
 </div>
+
+<!-- Fee usage modal -->
+<div id="feeUsageModal" class="hidden fixed inset-0 z-[70]" aria-modal="true" role="dialog">
+  <div id="feeOverlay" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+  <div class="relative mx-auto mt-28 w-[92%] max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+    <div class="flex items-start justify-between">
+      <h3 class="text-lg font-semibold text-slate-900">Fee usage</h3>
+      <button id="feeUsageClose"
+              class="ml-3 rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-100"
+              aria-label="Close">
+        ✕
+      </button>
+    </div>
+
+    <p class="mt-2 text-sm text-slate-700">
+      When you verify a token, a one-time fee of
+      <span class="font-semibold"><span id="feeExplainPkey">…</span> PKEY</span>
+      is charged by the verifier
+      <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded"><span id="feeVerifierAddr">…</span></code>.
+      Currently:
+    </p>
+
+    <ul class="mt-3 text-sm text-slate-700 list-disc pl-5">
+      <li><span class="font-semibold">60%</span> is sent to the burn address
+        <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">0x000000000000000000000000000000000000dEaD</code>.
+        <a class="underline tara-link" target="_blank" rel="noopener"
+           href="https://tara.to/address/0x000000000000000000000000000000000000dEaD">View</a>
+      </li>
+      <li><span class="font-semibold">40%</span> goes to the project treasury
+        <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">0x4b9E051e7f79978fF834a37ac6dEFA1fEF674170</code>.
+        <a class="underline tara-link" target="_blank" rel="noopener"
+           href="https://tara.to/address/0x4b9E051e7f79978fF834a37ac6dEFA1fEF674170">View</a>
+      </li>
+    </ul>
+
+    <p class="mt-3 text-xs text-slate-500">
+      Burning reduces PKEY circulating supply. Treasury funds development, experimentation, and operations.
+    </p>
+
+    <div class="mt-5">
+      <button id="feeUsageOk"
+              class="w-full rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white hover:bg-slate-800">
+        Got it
+      </button>
+    </div>
+  </div>
+</div>
+
 	  
     </section>
   </main>
@@ -254,6 +303,51 @@ body.condensed .result-grid > * { min-width: 0; }
       © <span id="year"></span> PKEYverification — Not an audit. Not an endorsement.
     </div>
   </footer>
+  
+  <script>
+// Fee usage modal wiring
+const feeUsageBtn   = document.getElementById('feeUsageBtn');
+const feeUsageModal = document.getElementById('feeUsageModal');
+const feeOverlay    = document.getElementById('feeOverlay');
+const feeUsageClose = document.getElementById('feeUsageClose');
+const feeUsageOk    = document.getElementById('feeUsageOk');
+
+function openFeeModal() {
+  // fill dynamic bits
+  const addrEl = document.getElementById('feeVerifierAddr');
+  if (addrEl) addrEl.textContent = ACTIVE_VERIFIER_ADDR;
+
+  try {
+    const ro = new ethers.Contract(ACTIVE_VERIFIER_ADDR, VERIFIER_ABI, provider);
+    ro.fee().then(f => {
+      const p = Number(ethers.formatUnits(f, PKEY_DECIMALS));
+      const out = isFinite(p) ? formatNum(p, 2) : 'current';
+      const el = document.getElementById('feeExplainPkey');
+      if (el) el.textContent = out;
+    }).catch(() => {
+      const el = document.getElementById('feeExplainPkey');
+      if (el) el.textContent = 'current';
+    });
+  } catch {
+    const el = document.getElementById('feeExplainPkey');
+    if (el) el.textContent = 'current';
+  }
+
+  feeUsageModal.classList.remove('hidden');
+}
+
+function closeFeeModal() {
+  feeUsageModal.classList.add('hidden');
+}
+
+feeUsageBtn?.addEventListener('click', openFeeModal);
+feeUsageClose?.addEventListener('click', closeFeeModal);
+feeUsageOk?.addEventListener('click', closeFeeModal);
+feeOverlay?.addEventListener('click', closeFeeModal);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeFeeModal();
+});
+</script>
   
 <script>
 // ---- Live fee label (PKEY + ≈ USD) ----

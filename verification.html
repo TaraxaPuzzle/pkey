@@ -208,7 +208,14 @@ body.condensed .result-grid > * { min-width: 0; }
            active:scale-[0.99] transition">
     GET VERIFIED
   </button>
-  <span class="mt-2 text-sm font-medium text-slate-600">(1000&nbsp;PKEY)</span>
+  <span id="verifyCostLabel" class="mt-2 text-sm font-medium text-slate-600">(...)</span>
+  <div class="mt-1">
+  <a id="gtSource" href="https://www.geckoterminal.com/taraxa/tokens/0x96B86CCe868FcC6681d8AB2c8E53C93E9750bA3A"
+   target="_blank" rel="noopener"
+   class="source-pill hidden">
+  Price via GeckoTerminal
+</a>
+</div>
 </div>
 
 <div id="verifyModal" class="hidden fixed inset-0 z-[60]">
@@ -247,6 +254,73 @@ body.condensed .result-grid > * { min-width: 0; }
       © <span id="year"></span> PKEYverification — Not an audit. Not an endorsement.
     </div>
   </footer>
+  
+<script>
+// ---- Live fee label (PKEY + ≈ USD) ----
+const GECKO_BASE = "https://api.geckoterminal.com/api/v2";
+const GECKO_NETWORK = "taraxa"; // GeckoTerminal network slug
+const PKEY_DECIMALS = 18;       // adjust if your token uses something else
+
+function formatNum(n, max=4){
+  if (n >= 1000) return n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+  return n.toLocaleString(undefined, { maximumFractionDigits: max });
+}
+
+async function fetchPkeyUsd() {
+  // returns price_usd (Number) or null
+  try {
+    const addr = PKEY_TOKEN_ADDR.toLowerCase();
+    const url = `${GECKO_BASE}/networks/${GECKO_NETWORK}/tokens/${addr}`;
+    const res = await fetch(url, { headers: { accept: "application/json" }, cache: "no-store" });
+    if (!res.ok) throw new Error(`GT ${res.status}`);
+    const j = await res.json();
+    const usd = j?.data?.attributes?.price_usd;
+    return usd ? Number(usd) : null;
+  } catch (e) {
+    console.warn("GeckoTerminal price fetch failed:", e);
+    return null;
+  }
+}
+
+async function updateVerifyCostLabel() {
+  const el = document.getElementById("verifyCostLabel");
+  const gtLink = document.getElementById("gtSource");
+  if (!el) return;
+
+  try {
+    const roVerifier = new ethers.Contract(VERIFIER_ADDR, VERIFIER_ABI, provider);
+    const rawFee = await roVerifier.fee();
+    const pkeyAmount = Number(ethers.formatUnits(rawFee, PKEY_DECIMALS));
+
+    const pkeyUsd = await fetchPkeyUsd();
+    if (pkeyUsd != null) {
+      const usdTotal = pkeyAmount * pkeyUsd;
+      el.textContent = `(${formatNum(pkeyAmount, 2)} PKEY ≈ $${formatNum(usdTotal, 2)})`;
+      if (gtLink) gtLink.classList.remove("hidden");
+    } else {
+      el.textContent = `(${formatNum(pkeyAmount, 2)} PKEY)`;
+      if (gtLink) gtLink.classList.add("hidden");
+    }
+
+    window.__pkey_fee_amount__ = pkeyAmount;
+    window.__pkey_fee_usd__ = pkeyUsd;
+
+  } catch (e) {
+    console.warn("Fee read failed:", e);
+    el.textContent = "(price unavailable)";
+    if (gtLink) gtLink.classList.add("hidden");
+  }
+}
+
+// run once on load
+document.addEventListener("DOMContentLoaded", () => {
+  updateVerifyCostLabel();
+  setInterval(updateVerifyCostLabel, 60_000); // every 60s
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) updateVerifyCostLabel();
+  });
+});
+</script>  
   
 <script>
 window.currentTokenAddress = null;
@@ -563,17 +637,26 @@ async function payVerification(tokenAddr) {
       verifier.fee(),
       pkey.allowance(user, VERIFIER_ADDR),
     ]);
+	
+	const feePkey = Number(ethers.formatUnits(fee, PKEY_DECIMALS));
+    const feeUsd  = (typeof window.__pkey_fee_usd__ === "number" && !isNaN(window.__pkey_fee_usd__)) 
+      ? feePkey * window.__pkey_fee_usd__ 
+      : null;
+
+    const feeText = feeUsd != null
+      ? `${formatNum(feePkey,2)} PKEY (~$${formatNum(feeUsd,2)})`
+      : `${formatNum(feePkey,2)} PKEY`;
 
     // 2) Approve if needed
     if (allowance < fee) {
-      showNotification("Approving 1000 PKEY…");
+      showNotification(`Approving ${feeText}…`);
       const tx1 = await pkey.approve(VERIFIER_ADDR, fee);
       const r1  = await tx1.wait();
       if (r1?.status !== 1) throw new Error("Approve transaction failed.");
     }
 
     // 3) Call verify
-    showNotification("Paying 1000 PKEY…");
+    showNotification(`Paying ${feeText}…`);
     const tx2 = await verifier.verify(tokenNorm);
     const r2  = await tx2.wait();
     if (r2?.status !== 1) throw new Error("Verification transaction failed.");

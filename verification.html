@@ -858,6 +858,12 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
   list.innerHTML = `<li class="text-gray-500">Loading…</li>`;
   card.classList.remove("hidden");
 
+  // Fetch external links in parallel up-front (don’t depend on holders)
+  const linksPromise = Promise.all([
+    getGeckoLinkForToken(addrLower),
+    getTaraswapLinkForToken(addrLower)
+  ]);
+
   try {
     const res = await fetchWithRetry(
       `https://tara.to/api/v2/tokens/${addrLower}/holders?items_count=200`,
@@ -866,26 +872,22 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
       8000
     );
     const data = await res.json();
-
     const items = data.items ?? [];
 
-    // Keep this check as-is (uses full items list)
-    const isFomoBiz = items.some(i => {
-      const n = (i?.address?.name || "").toLowerCase().replace(/[^a-z0-9.]/g, "");
-      return n.includes("fomo") || n.includes("fomo.biz");
-    });
-	const geckoLink = await getGeckoLinkForToken(addrLower);
-    const taraSwapLink = await getTaraswapLinkForToken(addrLower);
+    // FOMO tag (primary via holders label, fallback handled inside detectFomoTag)
+    const isFomoBiz = await detectFomoTag(items, addrNorm);
+
+    // External links (Gecko/TaraSwap)
+    const [geckoLink, taraSwapLink] = await linksPromise;
     setSourceTags(isFomoBiz, geckoLink, taraSwapLink, addrNorm);
 
-    // 🔹 Ignore specific holder addresses (lowercased)
+    // Ignore specific holders
     const ignoreHolders = new Set([
-      "0x000000000000000000000000000000000000dead", // dead wallet
-      "0x0000000000000000000000000000000000000000"  // zero addr (just in case)
-      // add more if needed
+      "0x000000000000000000000000000000000000dead",
+      "0x0000000000000000000000000000000000000000"
     ]);
 
-    // EOAs only, not in ignore list
+    // EOAs only, not ignored
     const eoas = items
       .filter(i => !i?.address?.is_contract)
       .filter(i => !ignoreHolders.has((i?.address?.hash || "").toLowerCase()));
@@ -898,7 +900,7 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
     const top = eoas.slice(0, 10).map((i, idx) => {
       const bal = BigInt(i.value);
       const pct = pctFrom(bal, totalSupplyRaw);
-      return { rank: idx + 1, addr: i.address.hash, bal, pct };
+      return { rank: idx + 1, addr: i.address.hash, pct };
     });
 
     list.innerHTML = top.map(row => {
@@ -913,8 +915,13 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
   <span class="tabular-nums">${row.pct.toFixed(2)}%</span>
 </li>`;
     }).join("");
+
   } catch (e) {
-    setSourceTags(false, null, addrNorm);
+    // Holders failed — still show Gecko/TaraSwap, and try FOMO fallback via page check
+    const [geckoLink, taraSwapLink] = await linksPromise.catch(() => [null, null]);
+    const isFomoBiz = await detectFomoTag([], addrNorm); // triggers fomoPageExists fallback
+    setSourceTags(isFomoBiz, geckoLink, taraSwapLink, addrNorm);
+
     list.innerHTML = `<li class="text-red-600">Failed to load top holders.</li>`;
   }
 }
@@ -930,6 +937,40 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
     const loader = $('loading');
     if (loader) loader.classList.add('hidden');
   }
+  
+  async function fomoPageExists(addrNorm, timeoutMs = 3000) {
+  const url = `https://fomo.biz/app/token/${addrNorm}`;
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    // Must be CORS so we can see final URL; if blocked, we fail closed (false).
+    const res = await fetch(url, { redirect: "follow", cache: "no-store", signal: controller.signal });
+    clearTimeout(t);
+    if (!res.ok) return false;
+
+    // If they bounce to /app, treat as "not found"
+    const finalUrl = res.url || url;
+    const path = new URL(finalUrl).pathname;
+    return !/\/app\/?$/.test(path);
+  } catch {
+    clearTimeout(t);
+    return false; // fail closed on CORS/timeout
+  }
+}
+
+async function detectFomoTag(items, addrNorm) {
+  // Primary: holder label (works for bonded tokens that have named holders)
+  const holderHit = Array.isArray(items) && items.some(i => {
+    const n = (i?.address?.name || "").toLowerCase().replace(/[^a-z0-9.]/g, "");
+    return n.includes("fomo") || n.includes("fomo.biz");
+  });
+  if (holderHit) return true;
+
+  // Fallback: real route check (needs checksum address!)
+  return await fomoPageExists(addrNorm);
+}
+
   
   // --- TaraSwap detection via their assets list ---
 const TARASWAP_ASSETS_URLS = [

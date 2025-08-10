@@ -870,9 +870,12 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
     const items = data.items ?? [];
 
     // Keep this check as-is (uses full items list)
-	const isFomoBiz = await detectFomoTag(items, addrNorm);
-	const geckoLink = await getGeckoLinkForToken(addrLower);
-	const taraSwapLink = geckoLink ? getTaraswapLinkForToken(addrLower) : null;
+    const isFomoBiz = items.some(i => {
+      const n = (i?.address?.name || "").toLowerCase().replace(/[^a-z0-9.]/g, "");
+      return n.includes("fomo") || n.includes("fomo.biz");
+    });
+	const geckoLink    = await getGeckoLinkForToken(addrLower);
+    const taraSwapLink = await getTaraswapLinkForToken(addrLower);
     setSourceTags(isFomoBiz, geckoLink, taraSwapLink, addrNorm);
 
     // 🔹 Ignore specific holder addresses (lowercased)
@@ -911,7 +914,7 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
 </li>`;
     }).join("");
   } catch (e) {
-    setSourceTags(false, null, null, addrNorm);
+    setSourceTags(false, null, addrNorm);
     list.innerHTML = `<li class="text-red-600">Failed to load top holders.</li>`;
   }
 }
@@ -928,30 +931,66 @@ async function fetchTopHolders(addrLower, totalSupplyRaw, addrNorm){
     if (loader) loader.classList.add('hidden');
   }
   
-async function pingUrl(url, timeoutMs = 1200){
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    await fetch(url, { mode: "no-cors", cache: "no-store", signal: controller.signal });
-    return true;
-  } catch {
-    return false;
-  } finally {
-    clearTimeout(t);
+  // --- TaraSwap detection via their assets list ---
+const TARASWAP_ASSETS_URLS = [
+  "https://raw.githubusercontent.com/taraswap/assets/main/assets.json",
+  "https://cdn.jsdelivr.net/gh/taraswap/assets@main/assets.json"
+];
+
+let __taraswapAddrSet; // cached Set<string> of lowercase addresses
+
+async function loadTaraswapAssets() {
+  if (__taraswapAddrSet) return __taraswapAddrSet;
+
+  for (const url of TARASWAP_ASSETS_URLS) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) continue;
+      const j = await res.json();
+
+      const addrs = new Set();
+
+      // common token-list format
+      if (Array.isArray(j?.tokens)) {
+        for (const t of j.tokens) {
+          const chainOk =
+            String(t?.chainId) === "841" ||
+            t?.chainId === 841 ||
+            (t?.network && String(t.network).toLowerCase() === "taraxa");
+          const a = t?.address;
+          if (chainOk && a && /^0x[0-9a-fA-F]{40}$/.test(a)) addrs.add(a.toLowerCase());
+        }
+      }
+
+      // other possible shapes
+      if (Array.isArray(j?.taraxa)) {
+        for (const t of j.taraxa) {
+          const a = t?.address || t;
+          if (a && /^0x[0-9a-fA-F]{40}$/.test(a)) addrs.add(a.toLowerCase());
+        }
+      }
+      if (Array.isArray(j?.networks?.taraxa?.tokens)) {
+        for (const t of j.networks.taraxa.tokens) {
+          const a = t?.address;
+          if (a && /^0x[0-9a-fA-F]{40}$/.test(a)) addrs.add(a.toLowerCase());
+        }
+      }
+
+      if (addrs.size) {
+        __taraswapAddrSet = addrs;
+        return __taraswapAddrSet;
+      }
+    } catch {}
   }
+
+  __taraswapAddrSet = new Set();
+  return __taraswapAddrSet;
 }
 
-async function detectFomoTag(items, addrNorm){
-  // 1) primary: holder label hint
-  const holderHit = items.some(i => {
-    const n = (i?.address?.name || "").toLowerCase().replace(/[^a-z0-9.]/g, "");
-    return n.includes("fomo") || n.includes("fomo.biz");
-  });
-  if (holderHit) return true;
-
-  // 2) fallback: see if the fomo token page resolves at all
-  const fomoUrl = `https://fomo.biz/app/token/${addrNorm}`;
-  return await pingUrl(fomoUrl);
+// Returns TaraSwap link if listed, else null
+async function getTaraswapLinkForToken(addrLower) {
+  const set = await loadTaraswapAssets();
+  return set.has(addrLower) ? `https://www.taraswap.info/#/tokens/${addrLower}` : null;
 }
   
   async function getGeckoLinkForToken(addrLower){
@@ -984,10 +1023,6 @@ async function detectFomoTag(items, addrNorm){
   } catch {
     return null;
   }
-}
-
-function getTaraswapLinkForToken(addrLower){
-  return `https://www.taraswap.info/#/tokens/${addrLower}`;
 }
 
 function setSourceTags(isFomoBiz, geckoLink, taraSwapLink, addrForLink){
